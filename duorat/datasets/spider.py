@@ -21,18 +21,18 @@
 # SOFTWARE.
 
 
-import os
 import dataclasses
 import json
+import os
 from typing import Optional, Tuple, List, Iterable
 
-import attr
 import networkx as nx
 from pydantic.dataclasses import dataclass
 from pydantic.main import BaseConfig
 from torch.utils.data import Dataset
 
 from duorat.utils import registry
+from duorat.utils.db import execute
 from third_party.spider import evaluation
 from third_party.spider.preprocess.schema import get_schemas_from_json, Schema
 from third_party.spider.process_sql import get_sql
@@ -88,7 +88,7 @@ class SpiderItem:
 
 def schema_dict_to_spider_schema(schema_dict):
     tables = tuple(
-        SpiderTable(id=i, name=name.split(), unsplit_name=name, orig_name=orig_name,)
+        SpiderTable(id=i, name=name.split(), unsplit_name=name, orig_name=orig_name, )
         for i, (name, orig_name) in enumerate(
             zip(schema_dict["table_names"], schema_dict["table_names_original"])
         )
@@ -216,25 +216,32 @@ class SpiderDataset(Dataset):
             self.results = []
 
         def add(self, item: SpiderItem, inferred_code: str) -> None:
-            self.results.append(
-                self.evaluator.evaluate_one(
-                    db_name=item.spider_schema.db_id,
-                    gold=item.query,
-                    predicted=inferred_code,
-                )
+            eval_result = self.evaluator.evaluate_one(
+                db_name=item.spider_schema.db_id,
+                gold=item.query,
+                predicted=inferred_code,
             )
+            eval_result["question"] = item.question
+            eval_result["db_name"] = item.spider_schema.db_id
+            eval_result["db_path"] = item.db_path
+            eval_result["execution_result"] = f"{execute(query=eval_result['predicted'], db_path=eval_result['db_path'])}"
+            self.results.append(eval_result)
 
         def evaluate_all(
-            self, idx: int, item: SpiderItem, inferred_codes: Iterable[str]
+                self, idx: int, item: SpiderItem, inferred_codes: Iterable[str]
         ) -> Tuple[int, list]:
-            beams = [
-                self.evaluator.evaluate_one(
+            beams = []
+            for inferred_code in inferred_codes:
+                eval_result = self.evaluator.evaluate_one(
                     db_name=item.spider_schema.db_id,
                     gold=item.query,
                     predicted=inferred_code,
                 )
-                for inferred_code in inferred_codes
-            ]
+                eval_result["question"] = item.question
+                eval_result["db_name"] = item.spider_schema.db_id
+                eval_result["db_path"] = item.db_path
+                eval_result["execution_result"] = f"{execute(query=eval_result['predicted'], db_path=eval_result['db_path'])}"
+                beams.append(eval_result)
             return idx, beams
 
         def finalize(self) -> dict:

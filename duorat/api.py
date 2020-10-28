@@ -3,9 +3,6 @@
 # Copyright (c) 2020 Element AI Inc. All rights reserved.
 import json
 import os
-import sqlite3
-import re
-import subprocess
 from typing import Optional
 
 import _jsonnet
@@ -20,10 +17,11 @@ from duorat.datasets.spider import (
 )
 from duorat.preproc.utils import preprocess_schema_uncached, refine_schema_names
 from duorat.types import RATPreprocItem, SQLSchema, Dict
-from third_party.spider.preprocess.get_tables import dump_db_json_schema
 from duorat.utils import registry
-import duorat.models
+import duorat.models  # *** COMPULSORY: for registering classes. PLEASE DON'T REMOVE THIS.
 from duorat.utils import saver as saver_mod
+from duorat.utils.db import fix_detokenization, convert_csv_to_sqlite, execute
+from third_party.spider.preprocess.get_tables import dump_db_json_schema
 
 
 class ModelLoader:
@@ -69,6 +67,7 @@ class DuoratAPI(object):
 
     def __init__(self, logdir: str, config_path: str):
         self.config = json.loads(_jsonnet.evaluate_file(config_path))
+        self.config['model']['preproc']['save_path'] = os.path.join(logdir, "data")
         self.inferer = ModelLoader(self.config)
         self.preproc = self.inferer.model_preproc
         self.model = self.inferer.load_model(logdir, step=None)
@@ -113,32 +112,6 @@ class DuoratAPI(object):
         }
 
 
-def fix_detokenization(query: str):
-    query = query.replace('" ', '"').replace(' "', '"')
-    query = query.replace("% ", "%").replace(" %", "%")
-    query = re.sub("(\d) . (\d)", "\g<1>.\g<2>", query)
-    return query
-
-
-def add_collate_nocase(query: str):
-    value_regexps = ['"[^"]*"', "'[^']*'"]
-    value_strs = []
-    for regex in value_regexps:
-        value_strs += re.findall(regex, query)
-    for str_ in set(value_strs):
-        query = query.replace(str_, str_ + " COLLATE NOCASE ")
-    return query
-
-
-def convert_csv_to_sqlite(csv_path: str):
-    # TODO: infer types when importing
-    db_path = csv_path + ".sqlite"
-    if os.path.exists(db_path):
-        os.remove(db_path)
-    subprocess.run(["sqlite3", db_path, ".mode csv", f".import {csv_path} Data"])
-    return db_path
-
-
 class DuoratOnDatabase(object):
     """Run DuoRAT model on a given database."""
 
@@ -175,9 +148,4 @@ class DuoratOnDatabase(object):
         return self.duorat.infer_query(question, self.schema, self.preprocessed_schema)
 
     def execute(self, query):
-        conn = sqlite3.connect(self.db_path)
-        # Temporary Hack: makes sure all literals are collated in a case-insensitive way
-        query = add_collate_nocase(query)
-        results = conn.execute(query).fetchall()
-        conn.close()
-        return results
+        return execute(query=query, db_path=self.db_path)

@@ -118,12 +118,14 @@ class Trainer:
             self.model.to(device=device)
 
     def _log_loss(self, last_step, loss):
-        self.logger.log("Step {}: loss={:.4f}".format(last_step, loss))
+        self.logger.log("Step {}: loss={:.8f}".format(last_step, loss))
+        #self.logger.log("Step {}: loss={:.4f}".format(last_step, loss))
 
     def _log_lr(self, last_step, lrs: List[dict]):
         for lr in lrs:
             self.logger.log(
-                "Step {}: lr[{}]={:.4f}".format(last_step, lr["name"], lr["value"])
+                "Step {}: lr[{}]={:.8f}".format(last_step, lr["name"], lr["value"])
+                #"Step {}: lr[{}]={:.4f}".format(last_step, lr["name"], lr["value"])
             )
 
     def _log_stats(self, last_step, eval_section, stats):
@@ -476,6 +478,12 @@ def main(
     parser.add_argument("--logdir", required=True)
     parser.add_argument("--config", required=True)
     parser.add_argument("--config-args")
+    parser.add_argument(
+        "--preprocess-only",
+        default=False,
+        action="store_true",
+        help="If True, do preprocessing only.",
+    )
     args = parser.parse_args(args)
 
     if args.config_args:
@@ -509,10 +517,12 @@ def main(
         preprocessor = Preprocessor(config)
         preprocessor.preprocess(sections, keep_vocab)
 
-
-    # Construct trainer and do training
-    trainer = trainer_class(logger, config)
-    trainer.train(modeldir=args.logdir)
+    if args.preprocess_only:
+        print("Done preprocessing. No further training.")
+    else:
+        # Construct trainer and do training
+        trainer = trainer_class(logger, config)
+        trainer.train(modeldir=args.logdir)
 
 
 if __name__ == "__main__":

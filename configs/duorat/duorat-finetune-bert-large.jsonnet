@@ -54,7 +54,6 @@
             },
         },
         preproc+: {
-            save_path: 'data/duorat-bert-large',
             name: 'BertDuoRAT',
             add_cls_token: true,
             add_sep_token: false,
@@ -76,8 +75,8 @@
     },
     "train": {
         "amp_enabled": true,
-        "batch_size": 9,
-        "n_grad_accumulation_steps": 3,
+        "batch_size": 4,  #9,
+        "n_grad_accumulation_steps": 7,  #3,
         "eval_batch_size": 20,
         "eval_beam_size": 1,
         "eval_decode_max_time_step": 500,

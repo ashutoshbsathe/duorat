@@ -21,27 +21,25 @@
 # SOFTWARE.
 
 import argparse
-import itertools
 import functools
+import itertools
 import json
 import os
 import sys
+import traceback
 from typing import List
 
 import _jsonnet
 import torch
 import tqdm
-import traceback
 
 # noinspection PyUnresolvedReferences
 from duorat import models
-from duorat.asdl.lang.spider.spider_transition_system import SpiderTransitionSystem
-
-from duorat.utils import registry, optimizers
-from duorat.utils import saver as saver_mod
-from duorat.utils import parallelizer
-from duorat.utils.evaluation import find_any_config
 from duorat.api import ModelLoader
+from duorat.asdl.lang.spider.spider_transition_system import SpiderTransitionSystem
+from duorat.utils import parallelizer
+from duorat.utils import registry
+from duorat.utils.evaluation import find_any_config
 
 
 def maybe_slice(iterable, start, end):
@@ -285,7 +283,13 @@ def main(args=None, logdir_suffix: List[str] = None):
         "--from_heuristic",
         default=False,
         action="store_true",
-        help="If True, use heuristic to predict the FROM clause",
+        help="If True, use heuristic to predict the FROM clause.",
+    )
+    parser.add_argument(
+        "--force",
+        default=False,
+        action="store_true",
+        help="If True, force re-inferring even if --output file already exists.",
     )
     args = parser.parse_args()
 
@@ -303,10 +307,16 @@ def main(args=None, logdir_suffix: List[str] = None):
     if "model_name" in config:
         args.logdir = os.path.join(args.logdir, config["model_name"])
 
+    # to ensure that the save_path to be consistent with what has been saved during preprocessing step.
+    preproc_data_path = os.path.join(args.logdir, "data")
+    config['model']['preproc']['save_path'] = preproc_data_path
+
     output_path = args.output.replace("__LOGDIR__", args.logdir)
     if os.path.exists(output_path):
         print("Output file {} already exists".format(output_path))
-        sys.exit(1)
+        if not args.force:
+            sys.exit(1)
+        print("Forcing re-inferring...")
 
     inferer = Inferer(config, from_heuristic=args.from_heuristic)
     model = inferer.load_model(args.logdir, args.step)

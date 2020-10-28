@@ -35,8 +35,10 @@ def main(args=None, logdir_suffix: List[str] = None):
         else:
             output_path = args.output_eval
         with open(output_path, "w") as f:
-            json.dump(metrics, f)
+            # json.dump(metrics, f)
+            json.dump(metrics, f, indent=4, sort_keys=True)
         print("Wrote eval results to {}".format(output_path))
+        print(f"Exact_match accuracy: {metrics['total_scores']['all']['exact']}")
     else:
         print(metrics)
 

@@ -48,7 +48,6 @@
             "rat_relu_dropout": 0.1
         },
         preproc+: {
-            save_path: 'data/duorat-bert-base',
             name: 'BertDuoRAT',
             pretrained_model_name_or_path: 'bert-base-uncased',
             add_cls_token: true,
@@ -65,8 +64,8 @@
     },
     "train": {
         "amp_enabled": true,
-        "batch_size": 17,
-        "n_grad_accumulation_steps": 7,
+        "batch_size": 8,  #17,
+        "n_grad_accumulation_steps": 14,  #7,
         "eval_batch_size": 20,
         "eval_beam_size": 1,
         "eval_decode_max_time_step": 500,
