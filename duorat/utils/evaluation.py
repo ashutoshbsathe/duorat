@@ -28,6 +28,8 @@ from typing import List
 
 import _jsonnet
 
+import tqdm
+
 from duorat import datasets
 from duorat.utils import registry
 
@@ -82,7 +84,8 @@ def load_from_lines(inferred_lines):
 
 def evaluate_default(data, inferred_lines):
     metrics = data.Metrics(data)
-    for inferred_code, infer_results in inferred_lines:
+    for inferred_code, infer_results in enumerate(tqdm.tqdm(inferred_lines)):
+    # for inferred_code, infer_results in inferred_lines:
         if "index" in infer_results:
             metrics.add(data[infer_results["index"]], inferred_code)
         else:
@@ -96,7 +99,8 @@ def evaluate_default(data, inferred_lines):
 def evaluate_all_beams(data, inferred_lines):
     metrics = data.Metrics(data)
     results = []
-    for _, infer_results in inferred_lines:
+    for _, infer_results in enumerate(tqdm.tqdm(inferred_lines)):
+    # for _, infer_results in inferred_lines:
         for_beam = metrics.evaluate_all(
             infer_results["index"],
             data[infer_results["index"]],

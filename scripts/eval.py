@@ -20,6 +20,7 @@ def main(args=None, logdir_suffix: List[str] = None):
     if logdir_suffix:
         args.logdir = os.path.join(args.logdir, *logdir_suffix)
 
+    print("Evaluating...")
     real_logdir, metrics = evaluation.compute_metrics(
         args.config,
         args.config_args,
@@ -28,6 +29,7 @@ def main(args=None, logdir_suffix: List[str] = None):
         args.logdir,
         evaluate_beams_individually=args.evaluate_beams_individually,
     )
+    print("Done!")
 
     if args.output_eval:
         if real_logdir:
