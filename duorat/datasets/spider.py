@@ -229,7 +229,8 @@ class SpiderDataset(Dataset):
                     eval_result["execution_result"] = f"{execute(query=eval_result['predicted'], db_path=eval_result['db_path'])}"
                 self.results.append(eval_result)
             except Exception as e:
-                print(f"Error when evaluating {item.query} (db_id: {item.spider_schema.db_id}). Error message: {str(e)}.")
+                print(f"Error when evaluating SQL query: \"{item.query}\" (db_id: {item.spider_schema.db_id}). "
+                      f"Error message: {str(e)}.")
 
         def evaluate_all(
                 self, idx: int, item: SpiderItem, inferred_codes: Iterable[str], do_execute: bool = False
