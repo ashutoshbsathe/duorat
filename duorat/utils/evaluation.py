@@ -41,6 +41,7 @@ def compute_metrics(
     inferred_lines: List,
     logdir=None,
     evaluate_beams_individually=False,
+    do_execute=False
 ):
     if config_args:
         config = json.loads(
@@ -65,9 +66,9 @@ def compute_metrics(
             )
 
         if evaluate_beams_individually:
-            return logdir, evaluate_all_beams(data, inferred_lines)
+            return logdir, evaluate_all_beams(data, inferred_lines, do_execute)
         else:
-            return logdir, evaluate_default(data, inferred_lines)
+            return logdir, evaluate_default(data, inferred_lines, do_execute)
     else:
         raise NotImplementedError
 
@@ -82,21 +83,21 @@ def load_from_lines(inferred_lines):
         yield inferred_code, infer_results
 
 
-def evaluate_default(data, inferred_lines):
+def evaluate_default(data, inferred_lines, do_execute=False):
     metrics = data.Metrics(data)
     for inferred_code, infer_results in tqdm.tqdm(inferred_lines):
     # for inferred_code, infer_results in inferred_lines:
         if "index" in infer_results:
-            metrics.add(data[infer_results["index"]], inferred_code)
+            metrics.add(item=data[infer_results["index"]],
+                        inferred_code=inferred_code,
+                        do_execute=do_execute)
         else:
-            metrics.add(
-                None, inferred_code, obsolete_gold_code=infer_results["gold_code"]
-            )
+            raise ValueError("'index' is missing in inferred results.")
 
     return metrics.finalize()
 
 
-def evaluate_all_beams(data, inferred_lines):
+def evaluate_all_beams(data, inferred_lines, do_execute=False):
     metrics = data.Metrics(data)
     results = []
     for _, infer_results in tqdm.tqdm(inferred_lines):
@@ -105,6 +106,7 @@ def evaluate_all_beams(data, inferred_lines):
             infer_results["index"],
             data[infer_results["index"]],
             [beam["inferred_code"] for beam in infer_results.get("beams", ())],
+            do_execute=do_execute
         )
         results.append(for_beam)
     return results

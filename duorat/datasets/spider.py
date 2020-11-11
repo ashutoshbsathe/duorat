@@ -215,7 +215,7 @@ class SpiderDataset(Dataset):
             )
             self.results = []
 
-        def add(self, item: SpiderItem, inferred_code: str) -> None:
+        def add(self, item: SpiderItem, inferred_code: str, do_execute: bool = False) -> None:
             eval_result = self.evaluator.evaluate_one(
                 db_name=item.spider_schema.db_id,
                 gold=item.query,
@@ -224,11 +224,12 @@ class SpiderDataset(Dataset):
             eval_result["question"] = item.question
             eval_result["db_name"] = item.spider_schema.db_id
             eval_result["db_path"] = item.db_path
-            eval_result["execution_result"] = f"{execute(query=eval_result['predicted'], db_path=eval_result['db_path'])}"
+            if do_execute:
+                eval_result["execution_result"] = f"{execute(query=eval_result['predicted'], db_path=eval_result['db_path'])}"
             self.results.append(eval_result)
 
         def evaluate_all(
-                self, idx: int, item: SpiderItem, inferred_codes: Iterable[str]
+                self, idx: int, item: SpiderItem, inferred_codes: Iterable[str], do_execute: bool = False
         ) -> Tuple[int, list]:
             beams = []
             for inferred_code in inferred_codes:
@@ -240,7 +241,8 @@ class SpiderDataset(Dataset):
                 eval_result["question"] = item.question
                 eval_result["db_name"] = item.spider_schema.db_id
                 eval_result["db_path"] = item.db_path
-                eval_result["execution_result"] = f"{execute(query=eval_result['predicted'], db_path=eval_result['db_path'])}"
+                if do_execute:
+                  eval_result["execution_result"] = f"{execute(query=eval_result['predicted'], db_path=eval_result['db_path'])}"
                 beams.append(eval_result)
             return idx, beams
 

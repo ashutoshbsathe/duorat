@@ -15,6 +15,12 @@ def main(args=None, logdir_suffix: List[str] = None):
     parser.add_argument("--output-eval")
     parser.add_argument("--logdir")
     parser.add_argument("--evaluate-beams-individually", action="store_true")
+    parser.add_argument(
+        "--do-execute",
+        default=False,
+        action="store_true",
+        help="If True, do database execution based on predicted SQL query.",
+    )
     args, _ = parser.parse_known_args(args)
 
     if logdir_suffix:
@@ -28,6 +34,7 @@ def main(args=None, logdir_suffix: List[str] = None):
         list(evaluation.load_from_lines(open(args.inferred))),
         args.logdir,
         evaluate_beams_individually=args.evaluate_beams_individually,
+        do_execute=args.do_execute
     )
     print("Done!")
 

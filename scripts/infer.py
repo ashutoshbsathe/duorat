@@ -278,9 +278,9 @@ def main(args=None, logdir_suffix: List[str] = None):
     parser.add_argument("--res2", default="outputs/glove-sup-att-1h-1/outputs.json")
     parser.add_argument("--res3", default="outputs/glove-sup-att-1h-2/outputs.json")
     parser.add_argument("--nproc", type=int, default=1)
-    parser.add_argument("--decode_max_time_step", type=int, default=500)
+    parser.add_argument("--decode-max-time-step", type=int, default=500)
     parser.add_argument(
-        "--from_heuristic",
+        "--from-heuristic",
         default=False,
         action="store_true",
         help="If True, use heuristic to predict the FROM clause.",
