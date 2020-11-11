@@ -25,6 +25,7 @@ import dataclasses
 import json
 import os
 from typing import Optional, Tuple, List, Iterable
+import traceback
 
 import networkx as nx
 from pydantic.dataclasses import dataclass
@@ -229,8 +230,8 @@ class SpiderDataset(Dataset):
                     eval_result["execution_result"] = f"{execute(query=eval_result['predicted'], db_path=eval_result['db_path'])}"
                 self.results.append(eval_result)
             except Exception as e:
-                print(f"Error when evaluating SQL query: \"{item.query}\" (db_id: {item.spider_schema.db_id}). "
-                      f"Error message: {str(e)}.")
+                print(f"Error when evaluating SQL query: \"{item.query}\" (db_id: {item.spider_schema.db_id}).")
+                traceback.print_tb(e.__traceback__)
 
         def evaluate_all(
                 self, idx: int, item: SpiderItem, inferred_codes: Iterable[str], do_execute: bool = False
