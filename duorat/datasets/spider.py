@@ -216,17 +216,20 @@ class SpiderDataset(Dataset):
             self.results = []
 
         def add(self, item: SpiderItem, inferred_code: str, do_execute: bool = False) -> None:
-            eval_result = self.evaluator.evaluate_one(
-                db_name=item.spider_schema.db_id,
-                gold=item.query,
-                predicted=inferred_code,
-            )
-            eval_result["question"] = item.question
-            eval_result["db_name"] = item.spider_schema.db_id
-            eval_result["db_path"] = item.db_path
-            if do_execute:
-                eval_result["execution_result"] = f"{execute(query=eval_result['predicted'], db_path=eval_result['db_path'])}"
-            self.results.append(eval_result)
+            try:
+                eval_result = self.evaluator.evaluate_one(
+                    db_name=item.spider_schema.db_id,
+                    gold=item.query,
+                    predicted=inferred_code,
+                )
+                eval_result["question"] = item.question
+                eval_result["db_name"] = item.spider_schema.db_id
+                eval_result["db_path"] = item.db_path
+                if do_execute:
+                    eval_result["execution_result"] = f"{execute(query=eval_result['predicted'], db_path=eval_result['db_path'])}"
+                self.results.append(eval_result)
+            except Exception as e:
+                print(f"Error when evaluating {item.query} (db_id: {item.spider_schema.db_id}). Error message: {str(e)}.")
 
         def evaluate_all(
                 self, idx: int, item: SpiderItem, inferred_codes: Iterable[str], do_execute: bool = False
