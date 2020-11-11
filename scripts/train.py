@@ -484,6 +484,13 @@ def main(
         action="store_true",
         help="If True, do preprocessing only.",
     )
+    parser.add_argument(
+        "--deterministic",
+        default=False,
+        action="store_true",
+        help="If True, force deterministic training.",
+    )
+    parser.add_argument("--seed", type=int, default=0, help="If 0, use default random seeds.")
     args = parser.parse_args(args)
 
     if args.config_args:
@@ -520,6 +527,13 @@ def main(
     if args.preprocess_only:
         print("Done preprocessing. No further training.")
     else:
+        if args.seed != 0:
+            from duorat.utils.determinism import set_random_seed
+            set_random_seed(seed=args.seed)
+        if args.deterministic:
+            from duorat.utils.determinism import set_torch_determinism
+            set_torch_determinism()
+
         # Construct trainer and do training
         trainer = trainer_class(logger, config)
         trainer.train(modeldir=args.logdir)
