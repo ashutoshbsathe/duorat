@@ -23,7 +23,7 @@ if __name__ == "__main__":
     sqlite_file = sys.argv[1]
     output_file = sys.argv[2]
 
-    assert sqlite_file.endswith('.sqlite')
+    assert sqlite_file.endswith('.sqlite') or sqlite_file.endswith('.db')
     db_id = os.path.basename(sqlite_file)[:-7]
     schema = dump_db_json_schema(sqlite_file, db_id)
     schema = refine_schema_names(schema)

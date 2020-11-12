@@ -11,9 +11,10 @@ cd data || exit
 #esac
 #rm -rf /tmp/cookies.txt
 
-python3 ../scripts/download_spider.py
+# Spider dataset
+python3 ../scripts/download_data_from_gdrive_link.py 1_AckYkinAnhqmRQtGsQgUKAnTHxxX5J0 ./spider.zip
 
-unzip spider.zip
+unzip ./spider.zip
 cp -r spider/database database
 cd ..
 python3 scripts/split_spider_by_db.py
