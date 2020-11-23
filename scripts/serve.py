@@ -56,7 +56,7 @@ def ask_any_question(question: str,
 
 
 @app.get("/text2sql/infer_new")
-async def create_file(
+async def text2sql_infer_new(
     db_file: UploadFile = File(...), text_question: str = Form(...)
 ):
     print(f'Attempting for a request with text="{text_question}" and db_file={db_file.filename}')
