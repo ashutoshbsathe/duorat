@@ -55,7 +55,7 @@ def ask_any_question(question: str,
                                      )
 
 
-@app.get("/text2sql/infer_new")
+@app.post("/text2sql/infer_new")
 async def text2sql_infer_new(
     db_file: UploadFile = File(...), text_question: str = Form(...)
 ):
@@ -76,7 +76,7 @@ async def text2sql_infer_new(
     return jsonable_encoder(results)
 
 
-@app.get('/text2sql/infer', response_class=JSONResponse)
+@app.post('/text2sql/infer', response_class=JSONResponse)
 async def text2sql_infer(request: Text2SQLInferenceRequest):
     print(f'Attempting for a request: {request}')
 
