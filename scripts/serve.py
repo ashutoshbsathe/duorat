@@ -100,7 +100,7 @@ if __name__ == '__main__':
     parser.add_argument("--logdir", required=True)
     parser.add_argument("--config",
                         help="The configuration file. By default, an arbitrary configuration from the logdir is loaded")
-    parser.add_argument("--db_path",
+    parser.add_argument("--db-path",
                         help="The database path. By default, ./data/database", default=DB_PATH)
 
     args, _ = parser.parse_known_args()
