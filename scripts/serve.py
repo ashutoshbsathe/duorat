@@ -15,8 +15,6 @@ from duorat.utils.evaluation import find_any_config
 
 app = FastAPI()
 origins = [
-    "http://localhost.tiangolo.com",
-    "https://localhost.tiangolo.com",
     "http://localhost",
     "http://localhost:8000",
 ]
