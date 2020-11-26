@@ -85,7 +85,7 @@ def dump_db_json_schema(db_file: str, db_id: str) -> Dict:
         if len(pk_entries):
             table_info["constraints"].append(pk_entries)
         if len(fk_entries):
-            table_info["constraints"].append(fk_entries)
+            table_info["constraints"].extend(fk_entries)
 
         cur = conn.execute("SELECT * FROM '{}'".format(table_name))
         for i, row in enumerate(cur.fetchall()):
