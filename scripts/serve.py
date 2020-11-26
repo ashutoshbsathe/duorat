@@ -175,7 +175,7 @@ async def query_db(request: Text2SQLQueryDBRequest):
     if request.query_type == '[ALL_DB]':
         db_names = [
             df for df in listdir(path=DB_PATH) \
-            if exists(join(DB_PATH, df, df + ".sqlite") and '_test' not in df and 'user_db' not in df)
+            if exists(join(DB_PATH, df, df + ".sqlite")) and "user_db" not in df and "_test" not in df
         ]
 
         return Text2SQLQueryDBResponse(db_id='[ALL_DB]', db_json_content=json.dumps(db_names, indent=4))
