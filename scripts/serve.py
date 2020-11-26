@@ -172,7 +172,6 @@ def ask_any_question(question: str,
 async def query_db(request: Text2SQLQueryDBRequest):
     print(f'Attempting for a request: {request}')
 
-    results = None
     if request.query_type == '[ALL_DB]':
         db_names = [
             df for df in listdir(path=DB_PATH) \
@@ -199,7 +198,7 @@ async def query_db(request: Text2SQLQueryDBRequest):
                                                                                                        db_id=new_db_id),
                                                                                    indent=4))
 
-    return jsonable_encoder(results)
+    return jsonable_encoder(Text2SQLQueryDBResponse(db_id='', db_json_content=''))
 
 
 @app.post("/text2sql/infer_new")
