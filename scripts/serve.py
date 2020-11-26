@@ -9,9 +9,98 @@ from fastapi.responses import JSONResponse
 from fastapi import File, Form, UploadFile
 import shutil
 from datetime import datetime
+import sqlite3
+from typing import Dict
+from os import listdir
+from os.path import join, exists
+import json
 
 from duorat.api import DuoratAPI, DuoratOnDatabase
 from duorat.utils.evaluation import find_any_config
+
+
+# --------------------------------
+
+def dump_db_json_schema(db_file: str, db_id: str) -> Dict:
+    """read table, column info, keys, content and dump all to a JSON file"""
+
+    conn = sqlite3.connect(db_file)
+    conn.execute("pragma foreign_keys=ON")
+    cursor = conn.execute("SELECT name FROM sqlite_master WHERE type='table';")
+
+    data = {
+        "type": "database",
+        "name": db_id,
+        "objects": [],
+        # ----
+    }
+
+    for i, item in enumerate(cursor.fetchall()):
+        table_name = item[0]
+        # print(table_name)
+
+        table_info = {
+            "type": "table",
+            "name": table_name,
+            "columns": [],
+            "constraints": [],
+            "rows": []
+        }
+
+        fks = conn.execute(
+            "PRAGMA foreign_key_list('{}') ".format(table_name)
+        ).fetchall()
+        # print(fks)
+
+        fk_holder = []
+        fk_holder.extend([[(table_name, fk[3]), (fk[2], fk[4])] for fk in fks])
+        # print(fk_holder)
+        fk_entries = []
+        for fk in fk_holder:
+            fk_entry = {
+                "type": "FOREIGN KEY",
+                "definition": f"FOREIGN KEY (`{fk[0][1]}`) REFERENCES `{fk[1][0]}`(`{fk[1][1]}`)"
+            }
+            fk_entries.append(fk_entry)
+
+        pk_holder = []
+        cur = conn.execute("PRAGMA table_info('{}') ".format(table_name))
+        for j, col in enumerate(cur.fetchall()):
+            # print(j)
+            # print(col)
+            if col[5] != 0:  # primary key
+                pk_holder.append(col)
+
+            col_entry = {
+                "name": col[1],
+                "type": col[2]
+            }
+            table_info["columns"].append(col_entry)
+
+        pk_str = ','.join([f"\\\"{pk[1]}\\\"" for pk in pk_holder])
+        pk_entries = {
+            "type": "PRIMARY KEY",
+            "definition": f"PRIMARY KEY ({pk_str})"  # \"Cinema_ID\",\"Film_ID\"
+        }
+        if len(pk_entries):
+            table_info["constraints"].append(pk_entries)
+        if len(fk_entries):
+            table_info["constraints"].append(fk_entries)
+
+        cur = conn.execute("SELECT * FROM '{}'".format(table_name))
+        for i, row in enumerate(cur.fetchall()):
+            # print(i)
+            # print(row)
+            table_info["rows"].append(list(row))
+
+        data["objects"].append(table_info)
+
+    # print(data)
+
+    return data
+
+
+# --------------------------------
 
 app = FastAPI()
 origins = [
@@ -42,6 +131,17 @@ class Text2SQLInferenceResponse(pydantic.BaseModel):
     execution_result: str
 
 
+class Text2SQLQueryDBRequest(pydantic.BaseModel):
+    query_type: str
+    db_id: str
+    db_raw_content: str
+
+
+class Text2SQLQueryDBResponse(pydantic.BaseModel):
+    db_id: str
+    db_json_content: str
+
+
 def show_schema(duorat_on_db: DuoratOnDatabase):
     for table in duorat_on_db.schema.tables:
         print("Table", f"{table.name} ({table.orig_name})")
@@ -66,6 +166,40 @@ def ask_any_question(question: str,
                                      score=model_results["score"],
                                      execution_result="[UNEXECUTABLE]"
                                      )
+
+
+@app.post('/text2sql/query_db', response_class=JSONResponse)
+async def query_db(request: Text2SQLQueryDBRequest):
+    print(f'Attempting for a request: {request}')
+
+    results = None
+    if request.query_type == '[ALL_DB]':
+        db_names = [
+            df for df in listdir(path=DB_PATH) \
+            if exists(join(DB_PATH, df, df + ".sqlite") and '_test' not in df and 'user_db' not in df)
+        ]
+
+        return Text2SQLQueryDBResponse(db_id='[ALL_DB]', db_json_content=json.dumps(db_names, indent=4))
+    elif request.query_type == '[CUR_DB]':
+        db_file = join(DB_PATH, request.db_id, request.db_id + ".sqlite")
+        if exists(db_file):
+            db_json_content = dump_db_json_schema(db_file=db_file, db_id=request.db_id)
+        else:
+            db_json_content = {}
+
+        return Text2SQLQueryDBResponse(db_id=request.db_id, db_json_content=json.dumps(db_json_content, indent=4))
+    elif request.query_type == '[NEW_DB]':
+        curtime = datetime.now().strftime("%d%m%Y%H%M%S")
+        new_db_id = f"{request.db_id}_{curtime}"
+        user_db_path = f"{DB_PATH_USER}/{new_db_id}.sqlite"
+        with open(user_db_path, "wb") as buffer:
+            buffer.write(request.db_raw_content)
+
+        return Text2SQLQueryDBResponse(db_id=new_db_id, db_json_content=json.dumps(dump_db_json_schema(db_file=user_db_path,
+                                                                                                       db_id=new_db_id),
+                                                                                   indent=4))
+
+    return jsonable_encoder(results)
 
 
 @app.post("/text2sql/infer_new")
