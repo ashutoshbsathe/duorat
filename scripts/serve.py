@@ -77,7 +77,7 @@ def dump_db_json_schema(db_file: str, db_id: str) -> Dict:
             }
             table_info["columns"].append(col_entry)
 
-        pk_str = ','.join([f"\\\"{pk[1]}\\\"" for pk in pk_holder])
+        pk_str = ','.join([f"\"{pk[1]}\"" for pk in pk_holder])
         pk_entries = {
             "type": "PRIMARY KEY",
             "definition": f"PRIMARY KEY ({pk_str})"  # \"Cinema_ID\",\"Film_ID\"
