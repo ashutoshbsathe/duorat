@@ -170,7 +170,7 @@ def ask_any_question(question: str,
 
 @app.post('/text2sql/query_db', response_class=JSONResponse)
 async def query_db(request: Text2SQLQueryDBRequest):
-    print(f'Attempting for a request: {request}')
+    print(f'Attempting for a request: {request.query_type}')
 
     if request.query_type == '[ALL_DB]':
         db_names = [
@@ -178,7 +178,8 @@ async def query_db(request: Text2SQLQueryDBRequest):
             if exists(join(DB_PATH, df, df + ".sqlite")) and "user_db" not in df and "_test" not in df
         ]
 
-        return Text2SQLQueryDBResponse(db_id='[ALL_DB]', db_json_content=json.dumps(db_names, indent=4))
+        return jsonable_encoder(
+            Text2SQLQueryDBResponse(db_id='[ALL_DB]', db_json_content=json.dumps(db_names, indent=4)))
     elif request.query_type == '[CUR_DB]':
         db_file = join(DB_PATH, request.db_id, request.db_id + ".sqlite")
         if exists(db_file):
@@ -186,28 +187,36 @@ async def query_db(request: Text2SQLQueryDBRequest):
         else:
             db_json_content = {}
 
-        return Text2SQLQueryDBResponse(db_id=request.db_id, db_json_content=json.dumps(db_json_content, indent=4))
-    elif request.query_type == '[NEW_DB]':
-        curtime = datetime.now().strftime("%d%m%Y%H%M%S")
-        new_db_id = f"{request.db_id}_{curtime}"
-        user_db_path = f"{DB_PATH_USER}/{new_db_id}.sqlite"
-        with open(user_db_path, "wb") as buffer:
-            buffer.write(request.db_raw_content)
-
-        return Text2SQLQueryDBResponse(db_id=new_db_id, db_json_content=json.dumps(dump_db_json_schema(db_file=user_db_path,
-                                                                                                       db_id=new_db_id),
-                                                                                   indent=4))
+        return jsonable_encoder(
+            Text2SQLQueryDBResponse(db_id=request.db_id, db_json_content=json.dumps(db_json_content, indent=4)))
 
     return jsonable_encoder(Text2SQLQueryDBResponse(db_id='', db_json_content=''))
 
 
-@app.post("/text2sql/infer_new")
+@app.post("/text2sql/query_db_file", response_class=JSONResponse)
+async def query_db_file(
+        db_file: UploadFile = File(...)
+):
+    print(f'Attempting for a request with db_file={db_file.filename}')
+    curtime = datetime.now().strftime("%d%m%Y%H%M%S")
+    new_db_id = f"{db_file.filename.replace('.sqlite', '').replace('.db', '')}_{curtime}"
+    user_db_path = f"{DB_PATH_USER}/{new_db_id}.sqlite"
+    with open(user_db_path, "wb") as buffer:
+        shutil.copyfileobj(db_file.file, buffer)
+
+    return jsonable_encoder(
+        Text2SQLQueryDBResponse(db_id=new_db_id, db_json_content=json.dumps(dump_db_json_schema(db_file=user_db_path,
+                                                                                                db_id=new_db_id),
+                                                                            indent=4)))
+
+
+@app.post("/text2sql/infer_file", response_class=JSONResponse)
 async def text2sql_infer_new(
-    db_file: UploadFile = File(...), text_question: str = Form(...)
+        db_file: UploadFile = File(...), text_question: str = Form(...)
 ):
     print(f'Attempting for a request with text="{text_question}" and db_file={db_file.filename}')
     curtime = datetime.now().strftime("%d%m%Y%H%M%S")
-    db_path = f"{DB_PATH_USER}/{db_file.filename.replace('.sqlite', '')}_{curtime}.sqlite"
+    db_path = f"{DB_PATH_USER}/{db_file.filename.replace('.sqlite', '').replace('.db', '')}_{curtime}.sqlite"
     with open(db_path, "wb") as buffer:
         shutil.copyfileobj(db_file.file, buffer)
 
@@ -255,6 +264,7 @@ if __name__ == '__main__':
     DB_PATH_USER = f"{DB_PATH}/user_db"
     try:
         import os
+
         os.mkdir(DB_PATH_USER)
     except OSError as error:
         print(error)
