@@ -123,6 +123,7 @@ duorat_model = None
 class Text2SQLInferenceRequest(pydantic.BaseModel):
     text_question: str
     db_id: str
+    db_type: str
 
 
 class Text2SQLInferenceResponse(pydantic.BaseModel):
