@@ -235,8 +235,12 @@ async def text2sql_infer_new(
 async def text2sql_infer(request: Text2SQLInferenceRequest):
     print(f'Attempting for a request: {request}')
 
-    db_path = f"{DB_PATH}/{request.db_id}/{request.db_id}.sqlite"
-    schema_path = f"{DB_PATH}/{request.db_id}/tables.json"
+    if request.db_type == 'user':
+        db_path = f"{DB_PATH_USER}/{request.db_id}.sqlite"
+        schema_path = ''
+    elif request.db_type == 'current':
+        db_path = f"{DB_PATH}/{request.db_id}/{request.db_id}.sqlite"
+        schema_path = f"{DB_PATH}/{request.db_id}/tables.json"
 
     duorat_on_db = DuoratOnDatabase(duorat=duorat_model,
                                     db_path=db_path,
