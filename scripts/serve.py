@@ -199,7 +199,7 @@ async def query_db_file(
 ):
     print(f'Attempting for a request with db_file={db_file.filename}')
     curtime = datetime.now().strftime("%d%m%Y%H%M%S")
-    new_db_id = f"{db_file.filename.replace('.sqlite', '').replace('.db', '')}_{curtime}"
+    new_db_id = f"{db_file.filename.replace('.sqlite', '').replace('.db', '')}_userdb_{curtime}"
     user_db_path = f"{DB_PATH_USER}/{new_db_id}.sqlite"
     with open(user_db_path, "wb") as buffer:
         shutil.copyfileobj(db_file.file, buffer)
@@ -235,10 +235,10 @@ async def text2sql_infer_new(
 async def text2sql_infer(request: Text2SQLInferenceRequest):
     print(f'Attempting for a request: {request}')
 
-    if request.db_type == 'user':
+    if request.db_type == 'u_db':
         db_path = f"{DB_PATH_USER}/{request.db_id}.sqlite"
         schema_path = ''
-    elif request.db_type == 'current':
+    elif request.db_type == 'c_db':
         db_path = f"{DB_PATH}/{request.db_id}/{request.db_id}.sqlite"
         schema_path = f"{DB_PATH}/{request.db_id}/tables.json"
 
