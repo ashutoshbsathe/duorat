@@ -156,12 +156,12 @@ def ask_any_question(question: str,
 
     try:
         exe_results = duorat_on_db.execute(model_results['query'])
-        formatted_exe_results = []
-        for res in exe_results:
-            formatted_exe_results.append({"Result": f'{". ".join(list(res))}'})
+        # formatted_exe_results = []
+        # for res in exe_results:
+        #     formatted_exe_results.append({"Result": f'{". ".join(list(res))}'})
         return Text2SQLInferenceResponse(sql_query=model_results["query"],
                                          score=model_results["score"],
-                                         execution_result=f"{formatted_exe_results}"
+                                         execution_result=f"{exe_results}"
                                          )
     except Exception as e:
         print(str(e))
@@ -215,7 +215,7 @@ async def query_db_file(
 
 
 @app.post("/text2sql/infer_file", response_class=JSONResponse)
-async def text2sql_infer_new(
+async def text2sql_infer_file(
         db_file: UploadFile = File(...), text_question: str = Form(...)
 ):
     print(f'Attempting for a request with text="{text_question}" and db_file={db_file.filename}')
