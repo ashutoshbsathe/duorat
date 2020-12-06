@@ -138,7 +138,6 @@ class Text2SQLInferenceResponse(pydantic.BaseModel):
 class Text2SQLQueryDBRequest(pydantic.BaseModel):
     query_type: str
     db_id: str
-    db_raw_content: str
 
 
 class Text2SQLQueryDBResponse(pydantic.BaseModel):
@@ -155,22 +154,25 @@ def show_schema(duorat_on_db: DuoratOnDatabase):
 
 def ask_any_question(question: str,
                      duorat_on_db: DuoratOnDatabase) -> Text2SQLInferenceResponse:
-    model_results = duorat_on_db.infer_query(question)
+    if '@EXECUTE' not in question and '@execute' not in question:
+        model_results = duorat_on_db.infer_query(question)
+        sql = model_results['query']
+        score = str(model_results["score"])
+    else:
+        sql = question
+        score = "n/a"
 
     try:
-        exe_results = duorat_on_db.execute(model_results['query'])
-        # formatted_exe_results = []
-        # for res in exe_results:
-        #     formatted_exe_results.append({"Result": f'{". ".join(list(res))}'})
-        return Text2SQLInferenceResponse(sql_query=model_results["query"],
-                                         score=model_results["score"],
+        exe_results = duorat_on_db.execute(sql)
+        return Text2SQLInferenceResponse(sql_query=sql,
+                                         score=score,
                                          execution_result=f"{exe_results}"
                                          )
     except Exception as e:
         print(str(e))
 
-    return Text2SQLInferenceResponse(sql_query=model_results["query"],
-                                     score=model_results["score"],
+    return Text2SQLInferenceResponse(sql_query=sql,
+                                     score=score,
                                      execution_result="[UNEXECUTABLE]"
                                      )
 
