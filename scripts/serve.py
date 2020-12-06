@@ -14,6 +14,7 @@ from typing import Dict
 from os import listdir
 from os.path import join, exists
 import json
+import re
 
 from duorat.api import DuoratAPI, DuoratOnDatabase
 from duorat.utils.evaluation import find_any_config
@@ -158,8 +159,8 @@ def ask_any_question(question: str,
         model_results = duorat_on_db.infer_query(question)
         sql = model_results['query']
         score = str(model_results["score"])
-    else:
-        sql = question
+    else:  # an implicit db execution query (for debugging only)
+        sql = re.compile(re.escape('@execute'), re.IGNORECASE).sub('', question).strip()
         score = "n/a"
 
     try:
