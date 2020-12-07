@@ -1,3 +1,7 @@
+import os
+from os import listdir
+from os.path import join, exists
+
 import argparse
 
 import pydantic
@@ -11,8 +15,6 @@ import shutil
 from datetime import datetime
 import sqlite3
 from typing import Dict
-from os import listdir
-from os.path import join, exists
 import json
 import re
 
@@ -317,9 +319,7 @@ if __name__ == '__main__':
     DB_PATH = args.db_path
     DB_PATH_USER = f"{DB_PATH}/user_db"
     try:
-        import os
-
-        os.mkdir(DB_PATH_USER)
+        os.makedirs(DB_PATH_USER, exist_ok=True)
     except OSError as error:
         print(error)
 
