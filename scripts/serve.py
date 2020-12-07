@@ -22,7 +22,7 @@ import copy
 from moz_sql_parser import parse
 from moz_sql_parser import format as format_sql
 
-from mosestokenizer import MosesTokenizer
+from nltk.tokenize.treebank import TreebankWordDetokenizer
 
 from duorat.api import DuoratAPI, DuoratOnDatabase
 from duorat.utils.evaluation import find_any_config
@@ -133,7 +133,7 @@ DB_PATH_USER = f"{DB_PATH}/user_db"
 duorat_model = None
 logger = None
 do_sql_post_processing = False
-moses_tokenizer = MosesTokenizer('en')
+detokenizer = TreebankWordDetokenizer()
 
 
 class Text2SQLInferenceRequest(pydantic.BaseModel):
@@ -180,7 +180,7 @@ def postprocess_sql(sql: str) -> str:
         a post-processed sql
     """
     def _detokenize(txt: str) -> str:
-        return moses_tokenizer.detokenize(txt.strip().split(" "))
+        return detokenizer.detokenize(txt.strip().split(" "))
 
     def _remove_duplicates(txt: str) -> str:
         return txt
