@@ -22,6 +22,7 @@ from collections import OrderedDict
 
 from moz_sql_parser import parse
 from moz_sql_parser import format as format_sql
+from moz_sql_parser import ParseException
 
 from nltk.tokenize.treebank import TreebankWordDetokenizer
 
@@ -198,23 +199,31 @@ def postprocess_sql(sql: str) -> str:
 
         return
 
-    parsed_sql_dict = parse(sql)
-    if 'where' in parsed_sql_dict:
-        where_clause = parsed_sql_dict['where']
-        if 'and' in where_clause:
-            and_clause = where_clause['and']
-            for eq in and_clause:
-                if 'eq' in eq:
-                    _replace_eq_by_like(eq=eq)
+    try:
+        parsed_sql_dict = parse(sql)
+        if 'where' in parsed_sql_dict:
+            where_clause = parsed_sql_dict['where']
+            if 'and' in where_clause:
+                and_clause = where_clause['and']
+                for eq in and_clause:
+                    if 'eq' in eq:
+                        _replace_eq_by_like(eq=eq)
+            else:
+                if 'eq' in where_clause:
+                    _replace_eq_by_like(eq=where_clause)
+
+            if 'like' in where_clause:
+                like_clause = where_clause['like']
+                like_clause[1] = _put_like_operator(txt=_remove_duplicates(txt=_detokenize(txt=like_clause[1])))
+
+        return format_sql(parsed_sql_dict).replace(".\"", ".").replace("\" LIKE", " LIKE")  # adhoc fix for silly bug from moz_sql_parser
+    except ParseException as pe:
+        if logger:
+            logger.log(pe.message)
         else:
-            if 'eq' in where_clause:
-                _replace_eq_by_like(eq=where_clause)
-
-        if 'like' in where_clause:
-            like_clause = where_clause['like']
-            like_clause[1] = _put_like_operator(txt=_remove_duplicates(txt=_detokenize(txt=like_clause[1])))
-
-    return format_sql(parsed_sql_dict).replace(".\"", ".").replace("\" LIKE", " LIKE")  # adhoc fix for silly bug from moz_sql_parser
+            print(f"[WARNING] - {pe.message}")
+    finally:
+        return sql
 
 
 def ask_any_question(question: str,
