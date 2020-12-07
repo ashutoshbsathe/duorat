@@ -235,11 +235,12 @@ def ask_any_question(question: str,
         score = "n/a"
 
     if do_sql_post_processing:
+        logger.log(f"SQL: {sql}")
         sql = postprocess_sql(sql=sql)
 
     if logger:
         logger.log(f"Question: {question}")
-        logger.log(f"Generated SQL: {sql}")
+        logger.log(f"Final SQL: {sql}")
 
     try:
         exe_results = duorat_on_db.execute(sql)
