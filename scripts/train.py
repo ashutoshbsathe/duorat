@@ -73,7 +73,7 @@ class Logger:
         formatted = "[{}] {}".format(
             datetime.datetime.now().replace(microsecond=0).isoformat(), msg
         )
-        print(formatted)
+        # print(formatted)
         if self.log_file:
             self.log_file.write(formatted + "\n")
             if self.reopen_to_flush:
