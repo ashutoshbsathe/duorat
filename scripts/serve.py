@@ -221,7 +221,6 @@ def postprocess_sql(sql: str) -> str:
             logger.log(f"[ERROR] - {str(e)}")
         else:
             print(f"[ERROR] - {str(e)}")
-    finally:
         return sql
 
 
