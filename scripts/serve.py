@@ -22,7 +22,6 @@ from collections import OrderedDict
 
 from moz_sql_parser import parse
 from moz_sql_parser import format as format_sql
-from moz_sql_parser import ParseException
 
 from nltk.tokenize.treebank import TreebankWordDetokenizer
 
@@ -217,11 +216,11 @@ def postprocess_sql(sql: str) -> str:
                 like_clause[1] = _put_like_operator(txt=_remove_duplicates(txt=_detokenize(txt=like_clause[1])))
 
         return format_sql(parsed_sql_dict).replace(".\"", ".").replace("\" LIKE", " LIKE")  # adhoc fix for silly bug from moz_sql_parser
-    except ParseException as pe:
+    except Exception as e:
         if logger:
-            logger.log(f"[ERROR] - {pe.message}")
+            logger.log(f"[ERROR] - {str(e)}")
         else:
-            print(f"[ERROR] - {pe.message}")
+            print(f"[ERROR] - {str(e)}")
     finally:
         return sql
 
