@@ -17,6 +17,10 @@ import sqlite3
 from typing import Dict
 import json
 import re
+import copy
+
+from moz_sql_parser import parse
+from moz_sql_parser import format as format_sql
 
 from duorat.api import DuoratAPI, DuoratOnDatabase
 from duorat.utils.evaluation import find_any_config
@@ -126,6 +130,7 @@ DB_PATH = "./data/database"
 DB_PATH_USER = f"{DB_PATH}/user_db"
 duorat_model = None
 logger = None
+do_sql_post_processing = False
 
 
 class Text2SQLInferenceRequest(pydantic.BaseModel):
@@ -163,6 +168,53 @@ def show_schema(duorat_on_db: DuoratOnDatabase):
                 print("    Column", f"{column.name} ({column.orig_name})")
 
 
+def postprocess_sql(sql: str) -> str:
+    """
+    A heuristics-based SQL post-processing function
+    Args:
+        sql: a raw input sql
+    Returns:
+        a post-processed sql
+    """
+    def _detokenize(txt: str) -> str:
+        return txt
+
+    def _remove_duplicates(txt: str) -> str:
+        return txt
+
+    def _put_like_operator(txt: str) -> str:
+        return ' '.join([f"%{word}%" for word in txt.replace('%', '').split(' ')])
+
+    def _replace_eq_by_like(eq: Dict):
+        eq_clause = eq['eq']
+        eq_clause[1] = _put_like_operator(txt=_remove_duplicates(txt=eq_clause[1]))
+        tmp_eq_clause = copy.deepcopy(eq_clause)
+        eq.pop('eq', None)
+        eq['like'] = tmp_eq_clause
+
+        return
+
+    sql = _detokenize(txt=sql)
+
+    parsed_sql_dict = parse(sql)
+    if 'where' in parsed_sql_dict:
+        where_clause = parsed_sql_dict['where']
+        if 'and' in where_clause:
+            and_clause = where_clause['and']
+            for eq in and_clause:
+                if 'eq' in eq:
+                    _replace_eq_by_like(eq=eq)
+        else:
+            if 'eq' in where_clause:
+                _replace_eq_by_like(eq=where_clause)
+
+        if 'like' in where_clause:
+            like_clause = where_clause['like']
+            like_clause[1] = _put_like_operator(txt=_remove_duplicates(txt=like_clause[1]))
+
+    return format_sql(parsed_sql_dict)
+
+
 def ask_any_question(question: str,
                      duorat_on_db: DuoratOnDatabase) -> Text2SQLInferenceResponse:
     if '@EXECUTE' not in question and '@execute' not in question:
@@ -172,6 +224,9 @@ def ask_any_question(question: str,
     else:  # an implicit db execution query (for debugging only)
         sql = re.compile(re.escape('@execute'), re.IGNORECASE).sub('', question).strip()
         score = "n/a"
+
+    if do_sql_post_processing:
+        sql = postprocess_sql(sql=sql)
 
     if logger:
         logger.log(f"Question: {question}")
@@ -300,6 +355,12 @@ if __name__ == '__main__':
     parser.add_argument("--db-path",
                         help="The database path. By default, ./data/database", default=DB_PATH)
     parser.add_argument(
+        "--do-sql-post-processing",
+        default=False,
+        action="store_true",
+        help="If True, do fuzzy string matching mechanism as a post-processing step for generated SQL.",
+    )
+    parser.add_argument(
         "--do-logging",
         default=False,
         action="store_true",
@@ -331,6 +392,9 @@ if __name__ == '__main__':
                 f.close()
         logger = Logger(log_path=log_file, reopen_to_flush=False)
         logger.log("Logging to {}".format(log_file))
+
+    if args.do_sql_post_processing:
+        do_sql_post_processing = True
 
     print('Initializing Text2SQL Inference Service...')
     duorat_model = DuoratAPI(args.logdir, find_any_config(args.logdir) if args.config is None else args.config)
