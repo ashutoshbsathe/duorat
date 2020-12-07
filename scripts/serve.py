@@ -219,9 +219,9 @@ def postprocess_sql(sql: str) -> str:
         return format_sql(parsed_sql_dict).replace(".\"", ".").replace("\" LIKE", " LIKE")  # adhoc fix for silly bug from moz_sql_parser
     except ParseException as pe:
         if logger:
-            logger.log(pe.message)
+            logger.log(f"[ERROR] - {pe.message}")
         else:
-            print(f"[WARNING] - {pe.message}")
+            print(f"[ERROR] - {pe.message}")
     finally:
         return sql
 
