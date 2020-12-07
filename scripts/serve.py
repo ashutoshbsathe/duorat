@@ -18,6 +18,7 @@ from typing import Dict
 import json
 import re
 import copy
+from collections import OrderedDict
 
 from moz_sql_parser import parse
 from moz_sql_parser import format as format_sql
@@ -183,10 +184,10 @@ def postprocess_sql(sql: str) -> str:
         return detokenizer.detokenize(txt.strip().split(" "))
 
     def _remove_duplicates(txt: str) -> str:
-        return txt
+        return ' '.join(list(OrderedDict.fromkeys(txt.replace('%', '').split(' '))))
 
     def _put_like_operator(txt: str) -> str:
-        return ' '.join([f"%{word}%" for word in txt.replace('%', '').split(' ')])
+        return ' '.join([f"%{word}%" for word in txt.split(' ')])
 
     def _replace_eq_by_like(eq: Dict):
         eq_clause = eq['eq']
