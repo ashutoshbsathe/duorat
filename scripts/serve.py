@@ -306,10 +306,10 @@ if __name__ == '__main__':
         help="If True, do logging; otherwise just print",
     )
     parser.add_argument(
-        "--log-reopen-or-flush",
+        "--log-append",
         default=False,
         action="store_true",
-        help="If True, reopen and append the content to the log file",
+        help="If True, append the content to the log file else re-open a new one.",
     )
     parser.add_argument("--log-file-name",
                         help="The logging file path. By default, ", default='serve.log')
@@ -326,7 +326,10 @@ if __name__ == '__main__':
     # Initialize the logger
     if args.do_logging:
         log_file = os.path.join(args.logdir, args.log_file_name)
-        logger = Logger(log_path=log_file, reopen_to_flush=args.log_reopen_or_flush)
+        if not args.log_append:
+            with open(log_file, "w") as f:
+                f.close()
+        logger = Logger(log_path=log_file, reopen_to_flush=False)
         logger.log("Logging to {}".format(log_file))
 
     print('Initializing Text2SQL Inference Service...')

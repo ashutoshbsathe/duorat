@@ -67,10 +67,7 @@ class Logger:
         self.reopen_to_flush = reopen_to_flush
         if log_path is not None:
             os.makedirs(os.path.dirname(log_path), exist_ok=True)
-            if self.reopen_to_flush:
-                self.log_file = open(log_path, "a+")
-            else:
-                self.log_file = open(log_path, "w")
+            self.log_file = open(log_path, "a+")
 
     def log(self, msg):
         formatted = "[{}] {}".format(
