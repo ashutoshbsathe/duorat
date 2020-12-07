@@ -322,7 +322,7 @@ def _process_name(name: str):
 
 def _prompt_table(table_name, prompt_user=False):
     table_name = _process_name(table_name)
-    print(f"Current table name: {table_name}")
+    # print(f"Current table name: {table_name}")
     new_name = (
         input("Type new name (empty to keep previous name): ") if prompt_user else ""
     )
@@ -331,7 +331,7 @@ def _prompt_table(table_name, prompt_user=False):
 
 def _prompt_column(column_name, table_name, prompt_user=False):
     column_name = _process_name(column_name)
-    print(f"Table {table_name}. Current col name: {column_name}")
+    # print(f"Table {table_name}. Current col name: {column_name}")
     new_name = (
         input("Type new name (empty to keep previous name): ") if prompt_user else ""
     )

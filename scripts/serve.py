@@ -151,12 +151,12 @@ class Text2SQLQueryDBResponse(pydantic.BaseModel):
 def show_schema(duorat_on_db: DuoratOnDatabase):
     for table in duorat_on_db.schema.tables:
         if logger:
-            logger.log("Table: %s %s".format(table.name, table.orig_name))
+            logger.log(f"Table: {table.name} {table.orig_name}")
         else:
             print("Table", f"{table.name} ({table.orig_name})")
         for column in table.columns:
             if logger:
-                logger.log("    Column %s %s".format(column.name, column.orig_name))
+                logger.log(f"    Column {column.name} {column.orig_name}")
             else:
                 print("    Column", f"{column.name} ({column.orig_name})")
 
@@ -172,13 +172,13 @@ def ask_any_question(question: str,
         score = "n/a"
 
     if logger:
-        logger.log("Question: %s".format(question))
-        logger.log("Generated SQL: %s".format(sql))
+        logger.log(f"Question: {question}")
+        logger.log(f"Generated SQL: {sql}")
 
     try:
         exe_results = duorat_on_db.execute(sql)
         if logger:
-            logger.log("Execution results: %s".format(exe_results))
+            logger.log(f"Execution results: {exe_results}")
         return Text2SQLInferenceResponse(sql_query=sql,
                                          score=score,
                                          execution_result=f"{exe_results}"
@@ -247,7 +247,7 @@ async def text2sql_infer_file(
         shutil.copyfileobj(db_file.file, buffer)
 
     if logger:
-        logger.log('DB path: %s'.format(db_path))
+        logger.log(f'DB path: {db_path}')
 
     duorat_on_db = DuoratOnDatabase(duorat=duorat_model,
                                     db_path=db_path,
@@ -273,8 +273,8 @@ async def text2sql_infer(request: Text2SQLInferenceRequest):
         schema_path = f"{DB_PATH}/{request.db_id}/tables.json"
 
     if logger:
-        logger.log('DB path: %s'.format(db_path))
-        logger.log('Schema path: %s'.format(schema_path))
+        logger.log(f'DB path: {db_path}')
+        logger.log(f'Schema path: {schema_path}')
 
     duorat_on_db = DuoratOnDatabase(duorat=duorat_model,
                                     db_path=db_path,
