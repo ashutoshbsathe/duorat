@@ -301,13 +301,13 @@ if __name__ == '__main__':
                         help="The database path. By default, ./data/database", default=DB_PATH)
     parser.add_argument(
         "--do-logging",
-        default=True,
+        default=False,
         action="store_true",
         help="If True, do logging; otherwise just print",
     )
     parser.add_argument(
         "--log-reopen-or-flush",
-        default=True,
+        default=False,
         action="store_true",
         help="If True, reopen and append the content to the log file",
     )
@@ -326,7 +326,7 @@ if __name__ == '__main__':
     # Initialize the logger
     if args.do_logging:
         log_file = os.path.join(args.logdir, args.log_file_name)
-        logger = Logger(log_file, args.log_reopen_or_flush)
+        logger = Logger(log_path=log_file, reopen_to_flush=args.log_reopen_or_flush)
         logger.log("Logging to {}".format(log_file))
 
     print('Initializing Text2SQL Inference Service...')
