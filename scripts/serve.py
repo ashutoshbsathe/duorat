@@ -191,7 +191,7 @@ def postprocess_sql(sql: str) -> str:
 
     def _replace_eq_by_like(eq: Dict):
         eq_clause = eq['eq']
-        eq_clause[1] = _put_like_operator(txt=_remove_duplicates(txt=_detokenize(txt=eq_clause[1])))
+        eq_clause[1] = _put_like_operator(txt=_detokenize(txt=_remove_duplicates(txt=eq_clause[1])))
         tmp_eq_clause = copy.deepcopy(eq_clause)
         eq.pop('eq', None)
         eq['like'] = tmp_eq_clause
@@ -213,7 +213,7 @@ def postprocess_sql(sql: str) -> str:
 
             if 'like' in where_clause:
                 like_clause = where_clause['like']
-                like_clause[1] = _put_like_operator(txt=_remove_duplicates(txt=_detokenize(txt=like_clause[1])))
+                like_clause[1] = _put_like_operator(txt=_detokenize(txt=_remove_duplicates(txt=like_clause[1])))
 
         return format_sql(parsed_sql_dict).replace(".\"", ".").replace("\" LIKE", " LIKE")  # adhoc fix for silly bug from moz_sql_parser
     except Exception as e:
