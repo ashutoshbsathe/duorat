@@ -291,6 +291,7 @@ async def text2sql_infer(request: Text2SQLInferenceRequest):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='DuoRAT Text2SQL Inference Server')
+    parser.add_argument("--server-port", required=False, type=int, default=8000)
     parser.add_argument("--logdir", required=True)
     parser.add_argument("--config",
                         help="The configuration file. By default, an arbitrary configuration from the logdir is loaded")
@@ -331,4 +332,4 @@ if __name__ == '__main__':
     print('Initializing Text2SQL Inference Service...')
     duorat_model = DuoratAPI(args.logdir, find_any_config(args.logdir) if args.config is None else args.config)
 
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=args.server_port)
