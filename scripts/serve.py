@@ -18,6 +18,7 @@ import re
 
 from duorat.api import DuoratAPI, DuoratOnDatabase
 from duorat.utils.evaluation import find_any_config
+from scripts.train import Logger
 
 
 # --------------------------------
@@ -122,6 +123,7 @@ app.add_middleware(
 DB_PATH = "./data/database"
 DB_PATH_USER = f"{DB_PATH}/user_db"
 duorat_model = None
+logger = None
 
 
 class Text2SQLInferenceRequest(pydantic.BaseModel):
@@ -148,9 +150,15 @@ class Text2SQLQueryDBResponse(pydantic.BaseModel):
 
 def show_schema(duorat_on_db: DuoratOnDatabase):
     for table in duorat_on_db.schema.tables:
-        print("Table", f"{table.name} ({table.orig_name})")
+        if logger:
+            logger.log("Table: %s %s".format(table.name, table.orig_name))
+        else:
+            print("Table", f"{table.name} ({table.orig_name})")
         for column in table.columns:
-            print("    Column", f"{column.name} ({column.orig_name})")
+            if logger:
+                logger.log("    Column %s %s".format(column.name, column.orig_name))
+            else:
+                print("    Column", f"{column.name} ({column.orig_name})")
 
 
 def ask_any_question(question: str,
@@ -163,8 +171,14 @@ def ask_any_question(question: str,
         sql = re.compile(re.escape('@execute'), re.IGNORECASE).sub('', question).strip()
         score = "n/a"
 
+    if logger:
+        logger.log("Question: %s".format(question))
+        logger.log("Generated SQL: %s".format(sql))
+
     try:
         exe_results = duorat_on_db.execute(sql)
+        if logger:
+            logger.log("Execution results: %s".format(exe_results))
         return Text2SQLInferenceResponse(sql_query=sql,
                                          score=score,
                                          execution_result=f"{exe_results}"
@@ -172,6 +186,8 @@ def ask_any_question(question: str,
     except Exception as e:
         print(str(e))
 
+    if logger:
+        logger.log("Execution results: [UNEXECUTABLE]")
     return Text2SQLInferenceResponse(sql_query=sql,
                                      score=score,
                                      execution_result="[UNEXECUTABLE]"
@@ -230,13 +246,17 @@ async def text2sql_infer_file(
     with open(db_path, "wb") as buffer:
         shutil.copyfileobj(db_file.file, buffer)
 
+    if logger:
+        logger.log('DB path: %s'.format(db_path))
+
     duorat_on_db = DuoratOnDatabase(duorat=duorat_model,
                                     db_path=db_path,
                                     schema_path='')
 
     show_schema(duorat_on_db=duorat_on_db)
     results = ask_any_question(question=text_question, duorat_on_db=duorat_on_db)
-    print(results)
+    if not logger:
+        print(results)
 
     return jsonable_encoder(results)
 
@@ -252,13 +272,18 @@ async def text2sql_infer(request: Text2SQLInferenceRequest):
         db_path = f"{DB_PATH}/{request.db_id}/{request.db_id}.sqlite"
         schema_path = f"{DB_PATH}/{request.db_id}/tables.json"
 
+    if logger:
+        logger.log('DB path: %s'.format(db_path))
+        logger.log('Schema path: %s'.format(schema_path))
+
     duorat_on_db = DuoratOnDatabase(duorat=duorat_model,
                                     db_path=db_path,
                                     schema_path=schema_path)
 
     show_schema(duorat_on_db=duorat_on_db)
     results = ask_any_question(question=request.text_question, duorat_on_db=duorat_on_db)
-    print(results)
+    if not logger:
+        print(results)
 
     return jsonable_encoder(results)
 
@@ -271,6 +296,20 @@ if __name__ == '__main__':
                         help="The configuration file. By default, an arbitrary configuration from the logdir is loaded")
     parser.add_argument("--db-path",
                         help="The database path. By default, ./data/database", default=DB_PATH)
+    parser.add_argument(
+        "--do-logging",
+        default=True,
+        action="store_true",
+        help="If True, do logging; otherwise just print",
+    )
+    parser.add_argument(
+        "--log-reopen-or-flush",
+        default=True,
+        action="store_true",
+        help="If True, reopen and append the content to the log file",
+    )
+    parser.add_argument("--log-file-name",
+                        help="The logging file path. By default, ", default='serve.log')
 
     args, _ = parser.parse_known_args()
 
@@ -282,6 +321,12 @@ if __name__ == '__main__':
         os.mkdir(DB_PATH_USER)
     except OSError as error:
         print(error)
+
+    # Initialize the logger
+    if args.do_logging:
+        log_file = os.path.join(args.logdir, args.log_file_name)
+        logger = Logger(log_file, args.log_reopen_or_flush)
+        logger.log("Logging to {}".format(log_file))
 
     print('Initializing Text2SQL Inference Service...')
     duorat_model = DuoratAPI(args.logdir, find_any_config(args.logdir) if args.config is None else args.config)
