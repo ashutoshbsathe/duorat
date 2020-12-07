@@ -22,6 +22,8 @@ import copy
 from moz_sql_parser import parse
 from moz_sql_parser import format as format_sql
 
+from mosestokenizer import MosesTokenizer
+
 from duorat.api import DuoratAPI, DuoratOnDatabase
 from duorat.utils.evaluation import find_any_config
 from scripts.train import Logger
@@ -131,6 +133,7 @@ DB_PATH_USER = f"{DB_PATH}/user_db"
 duorat_model = None
 logger = None
 do_sql_post_processing = False
+moses_tokenizer = MosesTokenizer('en')
 
 
 class Text2SQLInferenceRequest(pydantic.BaseModel):
@@ -177,7 +180,7 @@ def postprocess_sql(sql: str) -> str:
         a post-processed sql
     """
     def _detokenize(txt: str) -> str:
-        return txt
+        return moses_tokenizer.detokenize(txt.strip().split(" "))
 
     def _remove_duplicates(txt: str) -> str:
         return txt
@@ -187,14 +190,12 @@ def postprocess_sql(sql: str) -> str:
 
     def _replace_eq_by_like(eq: Dict):
         eq_clause = eq['eq']
-        eq_clause[1] = _put_like_operator(txt=_remove_duplicates(txt=eq_clause[1]))
+        eq_clause[1] = _put_like_operator(txt=_remove_duplicates(txt=_detokenize(txt=eq_clause[1])))
         tmp_eq_clause = copy.deepcopy(eq_clause)
         eq.pop('eq', None)
         eq['like'] = tmp_eq_clause
 
         return
-
-    sql = _detokenize(txt=sql)
 
     parsed_sql_dict = parse(sql)
     if 'where' in parsed_sql_dict:
@@ -210,9 +211,9 @@ def postprocess_sql(sql: str) -> str:
 
         if 'like' in where_clause:
             like_clause = where_clause['like']
-            like_clause[1] = _put_like_operator(txt=_remove_duplicates(txt=like_clause[1]))
+            like_clause[1] = _put_like_operator(txt=_remove_duplicates(txt=_detokenize(txt=like_clause[1])))
 
-    return format_sql(parsed_sql_dict)
+    return format_sql(parsed_sql_dict).replace(".\"", ".").replace("\" LIKE", " LIKE")  # adhoc fix for silly bug from moz_sql_parser
 
 
 def ask_any_question(question: str,
