@@ -202,7 +202,7 @@ def postprocess_sql(sql: str) -> str:
         parsed_sql_dict = parse(sql)
         if 'where' in parsed_sql_dict:
             where_clause = parsed_sql_dict['where']
-            if 'and' in where_clause:
+            if 'and' in where_clause or 'or' in where_clause:
                 and_clause = where_clause['and']
                 for eq in and_clause:
                     if 'eq' in eq:
