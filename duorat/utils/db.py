@@ -33,6 +33,7 @@ def convert_csv_to_sqlite(csv_path: str):
 def execute(query: str, db_path: str):
     try:
         conn = sqlite3.connect(db_path)
+        conn.text_factory = lambda b: b.decode(errors='ignore')
         # Temporary Hack: makes sure all literals are collated in a case-insensitive way
         query = add_collate_nocase(query)
         results = conn.execute(query).fetchall()
