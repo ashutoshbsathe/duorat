@@ -36,6 +36,7 @@ def dump_db_json_schema(db_file: str, db_id: str) -> Dict:
     """read table, column info, keys, content and dump all to a JSON file"""
 
     conn = sqlite3.connect(db_file)
+    conn.text_factory = lambda b: b.decode(errors='ignore')
     conn.execute("pragma foreign_keys=ON")
     cursor = conn.execute("SELECT name FROM sqlite_master WHERE type='table';")
 
