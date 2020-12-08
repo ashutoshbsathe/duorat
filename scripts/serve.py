@@ -182,7 +182,7 @@ def postprocess_sql(sql: str) -> str:
         a post-processed sql
     """
     def _detokenize(txt: str) -> str:
-        return detokenizer.detokenize(txt.strip().split(" "))
+        return detokenizer.detokenize(txt.strip().split(" ")).replace(" .", ".")  # This is a temporary fix.
 
     def _remove_duplicates(txt: str) -> str:
         return ' '.join(list(OrderedDict.fromkeys(txt.replace('%', '').split(' '))))
