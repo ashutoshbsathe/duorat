@@ -173,6 +173,10 @@ def show_schema(duorat_on_db: DuoratOnDatabase):
                 print("    Column", f"{column.name} ({column.orig_name})")
 
 
+VALID = re.compile(r"^[a-zA-Z_]\w*$")
+from moz_sql_parser.formatting import is_keyword
+
+
 def postprocess_sql(sql: str) -> str:
     """
     A heuristics-based SQL post-processing function
@@ -181,6 +185,7 @@ def postprocess_sql(sql: str) -> str:
     Returns:
         a post-processed sql
     """
+
     def _detokenize(txt: str) -> str:
         return detokenizer.detokenize(txt.strip().split(" ")).replace(" .", ".")  # This is a temporary fix.
 
@@ -189,6 +194,19 @@ def postprocess_sql(sql: str) -> str:
 
     def _put_like_operator(txt: str) -> str:
         return ' '.join([f"%{word}%" for word in txt.split(' ')])
+
+    def _should_quote(identifier):
+        """
+        Return true if a given identifier should be quoted.
+
+        This is usually true when the identifier:
+
+          - is a reserved word
+          - contain spaces
+          - does not match the regex `[a-zA-Z_]\\w*`
+
+        """
+        return identifier != "*" and (not VALID.match(identifier) or is_keyword(identifier))
 
     def _replace_eq_by_like(eq: Dict):
         eq_clause = eq['eq']
@@ -216,7 +234,8 @@ def postprocess_sql(sql: str) -> str:
                 like_clause = where_clause['like']
                 like_clause[1] = _put_like_operator(txt=_detokenize(txt=_remove_duplicates(txt=like_clause[1])))
 
-        return format_sql(parsed_sql_dict).replace(".\"", ".").replace("\" LIKE", " LIKE")  # adhoc fix for silly bug from moz_sql_parser
+        return format_sql(parsed_sql_dict, should_quote=_should_quote).replace(".\"", ".").replace("\" LIKE",
+                                                                       " LIKE")  # adhoc fix for silly bug from moz_sql_parser
     except Exception as e:
         if logger:
             logger.log(f"[ERROR] - {str(e)}")
