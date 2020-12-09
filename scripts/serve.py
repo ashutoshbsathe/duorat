@@ -173,8 +173,7 @@ def show_schema(duorat_on_db: DuoratOnDatabase):
                 print("    Column", f"{column.name} ({column.orig_name})")
 
 
-VALID = re.compile(r"^[a-zA-Z_]\w*$")
-from moz_sql_parser.formatting import is_keyword
+NEW_VALID = re.compile(r"^[a-zA-Z_%]\w*$")
 
 
 def postprocess_sql(sql: str) -> str:
@@ -195,6 +194,11 @@ def postprocess_sql(sql: str) -> str:
     def _put_like_operator(txt: str) -> str:
         return ' '.join([f"%{word}%" for word in txt.split(' ')])
 
+    def _mask_dot(txt: str, rev: bool = False) -> str:
+        if rev:
+            return txt.replace("[DOT]", ".")
+        return txt.replace(".", "[DOT]")
+
     def _should_quote(identifier):
         """
         Return true if a given identifier should be quoted.
@@ -206,11 +210,12 @@ def postprocess_sql(sql: str) -> str:
           - does not match the regex `[a-zA-Z_]\\w*`
 
         """
-        return identifier != "*" and (not VALID.match(identifier) or is_keyword(identifier))
+        return identifier != "*" and (not NEW_VALID.match(identifier))
 
     def _replace_eq_by_like(eq: Dict):
         eq_clause = eq['eq']
-        eq_clause[1] = _put_like_operator(txt=_detokenize(txt=_remove_duplicates(txt=eq_clause[1])))
+        eq_clause[1] = _put_like_operator(_mask_dot(txt=_detokenize(txt=_remove_duplicates(txt=eq_clause[1])),
+                                                    rev=False))
         tmp_eq_clause = copy.deepcopy(eq_clause)
         eq.pop('eq', None)
         eq['like'] = tmp_eq_clause
@@ -234,8 +239,7 @@ def postprocess_sql(sql: str) -> str:
                 like_clause = where_clause['like']
                 like_clause[1] = _put_like_operator(txt=_detokenize(txt=_remove_duplicates(txt=like_clause[1])))
 
-        return format_sql(parsed_sql_dict, should_quote=_should_quote).replace(".\"", ".").replace("\" LIKE",
-                                                                       " LIKE")  # adhoc fix for silly bug from moz_sql_parser
+        return _mask_dot(txt=format_sql(parsed_sql_dict, should_quote=_should_quote), rev=True)
     except Exception as e:
         if logger:
             logger.log(f"[ERROR] - {str(e)}")
