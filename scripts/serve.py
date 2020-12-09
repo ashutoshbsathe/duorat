@@ -214,7 +214,7 @@ def postprocess_sql(sql: str) -> str:
 
     def _replace_eq_by_like(eq: Dict):
         eq_clause = eq['eq']
-        eq_clause[1] = _put_like_operator(_mask_dot(txt=_detokenize(txt=_remove_duplicates(txt=eq_clause[1])),
+        eq_clause[1] = _put_like_operator(_mask_dot(txt=_detokenize(txt=_remove_duplicates(txt=str(eq_clause[1]))),
                                                     rev=False))
         tmp_eq_clause = copy.deepcopy(eq_clause)
         eq.pop('eq', None)
