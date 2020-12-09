@@ -268,7 +268,8 @@ def ask_any_question(question: str,
 
     try:
         exe_results = duorat_on_db.execute(sql)
-        exe_results = [tuple([str(r) for r in list(res)]) for res in exe_results]
+        if isinstance(exe_results, list):
+            exe_results = [tuple([str(r) for r in list(res) if not isinstance(r, str)]) for res in exe_results]
         if logger:
             logger.log(f"Execution results: {exe_results}")
         return Text2SQLInferenceResponse(sql_query=sql,
