@@ -42,7 +42,7 @@ def main(spider_path, duorat_path, aug_data="", aug_suffix="") -> None:
             grouped_payload[db_id].append(item)
 
         for db_id, payload_group in grouped_payload.items():
-            with open(os.path.join(duorat_path, db_id, example_file_name), "wt") as write_fp:
+            with open(os.path.join(duorat_path, db_id, example_file_name), "wt+") as write_fp:
                 json.dump(payload_group, write_fp, indent=2)
 
 
