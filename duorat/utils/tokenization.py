@@ -4,6 +4,7 @@ from typing import List, Sequence, Tuple
 
 import stanza
 from transformers import BertTokenizerFast
+from transformers import BasicTokenizer
 
 from duorat.utils import registry, corenlp
 
@@ -68,6 +69,7 @@ class BERTTokenizer(AbstractTokenizer):
         self._bert_tokenizer = BertTokenizerFast.from_pretrained(
             pretrained_model_name_or_path=pretrained_model_name_or_path
         )
+        self._basic_tokenizer = BasicTokenizer()
 
     def tokenize(self, s: str) -> List[str]:
         return self._bert_tokenizer.tokenize(s)
@@ -79,7 +81,7 @@ class BERTTokenizer(AbstractTokenizer):
         encoding_result = self._bert_tokenizer(s, return_offsets_mapping=True)
         assert len(encoding_result[0]) == len(tokens) + 2
         raw_token_strings = [
-            s[start:end] for start, end in encoding_result["offset_mapping"][1:-1]
+            self._basic_tokenizer._run_strip_accents(s[start:end]) for start, end in encoding_result["offset_mapping"][1:-1]
         ]
         raw_token_strings_with_sharps = []
         for token, raw_token in zip(tokens, raw_token_strings):
