@@ -8,16 +8,15 @@ with open(input_file) as f:
     data = json.load(f)
 
 
-def ismixed(text: str) -> bool:
-    return not text.isupper() and not text.islower()
-
-
 def postprocess(sql: str) -> str:
     # " AirCon " -> "AirCon"
     sql = sql.replace("\" ", "\"").replace(" \"", "\"")
 
     # 7 . 5 -> 7.5
     sql = sql.replace(" . ", ".")
+
+    # =" -> = "
+    sql = sql.replace("=\"", "= \"")
 
     return sql
 
@@ -31,7 +30,7 @@ for item in data["per_item"]:
     hardness = item["hardness"]
     question = item["question"]
 
-    print(exact)
+    print(bool(exact))
     print(predicted_parse_error)
 
     prev_sql_token = ''
@@ -41,18 +40,21 @@ for item in data["per_item"]:
     for sql_token in predicted_sql_tokens:
         if '.' in sql_token:
             dot_pos = sql_token.find('.')
-            bracket_pos = sql_token.find('(') + 1
-            if bracket_pos == -1:
-                bracket_pos = 0
-            sql_token = sql_token.replace(sql_token[bracket_pos: dot_pos], '@table')
+            open_bracket_pos = sql_token.find('(') + 1
+            if open_bracket_pos == -1:
+                open_bracket_pos = 0
+            sql_token = sql_token.replace(sql_token[open_bracket_pos: dot_pos], '@table')
             dot_pos = sql_token.find('.')
-            if sql_token.find(',') == -1:
-                sql_token = sql_token.replace(sql_token[dot_pos + 1:], '@col')
+            if open_bracket_pos == 0:
+                if sql_token.find(',') == -1:
+                    sql_token = sql_token.replace(sql_token[dot_pos + 1:], '@col')
+                else:
+                    sql_token = sql_token.replace(sql_token[dot_pos + 1: sql_token.find(',')], '@col')
             else:
-                sql_token = sql_token.replace(sql_token[dot_pos + 1: sql_token.find(',')], '@col')
+                sql_token = sql_token.replace(sql_token[dot_pos + 1: sql_token.find(')')], '@col')
         elif prev_sql_token == 'FROM' or prev_sql_token == 'JOIN':
             sql_token = "@table"
-        elif not sql_token.isupper() and not ismixed(sql_token) and sql_token not in sql_comp_list:
+        elif not sql_token.isupper() and sql_token not in sql_comp_list:
             if prev_sql_token in sql_comp_list:
                 sql_token = "@value"
 
