@@ -113,5 +113,5 @@ print(f"There are {len(unique_template_list)} SQL templates.")
 #print(unique_template_list)
 
 with open(output_file, "w") as fout:
-    for template in unique_template_list:
+    for template in unique_template_list.sort(key=len, reverse=False):
         fout.write(f"{template}\n")
