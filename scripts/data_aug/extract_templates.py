@@ -1,6 +1,5 @@
 import sys
 import json
-from nltk.tokenize import TreebankWordTokenizer
 
 input_file = sys.argv[1]
 output_file = sys.argv[2]
@@ -13,9 +12,19 @@ def ismixed(text: str) -> bool:
     return not text.isupper() and not text.islower()
 
 
+def postprocess(sql: str) -> str:
+    # " AirCon " -> "AirCon"
+    sql = sql.replace("\" ", "\"").replace(" \"", "\"")
+
+    # 7 . 5 -> 7.5
+    sql = sql.replace(" . ", ".")
+
+    return sql
+
+
 for item in data["per_item"]:
     gold_sql = item["gold"]
-    predicted_sql = TreebankWordTokenizer().tokenize(item["predicted"])
+    predicted_sql = postprocess(item["predicted"])
     predicted_parse_error = item["predicted_parse_error"]
     exact = item["exact"]
     db_name = item["db_name"]
