@@ -24,6 +24,9 @@ def postprocess(sql: str) -> str:
     # "OR -> " OR
     sql = sql.replace("\"OR", "\" OR")
 
+    # "AND -> " AND
+    sql = sql.replace("\"AND", "\" AND")
+
     return sql
 
 
