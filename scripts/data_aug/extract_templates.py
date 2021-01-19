@@ -25,8 +25,9 @@ def postprocess(sql: str) -> str:
 
 
 def is_sql_keyword(text: str) -> bool:
-    if text[0] == '(':
-        s_text = text[1:]
+    s_text = text
+    if s_text[0] == '(':
+        s_text = s_text[1:]
     if s_text in SQL_KEYWORDS:
         return True
     return False
