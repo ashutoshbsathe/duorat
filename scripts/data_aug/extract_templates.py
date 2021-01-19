@@ -68,7 +68,7 @@ for item in data["per_item"]:
         sql_comp_list = ['<', '<=', '>', '>=', '=', '!=', 'LIKE']
         for sql_token in predicted_sql_tokens:
             if '.' in sql_token:
-                sp = sql_token.split()
+                sp = sql_token.split('.')
                 if sp[0] == sp[1]:  # hacky :(
                     sql_token = "table.col"
 
