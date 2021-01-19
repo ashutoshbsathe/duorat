@@ -18,6 +18,12 @@ def postprocess(sql: str) -> str:
     # =" -> = "
     sql = sql.replace("=\"", "= \"")
 
+    # LIKE" -> LIKE "
+    sql = sql.replace("LIKE\"", "LIKE \"")
+
+    # "OR -> " OR
+    sql = sql.replace("\"OR", "\" OR")
+
     return sql
 
 
@@ -35,7 +41,7 @@ for item in data["per_item"]:
         prev_sql_token = ''
         predicted_sql_tokens = predicted_sql.split()
         template_sql_list = []
-        sql_comp_list = ['<', '<=', '>', '>=', '=', 'LIKE']
+        sql_comp_list = ['<', '<=', '>', '>=', '=', '!=', 'LIKE']
         for sql_token in predicted_sql_tokens:
             if '.' in sql_token:
                 dot_pos = sql_token.find('.')
@@ -58,6 +64,9 @@ for item in data["per_item"]:
                     sql_token = "@table)"
             elif not sql_token.isupper() and sql_token not in sql_comp_list:
                 if prev_sql_token in sql_comp_list:
+                    sql_token = "@value"
+                elif prev_sql_token == '@value':
+                    template_sql_list.pop()
                     sql_token = "@value"
 
             prev_sql_token = sql_token
