@@ -65,7 +65,7 @@ for item in data["per_item"]:
         prev_sql_token = ''
         predicted_sql_tokens = predicted_sql.split()
         template_sql_list = []
-        sql_comp_list = ['<', '<=', '>', '>=', '=', '!=', 'LIKE']
+        sql_comp_list = ['<', '<=', '>', '>=', '=', '!=', 'LIKE', 'BETWEEN', 'AND']
         for sql_token in predicted_sql_tokens:
             if '.' in sql_token:
                 sp = sql_token.split('.')
