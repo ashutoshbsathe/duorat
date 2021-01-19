@@ -7,6 +7,11 @@ output_file = sys.argv[2]
 with open(input_file) as f:
     data = json.load(f)
 
+
+def ismixed(text: str) -> bool:
+    return not text.isupper() and not text.islower()
+
+
 for item in data["per_item"]:
     gold_sql = item["gold"]
     predicted_sql = item["predicted"]
@@ -36,7 +41,7 @@ for item in data["per_item"]:
                 sql_token = sql_token.replace(sql_token[dot_pos + 1: sql_token.find(',')], '@col')
         elif sql_token.islower():
             sql_token = "@table"
-        elif not sql_token.isupper() and not sql_token.ismixed() and sql_token not in sql_comp_list:
+        elif not sql_token.isupper() and not ismixed(sql_token) and sql_token not in sql_comp_list:
             if prev_sql_token in sql_comp_list:
                 sql_token = "@value"
             else:
