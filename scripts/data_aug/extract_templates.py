@@ -29,25 +29,24 @@ for item in data["per_item"]:
     template_sql_list = []
     sql_comp_list = ['<', '<=', '>', '>=', '=', 'LIKE']
     for sql_token in predicted_sql_tokens:
+        prev_sql_token = sql_token
         if '.' in sql_token:
             dot_pos = sql_token.find('.')
             bracket_pos = sql_token.find('(') + 1
             if bracket_pos == -1:
                 bracket_pos = 0
             sql_token = sql_token.replace(sql_token[bracket_pos: dot_pos], '@table')
+            dot_pos = sql_token.find('.')
             if sql_token.find(',') == -1:
                 sql_token = sql_token.replace(sql_token[dot_pos + 1:], '@col')
             else:
                 sql_token = sql_token.replace(sql_token[dot_pos + 1: sql_token.find(',')], '@col')
-        elif sql_token.islower():
+        elif prev_sql_token == 'FROM':
             sql_token = "@table"
         elif not sql_token.isupper() and not ismixed(sql_token) and sql_token not in sql_comp_list:
             if prev_sql_token in sql_comp_list:
                 sql_token = "@value"
-            else:
-                sql_token = "@token"
 
-        prev_sql_token = sql_token
         template_sql_list.append(sql_token)
 
     template_sql = ' '.join(template_sql_list)
