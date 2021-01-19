@@ -68,7 +68,7 @@ for item in data["per_item"]:
                     sql_token = "@table"
                 else:
                     sql_token = "@table)"
-            elif not sql_token.isupper() and sql_token not in sql_comp_list:
+            elif sql_token not in sql_comp_list:
                 if prev_sql_token in sql_comp_list:
                     sql_token = "@value"
                 elif prev_sql_token == '@value':
