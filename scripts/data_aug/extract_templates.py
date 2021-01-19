@@ -92,7 +92,7 @@ for item in data["per_item"]:
                 if sql_token[-1] == ')':
                     value_str = "@value)"
                 if prev_sql_token in sql_comp_list:
-                    sql_token = "@value"
+                    sql_token = value_str
                 elif prev_sql_token == '@value':
                     template_sql_list.pop()
                     sql_token = value_str
