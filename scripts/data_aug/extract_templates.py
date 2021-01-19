@@ -13,7 +13,7 @@ def postprocess(sql: str) -> str:
         if ps != -1:
             pe = sql.find('"', ps + 1)
             if pe != -1:
-                sql = sql.replace(sql[ps + 1: pe], sql[ps + 1: pe].replace(".", "~"))
+                sql = sql.replace(sql[ps + 1: pe], sql[ps + 1: pe].replace(".", "~").replace("NULL", "!!!!").replace("AS", "!!"))
                 ps = pe + 1
             else:
                 break
