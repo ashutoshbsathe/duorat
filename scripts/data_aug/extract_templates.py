@@ -51,10 +51,13 @@ for item in data["per_item"]:
                 sql_token = sql_token.replace(sql_token[open_bracket_pos: dot_pos], '@table')
                 dot_pos = sql_token.find('.')
                 if open_bracket_pos == 0:
-                    if sql_token.find(',') == -1:
-                        sql_token = sql_token.replace(sql_token[dot_pos + 1:], '@col')
+                    if sql_token.find(')') == -1:
+                        if sql_token.find(',') == -1:
+                            sql_token = sql_token.replace(sql_token[dot_pos + 1:], '@col')
+                        else:
+                            sql_token = sql_token.replace(sql_token[dot_pos + 1: sql_token.find(',')], '@col')
                     else:
-                        sql_token = sql_token.replace(sql_token[dot_pos + 1: sql_token.find(',')], '@col')
+                        sql_token = sql_token.replace(sql_token[dot_pos + 1: sql_token.find(')')], '@col')
                 else:
                     sql_token = sql_token.replace(sql_token[dot_pos + 1: sql_token.find(')')], '@col')
             elif prev_sql_token == 'FROM' or prev_sql_token == 'JOIN':
