@@ -1,5 +1,6 @@
 import sys
 import json
+from nltk.tokenize import TreebankWordTokenizer
 
 input_file = sys.argv[1]
 output_file = sys.argv[2]
@@ -14,7 +15,7 @@ def ismixed(text: str) -> bool:
 
 for item in data["per_item"]:
     gold_sql = item["gold"]
-    predicted_sql = item["predicted"]
+    predicted_sql = TreebankWordTokenizer().tokenize(item["predicted"])
     predicted_parse_error = item["predicted_parse_error"]
     exact = item["exact"]
     db_name = item["db_name"]
@@ -40,7 +41,7 @@ for item in data["per_item"]:
                 sql_token = sql_token.replace(sql_token[dot_pos + 1:], '@col')
             else:
                 sql_token = sql_token.replace(sql_token[dot_pos + 1: sql_token.find(',')], '@col')
-        elif prev_sql_token == 'FROM':
+        elif prev_sql_token == 'FROM' or prev_sql_token == 'JOIN':
             sql_token = "@table"
         elif not sql_token.isupper() and not ismixed(sql_token) and sql_token not in sql_comp_list:
             if prev_sql_token in sql_comp_list:
