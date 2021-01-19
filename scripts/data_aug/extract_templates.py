@@ -83,4 +83,4 @@ for item in data["per_item"]:
 
 unique_template_list = list(unique_template_set)
 print(f"There are {len(unique_template_list)} SQL templates.")
-print(unique_template_list)
+#print(unique_template_list)
