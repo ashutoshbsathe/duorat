@@ -7,11 +7,19 @@ def postprocess(sql: str) -> str:
     sql = sql.replace("\"", " \" ")
     sql = sql.replace("  ", " ")
     # sql = sql.replace("\" ", "\"").replace(" \"", "\"")
-    ps = sql.find('"')
-    if ps != -1:
-        pe = sql.find('"', ps + 1)
-        if pe != -1:
-            sql = sql.replace(sql[ps + 1: pe], "DUMMY")
+    ps = 0
+    while True:
+        ps = sql.find('"', ps)
+        if ps != -1:
+            pe = sql.find('"', ps + 1)
+            if pe != -1:
+                # sql = sql.replace(sql[ps + 1: pe], "DUMMY")
+                sql = sql.replace('.', "[DOT]")
+                ps = pe + 1
+            else:
+                break
+        else:
+            break
 
     # 7 . 5 -> 7.5
     sql = sql.replace(" . ", ".")
