@@ -4,22 +4,24 @@ import json
 
 def postprocess(sql: str) -> str:
     # " AirCon " -> "AirCon"
-    sql = sql.replace("\" ", "\"").replace(" \"", "\"")
+    sql = sql.replace("\"", " \" ")
+    sql = sql.replace("  ", " ")
+    # sql = sql.replace("\" ", "\"").replace(" \"", "\"")
 
     # 7 . 5 -> 7.5
     sql = sql.replace(" . ", ".")
 
     # =" -> = "
-    sql = sql.replace("=\"", "= \"")
+    # sql = sql.replace("=\"", "= \"")
 
     # LIKE" -> LIKE "
-    sql = sql.replace("LIKE\"", "LIKE \"")
+    # sql = sql.replace("LIKE\"", "LIKE \"")
 
     # "OR -> " OR
-    sql = sql.replace("\"OR", "\" OR")
+    # sql = sql.replace("\"OR", "\" OR")
 
     # "AND -> " AND
-    sql = sql.replace("\"AND", "\" AND")
+    # sql = sql.replace("\"AND", "\" AND")
 
     return sql
 
