@@ -1,12 +1,6 @@
 import sys
 import json
 
-input_file = sys.argv[1]
-output_file = sys.argv[2]
-
-with open(input_file) as f:
-    data = json.load(f)
-
 
 def postprocess(sql: str) -> str:
     # " AirCon " -> "AirCon"
@@ -29,6 +23,28 @@ def postprocess(sql: str) -> str:
 
     return sql
 
+
+def is_sql_keyword(text: str) -> bool:
+    if text in SQL_KEYWORDS:
+        return True
+    return False
+
+
+sql_kw_file = sys.argv[1]
+input_file = sys.argv[2]
+output_file = sys.argv[3]
+
+# read SQL keywords
+SQL_KEYWORDS = set()
+with open(sql_kw_file) as f:
+    for line in f:
+        line = line.strip()
+        for kw_token in line.split():
+            SQL_KEYWORDS.add(kw_token)
+
+# read data
+with open(input_file) as f:
+    data = json.load(f)
 
 unique_template_set = set()
 for item in data["per_item"]:
@@ -68,7 +84,7 @@ for item in data["per_item"]:
                     sql_token = "@table"
                 else:
                     sql_token = "@table)"
-            elif sql_token not in sql_comp_list:
+            elif not is_sql_keyword(sql_token) and sql_token not in sql_comp_list:
                 if prev_sql_token in sql_comp_list:
                     sql_token = "@value"
                 elif prev_sql_token == '@value':
