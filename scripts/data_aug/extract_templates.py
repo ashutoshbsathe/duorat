@@ -25,7 +25,9 @@ def postprocess(sql: str) -> str:
 
 
 def is_sql_keyword(text: str) -> bool:
-    if text in SQL_KEYWORDS:
+    if text[0] == '(':
+        s_text = text[1:]
+    if s_text in SQL_KEYWORDS:
         return True
     return False
 
@@ -85,11 +87,14 @@ for item in data["per_item"]:
                 else:
                     sql_token = "@table)"
             elif not is_sql_keyword(sql_token) and sql_token not in sql_comp_list:
+                value_str = "@value"
+                if sql_token[-1] == ')':
+                    value_str = "@value)"
                 if prev_sql_token in sql_comp_list:
                     sql_token = "@value"
                 elif prev_sql_token == '@value':
                     template_sql_list.pop()
-                    sql_token = "@value"
+                    sql_token = value_str
 
             prev_sql_token = sql_token
             template_sql_list.append(sql_token)
