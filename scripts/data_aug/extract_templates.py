@@ -29,7 +29,6 @@ for item in data["per_item"]:
     template_sql_list = []
     sql_comp_list = ['<', '<=', '>', '>=', '=', 'LIKE']
     for sql_token in predicted_sql_tokens:
-        prev_sql_token = sql_token
         if '.' in sql_token:
             dot_pos = sql_token.find('.')
             bracket_pos = sql_token.find('(') + 1
@@ -47,6 +46,7 @@ for item in data["per_item"]:
             if prev_sql_token in sql_comp_list:
                 sql_token = "@value"
 
+        prev_sql_token = sql_token
         template_sql_list.append(sql_token)
 
     template_sql = ' '.join(template_sql_list)
