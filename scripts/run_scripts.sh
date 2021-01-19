@@ -70,3 +70,4 @@ python scripts/collect_training_data_from_oda_para_dm.py /mnt/shared/vchoang/wor
 
 # Paraphrases by Manual Paraphrase Collection
 python3 scripts/split_spider_by_db.py --aug-data train_oda_dm_para.json --aug-suffix oda_dm_para_aug
+
