@@ -147,9 +147,11 @@ for key, val in templates_by_hardness.items():
 
 with open(f"{output_file}.by_examples", "w") as fout:
     for key, examples in templates_by_examples.items():
-        fout.write("-------------------")
-        fout.write(f"Template ({len(examples)} examples): {key}\n")
-        fout.write(f"Examples:\n")
-        for example in examples:
-            fout.write(f"- {example}\n")
+        # fout.write("-------------------\n")
+        # fout.write(f"Template ({len(examples)} examples): {key}\n")
+        # fout.write(f"Examples:\n")
+        # for example in examples:
+        #     fout.write(f"{example}\n")
+        examples_str = '\n'.join(examples)
+        fout.write(f"{key}\t{len(examples)}\t{examples_str}\n")
 
