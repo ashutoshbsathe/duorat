@@ -64,6 +64,8 @@ with open(input_file) as f:
     data = json.load(f)
 
 unique_template_set = set()
+templates_by_hardness = {"easy": set(), "medium": set(), "hard": set(), "extra": set()}
+templates_by_examples = {}
 for item in data["per_item"]:
     gold_sql = item["gold"]
     predicted_sql = postprocess(item["predicted"])
@@ -123,6 +125,11 @@ for item in data["per_item"]:
         print(template_sql)
 
         unique_template_set.add(template_sql)
+        templates_by_hardness[hardness].add(template_sql)
+        if template_sql not in templates_by_examples:
+            templates_by_examples[template_sql] = [question]
+        else:
+            templates_by_examples[template_sql].append(question)
 
 unique_template_list = list(unique_template_set)
 print(f"There are {len(unique_template_list)} SQL templates.")
@@ -131,3 +138,18 @@ print(f"There are {len(unique_template_list)} SQL templates.")
 with open(output_file, "w") as fout:
     for template in sorted(unique_template_list, key=len):
         fout.write(f"{template}\n")
+
+for key, val in templates_by_hardness.items():
+    with open(f"{output_file}.{key}", "w") as fout:
+        fout.write(f"{len(val)}\n")
+        for template in sorted(list(val), key=len):
+            fout.write(f"{template}\n")
+
+with open(f"{output_file}.by_examples", "w") as fout:
+    for key, examples in templates_by_examples.items():
+        fout.write("-------------------")
+        fout.write(f"Template ({len(examples)} examples): {key}\n")
+        fout.write(f"Examples:\n")
+        for example in examples:
+            fout.write(f"- {example}\n")
+
