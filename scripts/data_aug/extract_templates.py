@@ -65,6 +65,7 @@ with open(input_file) as f:
 
 unique_template_set = set()
 templates_by_hardness = {"easy": set(), "medium": set(), "hard": set(), "extra": set()}
+questions_by_hardness = {"easy": set(), "medium": set(), "hard": set(), "extra": set()}
 templates_by_examples = {}
 for item in data["per_item"]:
     gold_sql = item["gold"]
@@ -126,6 +127,7 @@ for item in data["per_item"]:
 
         unique_template_set.add(template_sql)
         templates_by_hardness[hardness].add(template_sql)
+        questions_by_hardness[hardness].add(question)
         if template_sql not in templates_by_examples:
             templates_by_examples[template_sql] = [question]
         else:
@@ -141,6 +143,12 @@ with open(output_file, "w") as fout:
 
 for key, val in templates_by_hardness.items():
     with open(f"{output_file}.{key}", "w") as fout:
+        fout.write(f"{len(val)}\n")
+        for template in sorted(list(val), key=len):
+            fout.write(f"{template}\n")
+
+for key, val in questions_by_hardness.items():
+    with open(f"{output_file}.questions.{key}", "w") as fout:
         fout.write(f"{len(val)}\n")
         for template in sorted(list(val), key=len):
             fout.write(f"{template}\n")
