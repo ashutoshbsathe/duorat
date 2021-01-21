@@ -152,6 +152,5 @@ with open(f"{output_file}.by_examples", "w") as fout:
         # fout.write(f"Examples:\n")
         # for example in examples:
         #     fout.write(f"{example}\n")
-        examples_str = '\n'.join(examples)
-        fout.write(f"{key}\t{len(examples)}\t{examples_str}\n")
+        fout.write(f"{key}\t{len(examples)}\t{examples}\n")
 
