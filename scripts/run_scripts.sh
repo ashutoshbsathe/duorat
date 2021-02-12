@@ -79,5 +79,24 @@ python scripts/infer_questions.py --logdir ./logdir/duorat-new-db-content-bs4-ac
 python scripts/evaluation_google.py --predictions_filepath ./logdir/duorat-new-db-content-bs4-ac7/inferred_geo.json --output_filepath ./logdir/duorat-new-db-content-bs4-ac7/output_geo.json --cache_filepath data/database/geo_test/geo_cache.json  --timeout 180
 [NOT_EXIST] python scripts/filter_results.py ./logdir/duorat-new-db-content-bs4-ac7/output_geo.json
 
-# academic
-bash scripts/download_michigan_no_docker.sh academic
+# atis (failed)
+
+# academic (failed)
+
+# restaurants
+bash scripts/download_michigan_no_docker.sh restaurants
+python scripts/infer_questions.py --logdir ./logdir/duorat-new-db-content-bs4-ac7 --data-config data/michigan_restaurants.libsonnet --questions data/database/restaurants_test/examples.json --output-google ./logdir/duorat-new-db-content-bs4-ac7/inferred_restaurants.json
+
+# yelp
+bash scripts/download_michigan_no_docker.sh yelp
+python scripts/infer_questions.py --logdir ./logdir/duorat-new-db-content-bs4-ac7 --data-config data/michigan_yelp.libsonnet --questions data/database/yelp_test/examples.json --output-google ./logdir/duorat-new-db-content-bs4-ac7/inferred_yelp.json
+
+# imdb
+bash scripts/download_michigan_no_docker.sh imdb
+python scripts/infer_questions.py --logdir ./logdir/duorat-new-db-content-bs4-ac7 --data-config data/michigan_imdb.libsonnet --questions data/database/imdb_test/examples.json --output-google ./logdir/duorat-new-db-content-bs4-ac7/inferred_imdb.json
+
+# scholar
+
+# advising
+
+# wikisql

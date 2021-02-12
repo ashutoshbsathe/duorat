@@ -519,7 +519,7 @@ def main(
         logger.log("Skip preprocessing..")
     else:
         logger.log("Running preprocessing...")
-        sections = config["data"].keys()
+        sections = [key for key, v in config["data"].items() if isinstance(v, dict)]
         keep_vocab = False
         preprocessor = Preprocessor(config)
         preprocessor.preprocess(sections, keep_vocab)

@@ -2,7 +2,7 @@
 # Raymond Li, 2020-08-31
 # Copyright (c) 2020 Element AI Inc. All rights reserved.
 import logging
-from typing import List, Tuple
+from typing import List
 
 import torch
 import torch.utils.data
@@ -16,7 +16,6 @@ from duorat.types import (
 )
 from duorat.utils import registry
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -27,9 +26,11 @@ class LMDuoRATModel(DuoRATModel):
     ) -> torch.Tensor:
 
         items = self.preproc_items_to_duorat_items(preproc_items)
+
         decoder_batch = duo_rat_decoder_batch(
             items=tuple(item.decoder_item for item in items)
         )
+
         memory, output = self.forward(
             batch=DuoRATBatch(
                 encoder_batch=duo_rat_encoder_batch(
@@ -38,8 +39,10 @@ class LMDuoRATModel(DuoRATModel):
                 decoder_batch=decoder_batch,
             )
         )
+
         assert not torch.isnan(memory).any()
         assert not torch.isnan(output).any()
+
         return self._compute_loss(
             memory=memory,
             output=output,

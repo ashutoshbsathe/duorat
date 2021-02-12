@@ -76,7 +76,10 @@ class DuoRATModel(torch.nn.Module):
     def __init__(self, preproc: DuoRATPreproc, encoder: dict, decoder: dict) -> None:
         super(DuoRATModel, self).__init__()
 
+        # *** preprocessor
         self.preproc = preproc
+
+        # *** encoder
 
         # First-stage encoder
         self.initial_encoder: InitialEncoder = registry.construct(
@@ -111,6 +114,14 @@ class DuoRATModel(torch.nn.Module):
         )
         assert self.encoder_rat_embed_dim % encoder["rat_num_heads"] == 0
         self.mem_embed_dim = self.encoder_rat_embed_dim
+        self.interaction_size = encoder.get("interaction_size", 0)
+        if self.interaction_size > 2:
+            logger.warning(
+                "interaction size {} exceeds 2 unsupported, revert back to 2".format(self.interaction_size)
+            )
+            self.interaction_size = 2
+
+        # *** decoder
         self.decoder_rat_embed_dim = (
             decoder["action_embed_dim"]
             + decoder["field_embed_dim"]
@@ -585,6 +596,7 @@ class DuoRATModel(torch.nn.Module):
             schema_input_token_ordering=self.schema_input_token_ordering,
             schema_source_token_ordering=self.schema_source_token_ordering,
             device=device,
+            interaction_size=self.interaction_size
         )
 
     def _get_decoder_item(
