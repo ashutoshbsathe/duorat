@@ -5,7 +5,7 @@ from typing import Dict, Tuple, List, Optional
 from pydantic.dataclasses import dataclass
 from torch.utils.data import Dataset
 
-from duorat.datasets.spider import SpiderItem, SpiderSchema, schema_dict_to_spider_schema
+from duorat.datasets.spider import SpiderDataset, SpiderItem, SpiderSchema, schema_dict_to_spider_schema
 from duorat.utils import registry
 from third_party.spider import evaluation
 from third_party.spider.preprocess.schema import _get_schemas_from_json, Schema
@@ -43,7 +43,7 @@ class SparcItem(SpiderItem):
 
 
 @registry.register("dataset", "sparc")
-class SparcDataset(Dataset):
+class SparcDataset(SpiderDataset):
     def __init__(self, examples_files: List[str], tables_files: List[str], db_path: str):
         self.db_path = db_path
         self.examples = []
@@ -83,15 +83,9 @@ class SparcDataset(Dataset):
                         orig=utter_info)
                     )
 
-    def get_db_path(self, db_id: str):
-        return os.path.join(self.db_path, db_id, db_id + ".sqlite")
-
     def sample(self, sample_size: Optional[int] = None):
         if sample_size:
             self.examples = self.examples[:sample_size]
-
-    def __len__(self) -> int:
-        return len(self.examples)
 
     def __getitem__(self, idx) -> SparcItem:
         return self.examples[idx]
