@@ -1,9 +1,7 @@
 import json
-import os
 from typing import Dict, Tuple, List, Optional
 
 from pydantic.dataclasses import dataclass
-from torch.utils.data import Dataset
 
 from duorat.datasets.spider import SpiderDataset, SpiderItem, SpiderSchema, schema_dict_to_spider_schema
 from duorat.utils import registry
@@ -82,10 +80,6 @@ class SparcDataset(SpiderDataset):
                         db_path=self.get_db_path(db_id=entry["database_id"]),
                         orig=utter_info)
                     )
-
-    def sample(self, sample_size: Optional[int] = None):
-        if sample_size:
-            self.examples = self.examples[:sample_size]
 
     def __getitem__(self, idx) -> SparcItem:
         return self.examples[idx]
