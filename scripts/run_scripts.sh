@@ -104,7 +104,7 @@ python scripts/infer_questions.py --logdir ./logdir/duorat-new-db-content-bs4-ac
 # *** Sparc
 
 # duorat-sparc-dev
-python scripts/train.py --config configs/duorat/duorat-sparc-dev.jsonnet --logdir ./logdir/duorat-sparc-dev
+python scripts/train.py --config configs/duorat/duorat-sparc-dev.jsonnet --logdir ./logdir/duorat-sparc-dev --force-preprocess-if-exists
 
 # duorat-sparc-new-db-content
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-sparc-new-db-content.jsonnet --logdir ./logdir/duorat-sparc-new-db-content &> logdir/train-duorat-sparc-new-db-content.log &

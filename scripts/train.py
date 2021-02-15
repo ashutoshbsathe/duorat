@@ -51,6 +51,8 @@ from duorat import models
 from duorat.asdl.lang.spider.spider_transition_system import SpiderTransitionSystem
 from duorat.types import RATPreprocItem
 
+from duorat.utils.determinism import set_torch_determinism, set_random_seed
+
 # noinspection PyUnresolvedReferences
 from duorat.utils import optimizers
 from duorat.utils import registry, parallelizer
@@ -103,6 +105,10 @@ class Trainer:
         self.init_random = random_state.RandomContext(
             self.config["train"].get("init_seed", None)
         )
+        other_seed = self.config["train"].get("other_seed", None)
+        if other_seed:
+            set_random_seed(seed=other_seed)
+
         with self.init_random:
             # 0. Construct preprocessors
             self.model_preproc = registry.construct(
@@ -117,7 +123,6 @@ class Trainer:
             self.model.to(device=device)
 
         if self.config["train"].get("deterministic", None):
-            from duorat.utils.determinism import set_torch_determinism
             set_torch_determinism()
 
     def _log_loss(self, last_step, loss):

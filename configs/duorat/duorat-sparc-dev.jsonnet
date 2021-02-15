@@ -29,6 +29,7 @@
         data_seed: 1,
         model_seed: 1,
         init_seed: 1,
+        other_seed: 1,
         batch_size: 2,
         deterministic: true,
     },
