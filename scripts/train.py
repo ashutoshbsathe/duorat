@@ -390,6 +390,7 @@ class Trainer:
         self.logger.log("Inferring...")
 
         orig_data = registry.construct("dataset", self.config["data"][eval_section])
+        orig_data.sample(sample_size=self.config["data"].get(f'{eval_section}_sample_size', None))
         preproc_data: List[RATPreprocItem] = self.model_preproc.dataset(eval_section)
 
         self.model.eval()
