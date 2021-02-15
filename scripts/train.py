@@ -219,6 +219,7 @@ class Trainer:
             else:
                 data_splits = [
                     section for section in self.config["data"] if "train" in section
+                                                                  and isinstance(self.config["data"][section], dict)
                 ]
             train_data = list(
                 itertools.chain.from_iterable(
