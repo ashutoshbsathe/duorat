@@ -29,6 +29,7 @@ import json
 import os
 import shutil
 import traceback
+import pathlib
 from typing import Type, List
 
 import _jsonnet
@@ -521,12 +522,14 @@ def main(
 
     if "model_name" in config:
         args.logdir = os.path.join(args.logdir, config["model_name"])
-        if args.force_train:
-            try:
-                shutil.rmtree(args.logdir)
-                os.makedirs(args.logdir)
-            except OSError as e:
-                print("Error: %s : %s" % (args.logdir, e.strerror))
+
+    if args.force_train:
+        try:
+            logdir_path = pathlib.Path(args.logdir)
+            shutil.rmtree(logdir_path)
+            os.makedirs(logdir_path)
+        except OSError as e:
+            print("Error: %s : %s" % (args.logdir, e.strerror))
 
     # Initialize the logger
     reopen_to_flush = config.get("log", {}).get("reopen_to_flush")
