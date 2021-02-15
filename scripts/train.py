@@ -27,6 +27,7 @@ import datetime
 import itertools
 import json
 import os
+import shutil
 import traceback
 from typing import Type, List
 
@@ -498,6 +499,12 @@ def main(
         action="store_true",
         help="If True, force doing preprocessing even if exists.",
     )
+    parser.add_argument(
+        "--force-train-if-model-exists",
+        default=False,
+        action="store_true",
+        help="If True, force doing training even if the model exists.",
+    )
     args = parser.parse_args(args)
 
     if args.config_args:
@@ -536,6 +543,12 @@ def main(
     else:
         # Construct trainer and do training
         trainer = trainer_class(logger, config)
+        if args.force_train_if_model_exists:
+            try:
+                shutil.rmtree(args.logdir)
+                os.makedirs(args.logdir)
+            except OSError as e:
+                print("Error: %s : %s" % (args.logdir, e.strerror))
         trainer.train(modeldir=args.logdir)
 
 
