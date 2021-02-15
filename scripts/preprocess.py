@@ -28,24 +28,15 @@ class Preprocessor:
     def preprocess(self, sections, keep_vocab):
         self.model_preproc.clear_items()
         for section in sections:
-            data = registry.construct("dataset", self.config["data"][section])  # SpiderDataset/SparcDataset
-            if "debug_size" in self.config["data"]:
-                for i, item in enumerate(tqdm.tqdm(data, desc=section, dynamic_ncols=True)):  # SpiderItem/SparcItem
-                    to_add, validation_info = self.model_preproc.validate_item(
-                        item, section
-                    )
-                    if to_add:
-                        self.model_preproc.add_item(item, section, validation_info)
-
-                    if i >= self.config["data"]["debug_size"]:
-                        break
-            else:
-                for item in tqdm.tqdm(data, desc=section, dynamic_ncols=True):  # SpiderItem
-                    to_add, validation_info = self.model_preproc.validate_item(
-                        item, section
-                    )
-                    if to_add:
-                        self.model_preproc.add_item(item, section, validation_info)
+            data = registry.construct("dataset",
+                                      self.config["data"][section])  # SpiderDataset/SparcDataset
+            data.sample(sample_size=self.config["data"].get(f'{self.config["data"][section]}_sample_size', None))
+            for i, item in enumerate(tqdm.tqdm(data, desc=section, dynamic_ncols=True)):  # SpiderItem/SparcItem
+                to_add, validation_info = self.model_preproc.validate_item(
+                    item, section
+                )
+                if to_add:
+                    self.model_preproc.add_item(item, section, validation_info)
         if keep_vocab:
             self.model_preproc.save_examples()
         else:

@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Dict, Tuple, List
+from typing import Dict, Tuple, List, Optional
 
 from pydantic.dataclasses import dataclass
 from torch.utils.data import Dataset
@@ -85,6 +85,10 @@ class SparcDataset(Dataset):
 
     def get_db_path(self, db_id: str):
         return os.path.join(self.db_path, db_id, db_id + ".sqlite")
+
+    def sample(self, sample_size: Optional[int] = None):
+        if sample_size:
+            self.examples = self.examples[:sample_size]
 
     def __len__(self) -> int:
         return len(self.examples)
