@@ -31,6 +31,8 @@
         init_seed: 1,
         other_seed: 1,
         batch_size: 2,
+        eval_every_n: 200,
+        infer_min_n: 200,
         deterministic: true,
     },
 }
