@@ -494,13 +494,13 @@ def main(
         help="If True, do preprocessing only.",
     )
     parser.add_argument(
-        "--force-preprocess-if-exists",
+        "--force-preprocess",
         default=False,
         action="store_true",
         help="If True, force doing preprocessing even if exists.",
     )
     parser.add_argument(
-        "--force-train-if-model-exists",
+        "--force-train",
         default=False,
         action="store_true",
         help="If True, force doing training even if the model exists.",
@@ -519,6 +519,12 @@ def main(
 
     if "model_name" in config:
         args.logdir = os.path.join(args.logdir, config["model_name"])
+        if args.force_train:
+            try:
+                shutil.rmtree(args.logdir)
+                os.makedirs(args.logdir)
+            except OSError as e:
+                print("Error: %s : %s" % (args.logdir, e.strerror))
 
     # Initialize the logger
     reopen_to_flush = config.get("log", {}).get("reopen_to_flush")
@@ -529,7 +535,7 @@ def main(
     logger.log(f"Overwriting preproc save_path with: {preproc_data_path}")
     config['model']['preproc']['save_path'] = preproc_data_path
 
-    if os.path.exists(preproc_data_path) and not args.force_preprocess_if_exists:
+    if os.path.exists(preproc_data_path) and not args.force_preprocess:
         logger.log("Skip preprocessing..")
     else:
         logger.log("Running preprocessing...")
@@ -543,12 +549,6 @@ def main(
     else:
         # Construct trainer and do training
         trainer = trainer_class(logger, config)
-        if args.force_train_if_model_exists:
-            try:
-                shutil.rmtree(args.logdir)
-                os.makedirs(args.logdir)
-            except OSError as e:
-                print("Error: %s : %s" % (args.logdir, e.strerror))
         trainer.train(modeldir=args.logdir)
 
 
