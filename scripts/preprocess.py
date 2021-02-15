@@ -30,7 +30,7 @@ class Preprocessor:
         for section in sections:
             data = registry.construct("dataset",
                                       self.config["data"][section])  # SpiderDataset/SparcDataset
-            data.sample(sample_size=self.config["data"].get(f'{self.config["data"][section]}_sample_size', None))
+            data.sample(sample_size=self.config["data"].get(f'{section}_sample_size', None))
             for i, item in enumerate(tqdm.tqdm(data, desc=section, dynamic_ncols=True)):  # SpiderItem/SparcItem
                 to_add, validation_info = self.model_preproc.validate_item(
                     item, section
