@@ -1,20 +1,11 @@
 (import 'duorat-finetune-bert-large.jsonnet') {
-    local PREFIX = './data/sparc',
-
-    data: {
-        train: (import '../../data/train_sparc.libsonnet')(prefix=PREFIX),
-        val: (import '../../data/val_sparc.libsonnet')(prefix=PREFIX),
-    },
-
     model+: {
         encoder+: {
             source_relation_types: {
                 use_schema_linking: true,
                 high_confidence_db_content_schema_linking: true,
                 low_confidence_db_content_schema_linking: true,
-            },
-            interaction_size: 1,
-            max_source_length: 200,
+            }
         },
         preproc+: {
             schema_linker+: {
@@ -27,6 +18,6 @@
     train+: {
         data_seed: 1,
         model_seed: 1,
-        init_seed: 1
+        init_seed: 1,
     },
 }

@@ -4,6 +4,7 @@
     data: {
         train: (import '../../data/train_sparc.libsonnet')(prefix=PREFIX),
         val: (import '../../data/val_sparc.libsonnet')(prefix=PREFIX),
+        "debug_size": 200,
     },
 
     model+: {
@@ -27,6 +28,8 @@
     train+: {
         data_seed: 1,
         model_seed: 1,
-        init_seed: 1
+        init_seed: 1,
+        batch_size: 2,
+        deterministic: true,
     },
 }

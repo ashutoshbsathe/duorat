@@ -100,7 +100,6 @@ class Trainer:
         self.model_random = random_state.RandomContext(
             self.config["train"].get("model_seed", None)
         )
-
         self.init_random = random_state.RandomContext(
             self.config["train"].get("init_seed", None)
         )
@@ -116,6 +115,10 @@ class Trainer:
                 "model", self.config["model"], preproc=self.model_preproc,
             )
             self.model.to(device=device)
+
+        if self.config["train"].get("deterministic", None):
+            from duorat.utils.determinism import set_torch_determinism
+            set_torch_determinism()
 
     def _log_loss(self, last_step, loss):
         self.logger.log("Step {}: loss={:.8f}".format(last_step, loss))
@@ -485,12 +488,11 @@ def main(
         help="If True, do preprocessing only.",
     )
     parser.add_argument(
-        "--deterministic",
+        "--force-preprocess-if-exists",
         default=False,
         action="store_true",
-        help="If True, force deterministic training.",
+        help="If True, force doing preprocessing even if exists.",
     )
-    parser.add_argument("--seed", type=int, default=0, help="If 0, use default random seeds.")
     args = parser.parse_args(args)
 
     if args.config_args:
@@ -515,7 +517,7 @@ def main(
     logger.log(f"Overwriting preproc save_path with: {preproc_data_path}")
     config['model']['preproc']['save_path'] = preproc_data_path
 
-    if os.path.exists(preproc_data_path):
+    if os.path.exists(preproc_data_path) and not args.force_preprocess_if_exists:
         logger.log("Skip preprocessing..")
     else:
         logger.log("Running preprocessing...")
@@ -527,13 +529,6 @@ def main(
     if args.preprocess_only:
         print("Done preprocessing. No further training.")
     else:
-        if args.seed != 0:
-            from duorat.utils.determinism import set_random_seed
-            set_random_seed(seed=args.seed)
-        if args.deterministic:
-            from duorat.utils.determinism import set_torch_determinism
-            set_torch_determinism()
-
         # Construct trainer and do training
         trainer = trainer_class(logger, config)
         trainer.train(modeldir=args.logdir)
