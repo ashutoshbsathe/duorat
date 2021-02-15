@@ -620,7 +620,7 @@ class DuoRATModel(torch.nn.Module):
             device=device,
         )
 
-    # @lru_cache(maxsize=None)
+    @lru_cache(maxsize=None)
     def _get_item_cached(self, preproc_item: RATPreprocItem) -> DuoRATItem:
         device = torch.device("cpu")
         return duo_rat_item(

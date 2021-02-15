@@ -12,7 +12,6 @@ from typing import (
     Dict,
     Type,
     Deque,
-    List,
 )
 
 import torch
@@ -81,7 +80,6 @@ from duorat.types import (
     DuoRATInputSegment,
     ActionToken,
     Sparse1DMaskTensorBuilder,
-    FineScoping,
     AttentionScope,
     Scoping,
 )
@@ -742,7 +740,7 @@ def duo_rat_encoder_item(
         schema_input_token_ordering: str,
         schema_source_token_ordering: str,
         device: torch.device,
-        interaction_size: int = 0,
+        interaction_size: int,
 ) -> Tuple[DuoRATEncoderItem, DuoRATEncoderItemBuilder]:
     encoder_item_builder = DuoRATEncoderItemBuilder(
         input_a_str_to_id=input_a_str_to_id,

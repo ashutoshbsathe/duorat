@@ -306,7 +306,8 @@ class TransformerDuoRATPreproc(DuoRATPreproc):
 
             parser.close()
 
-            return RATPreprocItem(question=question, sql_schema=sql_schema, actions=actions, interaction=interaction)
+            return RATPreprocItem(question=question, sql_schema=sql_schema, actions=actions,
+                                  interaction=tuple(interaction))
         else:
             raise TypeError(f"{item.__str__()} must be either SpiderItem or SparcItem.")
 
@@ -503,7 +504,8 @@ class BertDuoRATPreproc(DuoRATPreproc):
 
             parser.close()
 
-            return RATPreprocItem(question=question, sql_schema=sql_schema, actions=actions, interaction=interaction)
+            return RATPreprocItem(question=question, sql_schema=sql_schema, actions=actions,
+                                  interaction=tuple(interaction))
         else:
             raise TypeError(f"{item.__str__()} must be either SpiderItem or SparcItem.")
 
