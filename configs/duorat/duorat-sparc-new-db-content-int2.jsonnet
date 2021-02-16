@@ -23,10 +23,4 @@
             }
         }
     },
-
-    train+: {
-        data_seed: 1,
-        model_seed: 1,
-        init_seed: 1
-    },
 }
