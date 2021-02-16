@@ -14,7 +14,7 @@
                 low_confidence_db_content_schema_linking: true,
             },
             interaction_size: 2,
-            max_source_length: 300,
+            max_source_length: 256,
         },
         preproc+: {
             schema_linker+: {
