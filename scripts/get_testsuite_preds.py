@@ -22,7 +22,7 @@ with open(duorat_output_file, "r") as f:
         else:
             predictions.append('')
             count_empty_preds += 1
-        count_preds += 0
+        count_preds += 1
 print(f"There are {count_empty_preds} out of {count_preds} predictions with empty output(s).")
 
 i = 0
