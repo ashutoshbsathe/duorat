@@ -23,4 +23,8 @@
             }
         }
     },
+
+    train+: {
+        num_eval_items: 1203,
+    }
 }

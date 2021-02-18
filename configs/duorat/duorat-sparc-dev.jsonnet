@@ -35,5 +35,6 @@
         eval_every_n: 200,
         infer_min_n: 200,
         deterministic: true,
+        num_eval_items: 1203,
     },
 }
