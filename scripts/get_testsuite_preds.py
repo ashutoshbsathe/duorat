@@ -12,6 +12,7 @@ with open(original_sparc_data_file, "r") as f:
 
 predictions = []
 count_empty_preds = 0
+count_preds = 0
 with open(duorat_output_file, "r") as f:
     for line in f:
         line = line.strip()
@@ -21,7 +22,8 @@ with open(duorat_output_file, "r") as f:
         else:
             predictions.append('')
             count_empty_preds += 1
-print(f"There are {count_empty_preds} empty predictions.")
+        count_preds += 0
+print(f"There are {count_empty_preds} out of {count_preds} predictions with empty output(s).")
 
 i = 0
 for example in original_data:
