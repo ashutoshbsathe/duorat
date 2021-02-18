@@ -15,7 +15,7 @@ with open(duorat_output_file, "r") as f:
     for line in f:
         line = line.strip()
         entry_data = json.loads(line)
-        predictions.append(entry_data["inferred_code"])
+        predictions.append(entry_data["beams"][0]["inferred_code"])
 
 i = 0
 for example in original_data:
