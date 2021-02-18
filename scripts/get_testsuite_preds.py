@@ -14,13 +14,15 @@ predictions = []
 count_empty_preds = 0
 count_preds = 0
 with open(duorat_output_file, "r") as f:
+    prev_inferred_code = ""
     for line in f:
         line = line.strip()
         entry_data = json.loads(line)
         if len(entry_data["beams"]) > 0:
             predictions.append(entry_data["beams"][0]["inferred_code"])
+            prev_inferred_code = predictions[-1]
         else:
-            predictions.append('')
+            predictions.append(prev_inferred_code)
             count_empty_preds += 1
         count_preds += 1
 print(f"There are {count_empty_preds} out of {count_preds} predictions with empty output(s).")
