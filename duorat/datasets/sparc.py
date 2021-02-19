@@ -1,5 +1,5 @@
 import json
-from typing import Dict, Tuple, List, Optional
+from typing import Dict, Tuple, List
 
 from pydantic.dataclasses import dataclass
 
