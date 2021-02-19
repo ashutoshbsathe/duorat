@@ -60,6 +60,7 @@ class SparcDataset(SpiderDataset):
                             original_schemas[entry["database_id"]], utter_info["query"]
                         )
 
+                    utter_info["utterance"] = utter_info["utterance"].replace('*', '')
                     item = SparcItem(
                         question=utter_info["utterance"],
                         slml_question=None,
