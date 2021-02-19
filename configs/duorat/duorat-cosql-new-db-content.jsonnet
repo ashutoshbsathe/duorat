@@ -25,6 +25,6 @@
     },
 
     train+: {
-        num_eval_items: ???,
+        num_eval_items: 5000,
     }
 }

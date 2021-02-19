@@ -73,33 +73,33 @@ python3 scripts/split_spider_by_db.py --aug-data train_oda_dm_para.json --aug-su
 
 # *** Evaluate on other semantic parsing datasets
 
-# geo
+# Geo
 bash scripts/download_michigan_no_docker.sh geo
 python scripts/infer_questions.py --logdir ./logdir/duorat-new-db-content-bs4-ac7 --data-config data/michigan.libsonnet --questions data/database/geo_test/examples.json --output-google ./logdir/duorat-new-db-content-bs4-ac7/inferred_geo.json
 python scripts/evaluation_google.py --predictions_filepath ./logdir/duorat-new-db-content-bs4-ac7/inferred_geo.json --output_filepath ./logdir/duorat-new-db-content-bs4-ac7/output_geo.json --cache_filepath data/database/geo_test/geo_cache.json  --timeout 180
 [NOT_EXIST] python scripts/filter_results.py ./logdir/duorat-new-db-content-bs4-ac7/output_geo.json
 
-# atis (failed)
+# Atis (failed)
 
-# academic (failed)
+# Academic (failed)
 
-# restaurants
+# Restaurants
 bash scripts/download_michigan_no_docker.sh restaurants
 python scripts/infer_questions.py --logdir ./logdir/duorat-new-db-content-bs4-ac7 --data-config data/michigan_restaurants.libsonnet --questions data/database/restaurants_test/examples.json --output-google ./logdir/duorat-new-db-content-bs4-ac7/inferred_restaurants.json
 
-# yelp
+# Yelp
 bash scripts/download_michigan_no_docker.sh yelp
 python scripts/infer_questions.py --logdir ./logdir/duorat-new-db-content-bs4-ac7 --data-config data/michigan_yelp.libsonnet --questions data/database/yelp_test/examples.json --output-google ./logdir/duorat-new-db-content-bs4-ac7/inferred_yelp.json
 
-# imdb
+# IMDB
 bash scripts/download_michigan_no_docker.sh imdb
 python scripts/infer_questions.py --logdir ./logdir/duorat-new-db-content-bs4-ac7 --data-config data/michigan_imdb.libsonnet --questions data/database/imdb_test/examples.json --output-google ./logdir/duorat-new-db-content-bs4-ac7/inferred_imdb.json
 
-# scholar
+# Scholar
 
-# advising
+# Advising
 
-# wikisql
+# WikiSQL
 
 # *** Sparc
 
@@ -140,4 +140,8 @@ CUDA_VISIBLE_DEVICES=2 python scripts/train.py --config configs/duorat/duorat-sp
 
 CUDA_VISIBLE_DEVICES=2 python scripts/train.py --config configs/duorat/duorat-sparc-new-db-content-int2.jsonnet --logdir ./logdir/duorat-sparc-new-db-content-int2 &> logdir/train-duorat-sparc-new-db-content-int2.log1 &
 
+# *** CoSQL
 
+# duorat-cosql-new-db-content
+# interaction history (1) in the inputs
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-cosql-new-db-content.jsonnet --logdir ./logdir/duorat-cosql-new-db-content --force-preprocess --force-train &> logdir/train-cosql--new-db-content.log &
