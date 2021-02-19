@@ -184,8 +184,9 @@ class SpiderDataset(Dataset):
                     entry["sql"] = get_sql(
                         original_schemas[entry["db_id"]], entry["query"]
                     )
+                entry["question"] = entry["question"].remove('*', '')
                 item = SpiderItem(
-                    question=entry["question"].remove('*', ''),
+                    question=entry["question"],
                     slml_question=entry.get("slml_question", None),
                     query=entry["query"],
                     spider_sql=entry["sql"],
