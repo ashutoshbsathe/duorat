@@ -102,10 +102,12 @@ class DuoRATPreproc(abstract_preproc.AbstractPreproc):
             return True, asdl_ast
         except Exception as e:
             if "train" not in section:
-                raise e
+                # raise e
                 return True, None
-            else:
-                raise e
+            # else:
+            #     raise e
+            print(f"Invalid item!")
+            return False, None
 
     def preprocess_item(
         self,
