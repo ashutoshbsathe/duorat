@@ -4,6 +4,8 @@
     data: {
         train: (import '../../data/train_cosql.libsonnet')(prefix=PREFIX),
         val: (import '../../data/val_cosql.libsonnet')(prefix=PREFIX),
+        train_sample_size: 1000,
+        val_sample_size: 1007
     },
 
     model+: {
@@ -25,6 +27,14 @@
     },
 
     train+: {
+        data_seed: 1,
+        model_seed: 1,
+        init_seed: 1,
+        other_seed: 1,
+        batch_size: 2,
+        eval_every_n: 200,
+        infer_min_n: 200,
+        deterministic: true,
         num_eval_items: 1007,
-    }
+    },
 }
