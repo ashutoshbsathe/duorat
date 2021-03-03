@@ -147,6 +147,9 @@ CUDA_VISIBLE_DEVICES=2 python scripts/train.py --config configs/duorat/duorat-sp
 
 # *** CoSQL
 
+# duorat-cosql-dev
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-cosql-dev.jsonnet --logdir ./logdir/duorat-cosql-dev --force-preprocess --force-train &> logdir/train-duorat-cosql-dev.log &
+
 # duorat-cosql-new-db-content
 # interaction history (1) in the inputs
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-cosql-new-db-content.jsonnet --logdir ./logdir/duorat-cosql-new-db-content --force-preprocess --force-train &> logdir/train-cosql-new-db-content.log &

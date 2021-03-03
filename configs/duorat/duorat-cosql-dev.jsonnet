@@ -5,7 +5,7 @@
         train: (import '../../data/train_cosql.libsonnet')(prefix=PREFIX),
         val: (import '../../data/val_cosql.libsonnet')(prefix=PREFIX),
         train_sample_size: 1000,
-        val_sample_size: 1007
+        val_sample_size: 1007,
     },
 
     model+: {

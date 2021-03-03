@@ -1,5 +1,6 @@
 import json
-from typing import Dict, Tuple, List
+from typing import Dict, Tuple, List, Optional
+import re
 
 from pydantic.dataclasses import dataclass
 
@@ -42,7 +43,10 @@ class SparcItem(SpiderItem):
 
 @registry.register("dataset", "sparc")
 class SparcDataset(SpiderDataset):
-    def __init__(self, examples_files: List[str], tables_files: List[str], db_path: str):
+    def __init__(self, examples_files: List[str],
+                 tables_files: List[str],
+                 db_path: str,
+                 ignore_patterns: Optional[str] = ""):
         self.db_path = db_path
         self.examples = []
 
@@ -59,6 +63,10 @@ class SparcDataset(SpiderDataset):
                         entry["sql"] = get_sql(
                             original_schemas[entry["database_id"]], utter_info["query"]
                         )
+
+                    if ignore_patterns and re.search(ignore_patterns, utter_info["utterance"]):
+                        print(f"Ignoring utterance: {utter_info['utterance']}")
+                        continue
 
                     utter_info["utterance"] = utter_info["utterance"].replace('*', '')
                     item = SparcItem(
