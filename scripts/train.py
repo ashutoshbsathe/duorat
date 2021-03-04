@@ -129,13 +129,13 @@ class Trainer:
 
     def _log_loss(self, last_step, loss):
         self.logger.log("Step {}: loss={:.8f}".format(last_step, loss))
-        #self.logger.log("Step {}: loss={:.4f}".format(last_step, loss))
+        # self.logger.log("Step {}: loss={:.4f}".format(last_step, loss))
 
     def _log_lr(self, last_step, lrs: List[dict]):
         for lr in lrs:
             self.logger.log(
                 "Step {}: lr[{}]={:.8f}".format(last_step, lr["name"], lr["value"])
-                #"Step {}: lr[{}]={:.4f}".format(last_step, lr["name"], lr["value"])
+                # "Step {}: lr[{}]={:.4f}".format(last_step, lr["name"], lr["value"])
             )
 
     def _log_stats(self, last_step, eval_section, stats):
@@ -150,13 +150,13 @@ class Trainer:
     def train(self, modeldir):
         # Save the config info
         with open(
-            os.path.join(
-                modeldir,
-                "config-{}.json".format(
-                    datetime.datetime.now().strftime("%Y%m%dT%H%M%S%Z")
+                os.path.join(
+                    modeldir,
+                    "config-{}.json".format(
+                        datetime.datetime.now().strftime("%Y%m%dT%H%M%S%Z")
+                    ),
                 ),
-            ),
-            "w",
+                "w",
         ) as f:
             json.dump(self.config, f, sort_keys=True, indent=4)
 
@@ -287,6 +287,8 @@ class Trainer:
                 with self.model_random:
                     with autocast(enabled=self.config["train"]["amp_enabled"]):
                         loss = self.model.compute_loss(batch)
+                        if torch.isnan(loss).any():
+                            continue
                         loss /= self.config["train"]["n_grad_accumulation_steps"]
 
                 scaler.scale(loss).backward()
@@ -298,9 +300,9 @@ class Trainer:
                 grad_accumulation_counter += 1
                 # Update params every `n_grad_accumulation_steps` times
                 if (
-                    grad_accumulation_counter
-                    % self.config["train"]["n_grad_accumulation_steps"]
-                    == 0
+                        grad_accumulation_counter
+                        % self.config["train"]["n_grad_accumulation_steps"]
+                        == 0
                 ):
                     # may call unscale_ here to allow clipping unscaled gradients,
                     # see https://pytorch.org/docs/stable/notes/amp_examples.html#gradient-accumulation
@@ -424,7 +426,7 @@ class Trainer:
 
     @classmethod
     def _inner_infer(
-        cls, model, orig_data, preproc_data, nproc, beam_size, decode_max_time_step
+            cls, model, orig_data, preproc_data, nproc, beam_size, decode_max_time_step
     ):
         if torch.cuda.is_available():
             cp = parallelizer.CUDAParallelizer(nproc)
@@ -484,7 +486,7 @@ class Trainer:
 
 
 def main(
-    args=None, logdir_suffix: List[str] = None, trainer_class: Type[Trainer] = Trainer
+        args=None, logdir_suffix: List[str] = None, trainer_class: Type[Trainer] = Trainer
 ):
     parser = argparse.ArgumentParser()
     parser.add_argument("--logdir", required=True)

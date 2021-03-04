@@ -4,6 +4,8 @@
 import logging
 from typing import List
 
+import numpy as np
+
 import torch
 import torch.utils.data
 
@@ -26,6 +28,9 @@ class LMDuoRATModel(DuoRATModel):
     ) -> torch.Tensor:
 
         items = self.preproc_items_to_duorat_items(preproc_items)
+
+        if len(items) == 0:
+            return torch.tensor(np.nan)
 
         decoder_batch = duo_rat_decoder_batch(
             items=tuple(item.decoder_item for item in items)
