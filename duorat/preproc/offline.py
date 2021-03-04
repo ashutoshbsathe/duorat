@@ -106,7 +106,11 @@ class DuoRATPreproc(abstract_preproc.AbstractPreproc):
                 return True, None
             # else:
             #     raise e
-            print(f"Invalid item!")
+            print(f"Invalid item: {str(e)}!")
+            print(f"Item question: {item.question}")
+            print(f"Item SQL: {item.query}")
+            print(f"Item db: {item.db_path}")
+            print("---------")
             return False, None
 
     def preprocess_item(
