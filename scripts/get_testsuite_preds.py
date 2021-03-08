@@ -1,13 +1,21 @@
 import sys
 import json
+import re
 
 duorat_output_file = sys.argv[1]
-original_sparc_data_file = sys.argv[2]
+original_data_file = sys.argv[2]
 testsuite_output_file = sys.argv[3]
+gold_fixed_file = sys.argv[4]
+
+ignore_patterns = None
+if len(sys.argv) > 5:
+    ignore_patterns = sys.argv[5]
+print(ignore_patterns)
 
 fout_testsuite = open(testsuite_output_file, 'w')
+fout_gold_fixed = open(gold_fixed_file, "w")
 
-with open(original_sparc_data_file, "r") as f:
+with open(original_data_file, "r") as f:
     original_data = json.load(f)
 
 predictions = []
@@ -31,10 +39,26 @@ i = 0
 for example in original_data:
     interaction = example["interaction"]
 
-    for pred in predictions[i:i+len(interaction)]:
+    new_interaction = []
+    for utter_info in interaction:
+        if ignore_patterns and re.search(ignore_patterns, utter_info["utterance"]):
+            print(f"ignored: {utter_info}")
+            continue
+        new_interaction.append(utter_info)
+
+    for utter_info in new_interaction:
+        new_query = utter_info['query'].replace('\n', '')
+        fout_gold_fixed.write(f"{new_query}\t{example['database_id']}\n")
+    fout_gold_fixed.write("\n")
+
+    for pred in predictions[i:i+len(new_interaction)]:
         fout_testsuite.write(f"{pred}\n")
         i += 1
     fout_testsuite.write("\n")
 
+print(f"No. of actual predictions: {i}")
+
 fout_testsuite.flush()
 fout_testsuite.close()
+fout_gold_fixed.flush()
+fout_gold_fixed.close()
