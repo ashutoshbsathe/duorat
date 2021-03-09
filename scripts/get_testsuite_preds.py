@@ -4,19 +4,40 @@ import re
 
 duorat_output_file = sys.argv[1]
 original_data_file = sys.argv[2]
-testsuite_output_file = sys.argv[3]
+gold_file = sys.argv[3]
 gold_fixed_file = sys.argv[4]
+testsuite_output_file = sys.argv[5]
 
 ignore_patterns = None
-if len(sys.argv) > 5:
-    ignore_patterns = sys.argv[5]
+if len(sys.argv) > 6:
+    ignore_patterns = sys.argv[6]
 print(ignore_patterns)
 
 fout_testsuite = open(testsuite_output_file, 'w')
 fout_gold_fixed = open(gold_fixed_file, "w")
 
-with open(original_data_file, "r") as f:
+gold_predictions = []
+with open(original_data_file, "r") as f, open(gold_file) as f_gold:
     original_data = json.load(f)
+
+    for line in f_gold:
+        gold_predictions.append(line.strip())
+
+    i = 0
+    fixed_gold_predictions = []
+    for example in original_data:
+        interaction = example["interaction"]
+
+        new_interaction = []
+        for utter_info in interaction:
+            if ignore_patterns and re.search(ignore_patterns, utter_info["utterance"]):
+                print(f"ignored: {utter_info}")
+                i += 1
+                continue
+            new_interaction.append(utter_info)
+            fixed_gold_predictions.append(gold_predictions[i])
+            i += 1
+    gold_predictions = fixed_gold_predictions
 
 predictions = []
 count_empty_preds = 0
@@ -35,6 +56,8 @@ with open(duorat_output_file, "r") as f:
         count_preds += 1
 print(f"There are {count_empty_preds} out of {count_preds} predictions with empty output(s).")
 
+assert len(gold_predictions) == len(predictions)
+
 i = 0
 for example in original_data:
     interaction = example["interaction"]
@@ -46,15 +69,13 @@ for example in original_data:
             continue
         new_interaction.append(utter_info)
 
-    for utter_info in new_interaction:
-        new_query = utter_info['query'].replace('\n', '')
-        fout_gold_fixed.write(f"{new_query}\t{example['database_id']}\n")
-    fout_gold_fixed.write("\n")
-
-    for pred in predictions[i:i+len(new_interaction)]:
+    for pred, gold_pred in zip(predictions[i:i+len(new_interaction)],
+                               gold_predictions[i:i+len(new_interaction)]):
         fout_testsuite.write(f"{pred}\n")
+        fout_gold_fixed.write(f"{gold_pred}\t{example['database_id']}\n")
         i += 1
     fout_testsuite.write("\n")
+    fout_gold_fixed.write("\n")
 
 print(f"No. of actual predictions: {i}")
 
