@@ -549,7 +549,7 @@ def main(
     config['model']['preproc']['save_path'] = preproc_data_path
 
     if args.train_sample_ratio:
-        config['train']['train_sample_ratio'] = int(args.train_sample_ratio)
+        config['data']['train_sample_ratio'] = int(args.train_sample_ratio)
 
     if os.path.exists(preproc_data_path) and not args.force_preprocess:
         logger.log("Skip preprocessing..")
