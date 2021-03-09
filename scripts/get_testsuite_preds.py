@@ -21,7 +21,9 @@ with open(original_data_file, "r") as f, open(gold_file) as f_gold:
     original_data = json.load(f)
 
     for line in f_gold:
-        gold_predictions.append(line.strip())
+        line = line.strip()
+        if line:
+            gold_predictions.append(line)
 
     i = 0
     fixed_gold_predictions = []
