@@ -72,7 +72,7 @@ for example in original_data:
     for pred, gold_pred in zip(predictions[i:i+len(new_interaction)],
                                gold_predictions[i:i+len(new_interaction)]):
         fout_testsuite.write(f"{pred}\n")
-        fout_gold_fixed.write(f"{gold_pred}\t{example['database_id']}\n")
+        fout_gold_fixed.write(f"{gold_pred}\n")
         i += 1
     fout_testsuite.write("\n")
     fout_gold_fixed.write("\n")
