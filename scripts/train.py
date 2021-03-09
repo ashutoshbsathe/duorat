@@ -514,7 +514,7 @@ def main(
         "--train-sample-ratio",
         type=int,
         default=0,
-        help="if specified, sample this ratio from the training data",
+        help="if specified, sample this ratio (in percentage) from the training data",
     )
     args = parser.parse_args(args)
 

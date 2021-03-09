@@ -178,7 +178,7 @@ CUDA_VISIBLE_DEVICES=3 python scripts/train.py --config configs/duorat/duorat-co
 # *** Estimate training data size required to achieve target accuracy on NL2SQL
 
 # Spider
-CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-new-db-content.jsonnet --logdir ./logdir/duorat-new-db-content-5p --train_sample_size 5
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-new-db-content.jsonnet --logdir ./logdir/duorat-new-db-content-5p --train-sample-ratio 5
 
 # Sparc
 
