@@ -31,8 +31,8 @@ class Preprocessor:
             data = registry.construct("dataset",
                                       self.config["data"][section])  # SpiderDataset/SparcDataset
             sample_size = self.config["data"].get(f'{section}_sample_size', None)
-            if 'train_sample_ratio' in self.config:
-                sample_size = int(len(data) * float(self.config['train_sample_ratio'] / 100))
+            if 'train_sample_ratio' in self.config["data"]:
+                sample_size = int(len(data) * float(self.config["data"]['train_sample_ratio'] / 100))
             data.sample(sample_size=sample_size)
             for i, item in enumerate(tqdm.tqdm(data, desc=section, dynamic_ncols=True)):  # SpiderItem/SparcItem
                 to_add, validation_info = self.model_preproc.validate_item(
