@@ -37,6 +37,7 @@ with open(original_data_file, "r") as f, open(gold_file) as f_gold:
             new_interaction.append(utter_info)
             fixed_gold_predictions.append(gold_predictions[i])
             i += 1
+        example["interaction"] = new_interaction
     gold_predictions = fixed_gold_predictions
 
 predictions = []
@@ -62,15 +63,8 @@ i = 0
 for example in original_data:
     interaction = example["interaction"]
 
-    new_interaction = []
-    for utter_info in interaction:
-        if ignore_patterns and re.search(ignore_patterns, utter_info["utterance"]):
-            print(f"ignored: {utter_info}")
-            continue
-        new_interaction.append(utter_info)
-
-    for pred, gold_pred in zip(predictions[i:i+len(new_interaction)],
-                               gold_predictions[i:i+len(new_interaction)]):
+    for pred, gold_pred in zip(predictions[i:i+len(interaction)],
+                               gold_predictions[i:i+len(interaction)]):
         fout_testsuite.write(f"{pred}\n")
         fout_gold_fixed.write(f"{gold_pred}\n")
         i += 1
