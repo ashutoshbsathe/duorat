@@ -510,6 +510,12 @@ def main(
         action="store_true",
         help="If True, force doing training even if the model exists.",
     )
+    parser.add_argument(
+        "--train-sample-ratio",
+        type=int,
+        default=0,
+        help="if specified, sample this ratio from the training data",
+    )
     args = parser.parse_args(args)
 
     if args.config_args:
@@ -541,6 +547,9 @@ def main(
     preproc_data_path = os.path.join(args.logdir, "data")
     logger.log(f"Overwriting preproc save_path with: {preproc_data_path}")
     config['model']['preproc']['save_path'] = preproc_data_path
+
+    if args.train_sample_ratio:
+        config['train']['train_sample_ratio'] = int(args.train_sample_ratio)
 
     if os.path.exists(preproc_data_path) and not args.force_preprocess:
         logger.log("Skip preprocessing..")
