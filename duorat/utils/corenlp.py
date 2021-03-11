@@ -46,7 +46,11 @@ class CoreNLP:
                     os.environ["CORENLP_HOME"]
                 )
             )
-        self.client = corenlp.CoreNLPClient()
+        self.client = corenlp.CoreNLPClient(timeout=60000,
+                                            be_quiet=False,
+                                            memory="16G",
+                                            threads=16,
+                                            max_char_length=100000)
 
     def __del__(self):
         self.client.stop()
