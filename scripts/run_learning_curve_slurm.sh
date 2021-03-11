@@ -36,7 +36,7 @@ submit_job () {
 dataset=$1
 ratio=$2
 
-if [ ${dataset} = "sparc" ] | [ ${dataset} = "cosql" ]; then
+if [[ "${dataset}" = "sparc" ]] || [[ "${dataset}" = "cosql" ]]; then
     running_config=${wdir}/configs/duorat/duorat-${dataset}-new-db-content.jsonnet
 fi
 
@@ -51,6 +51,6 @@ do
     echo "Start training job with ${percentage}% of training data..."
     job_name=duorat_new_db_content_${dataset}_${percentage}p
     job_log=${logs_folder}/train_duorat_${dataset}_${percentage}p
-    job_command="python3 ${running_script} --config ${running_config} --logdir ${logs_folder}/duorat-${dataset}-new-db-content-${percentage}p --train-sample-ratio ${percentage}"
+    job_command="python3 ${running_script} --config ${running_config} --logdir ${logs_folder}/duorat-${dataset}-new-db-content-${percentage}p --train-sample-ratio ${percentage} --force-preprocess --force-train"
     submit_job
 done
