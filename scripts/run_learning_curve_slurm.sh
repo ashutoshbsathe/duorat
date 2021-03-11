@@ -11,8 +11,7 @@ batch_job_folder=${logs_folder}/batch_jobs
 g_constraint="shape=BM.GPU3.8|shape=VM.GPU3.4|shape=VM.GPU3.4|shape=VM.GPU3.2|shape=VM.GPU3.1,ad=3"
 #c_constraint="shape=VM.Standard2.24|shape=VM.Standard.E3.8|shape=VM.Standard.E3.16|shape=VM.Standard.E3.32"
 
-job_config="#SBATCH --partition=${partition} \n#SBATCH --mem=16GB \n#SBATCH --gres=gpu:1 \n#SBATCH -c 2 \n#SBATCH --constraint=${g_constraint}\nexport CACHE_DIR=${wdir}/logdir\nexport TRANSFORMERS_CACHE=${wdir}/logdir\nexport CORENLP_HOME=${wdir}/third_party/corenlp/stanford-corenlp-full-2018-10-05\nsource /mnt/shared/vchoang/tools/pyvenv37-oda-text2sql-duorat/bin/activate"
-
+job_config="#SBATCH --partition=${partition} \n#SBATCH --mem=16GB \n#SBATCH --gres=gpu:1 \n#SBATCH -c 2 \n#SBATCH --constraint=${g_constraint}"
 
 submit_job () {
     job_content="#!/bin/bash"
@@ -20,6 +19,8 @@ submit_job () {
     job_content="${job_content}\n#SBATCH --job-name=${job_name}"
     job_content="${job_content}\n#SBATCH --output=${job_log}_%A.out"
     job_content="${job_content}\n#SBATCH --error=${job_log}_%A.err"
+    job_content="${job_content}\n\nexport CACHE_DIR=${wdir}/logdir\nexport TRANSFORMERS_CACHE=${wdir}/logdir\nexport CORENLP_HOME=${wdir}/third_party/corenlp/stanford-corenlp-full-2018-10-05\nsource /mnt/shared/vchoang/tools/pyvenv37-oda-text2sql-duorat/bin/activate"
+    job_content="${job_content}\n\ncd ${wdir}"
     job_content="${job_content}\n\n${job_command}"
 
     job_seed=$RANDOM
@@ -43,10 +44,10 @@ mkdir ${logs_folder}
 mkdir ${batch_job_folder}
 
 g_start=1
-g_end=100/${ratio}
+g_end=$((100/${ratio}))
 for ((i=${g_start};i<${g_end};i++));
 do
-    percentage=${i}*${ratio}
+    percentage=$((${i}*${ratio}))
     echo "Start training job with ${percentage}% of training data..."
     job_name=duorat_new_db_content_${dataset}_${percentage}p
     job_log=${logs_folder}/train_duorat_${dataset}_${percentage}p
