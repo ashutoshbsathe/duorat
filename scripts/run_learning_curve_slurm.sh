@@ -37,7 +37,7 @@ dataset=$1
 ratio=$2
 
 if [ ${dataset} = "sparc" ] | [ ${dataset} = "cosql" ]; then
-    running_config=./configs/duorat/duorat-${dataset}-new-db-content.jsonnet
+    running_config=${wdir}/configs/duorat/duorat-${dataset}-new-db-content.jsonnet
 fi
 
 mkdir ${logs_folder}
