@@ -46,7 +46,8 @@ class CoreNLP:
                     os.environ["CORENLP_HOME"]
                 )
             )
-        self.client = corenlp.CoreNLPClient(timeout=60000,
+        self.client = corenlp.CoreNLPClient(endpoint=f"http://localhost:{os.environ['CORENLP_SERVER_PORT']}",
+                                            timeout=60000,
                                             be_quiet=False,
                                             memory="16G",
                                             threads=16,
