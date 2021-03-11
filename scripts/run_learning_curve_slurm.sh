@@ -19,7 +19,7 @@ submit_job () {
     job_content="${job_content}\n#SBATCH --job-name=${job_name}"
     job_content="${job_content}\n#SBATCH --output=${job_log}_%A.out"
     job_content="${job_content}\n#SBATCH --error=${job_log}_%A.err"
-    job_content="${job_content}\n\nexport CACHE_DIR=${wdir}/logdir\nexport TRANSFORMERS_CACHE=${wdir}/logdir\nexport CORENLP_HOME=${wdir}/third_party/corenlp/stanford-corenlp-full-2018-10-05\nsource /mnt/shared/vchoang/tools/pyvenv37-oda-text2sql-duorat/bin/activate"
+    job_content="${job_content}\n\nexport CACHE_DIR=${wdir}/logdir\nexport TRANSFORMERS_CACHE=${wdir}/logdir\nexport CORENLP_HOME=${wdir}/third_party/corenlp/stanford-corenlp-full-2018-10-05\nexport CORENLP_SERVER_PORT=9002\n\nsource /mnt/shared/vchoang/tools/pyvenv37-oda-text2sql-duorat/bin/activate"
     job_content="${job_content}\n\ncd ${wdir}"
     job_content="${job_content}\n\n${job_command}"
 

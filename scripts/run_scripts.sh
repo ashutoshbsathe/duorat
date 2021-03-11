@@ -39,7 +39,7 @@ python scripts/eval.py --config configs/duorat/duorat-new-db-content.jsonnet --s
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-new-db-content.jsonnet --logdir ./logdir/duorat-new-db-content-seed1 --seed 1 &> logdir/train-duorat-new-db-content-seed1.log &
 
 # serve
-python scripts/serve.py --logdir ./logdir/duorat-new-db-content-bs4-ac7 --config configs/duorat/duorat-new-db-content.jsonnet --db-path /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/database --server-port 8000 --do-logging --log-append --do-sql-post-processing
+CUDA_VISIBLE_DEVICES=1 python scripts/serve.py --logdir ./logdir/duorat-new-db-content-bs4-ac7 --config configs/duorat/duorat-new-db-content.jsonnet --db-path ./data/database --server-port 8000 --do-logging --log-append --do-sql-post-processing &>./logdir/duorat-new-db-content-bs4-ac7/server_conn.log &
 
 # *** duorat-new-db-content-no-whole --> ok
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-new-db-content-no-whole.jsonnet --logdir ./logdir/duorat-new-db-content-no-whole &> logdir/train-duorat-new-db-content-no-whole.log &
