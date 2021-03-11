@@ -35,13 +35,13 @@ class Preprocessor:
 
         for dataset in datasets:
             if 'name' in dataset:
-                print(f"Processing dataset {dataset['name']}...")
+                print(f"Processing the {dataset['name']} dataset...")
             for section in sections:
                 data = registry.construct("dataset",
                                           dataset[section])  # SpiderDataset/SparcDataset/CoSQLDataset
-                sample_size = self.config["data"].get(f'{section}_sample_size', None)
-                if section in 'train_sample_ratio' and 'train_sample_ratio' in self.config["data"]:
-                    sample_size = int(len(data) * float(self.config["data"]['train_sample_ratio'] / 100))
+                sample_size = dataset.get(f'{section}_sample_size', None)
+                if section in 'train_sample_ratio' and 'train_sample_ratio' in dataset:
+                    sample_size = int(len(data) * float(dataset['train_sample_ratio'] / 100))
                 data.sample(sample_size=sample_size)
                 for i, item in enumerate(tqdm.tqdm(data, desc=section, dynamic_ncols=True)):  # SpiderItem/SparcItem
                     to_add, validation_info = self.model_preproc.validate_item(
