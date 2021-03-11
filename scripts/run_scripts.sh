@@ -195,16 +195,19 @@ CUDA_VISIBLE_DEVICES=3 python scripts/train.py --config configs/duorat/duorat-co
 
 CUDA_VISIBLE_DEVICES=3 python scripts/train.py --config configs/duorat/duorat-cosql-new-db-content-150k-steps.jsonnet --logdir ./logdir/duorat-cosql-new-db-content-run3 &> logdir/train-cosql-new-db-content-run3.log1 &
 
-# *** Estimate training data size required to achieve target accuracy on NL2SQL
+# *** Learning curve for Spider/Sparc/CoSQL
 
 # Spider
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-new-db-content.jsonnet --logdir ./logdir/duorat-new-db-content-5p --train-sample-ratio 5
+sh run_learning_curve_slurm.sh spider 5
 
 # Sparc
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-sparc-new-db-content.jsonnet --logdir ./logdir/duorat-sparc-new-db-content-5p --train-sample-ratio 5
+sh run_learning_curve_slurm.sh sparc 5
 
 # CoSQL
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-cosql-new-db-content.jsonnet --logdir ./logdir/duorat-cosql-new-db-content-5p --train-sample-ratio 5
+sh run_learning_curve_slurm.sh cosql 5
 
 # *** User intent prediction
 python convert_to_fasttext_format.py cosql_train.json cosql_train_intent.fasttext
@@ -212,13 +215,3 @@ python convert_to_fasttext_format.py cosql_dev.json cosql_dev_intent.fasttext
 python build_text_classifier.py /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/cosql/user_intent_prediction/cosql_train_intent.fasttext /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/cosql/user_intent_prediction/cosql_dev_intent.fasttext /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/cosql/user_intent_prediction/cosql_dev_intent.fasttext ../exp/models/cosql_intent_model.bin
 # (1503, 0.8569527611443779, 0.8293625241468127)
 # Accuracy on test split: 0.8380889183808892
-
-# *** Learning curve for Spider/Sparc/CoSQL
-# training for fixed 100K steps
-
-# Spider
-
-
-# Sparc
-
-# CoSQL
