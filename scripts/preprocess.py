@@ -29,7 +29,7 @@ class Preprocessor:
         self.model_preproc.clear_items()
         for section in sections:
             data = registry.construct("dataset",
-                                      self.config["data"][section])  # SpiderDataset/SparcDataset
+                                      self.config["data"][section])  # SpiderDataset/SparcDataset/CoSQLDataset
             sample_size = self.config["data"].get(f'{section}_sample_size', None)
             if 'train_sample_ratio' in self.config["data"]:
                 sample_size = int(len(data) * float(self.config["data"]['train_sample_ratio'] / 100))
