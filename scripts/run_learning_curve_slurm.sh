@@ -42,11 +42,11 @@ fi
 mkdir ${logs_folder}
 mkdir ${batch_job_folder}
 
-g_start = 1
-g_end = 100 / ${ratio}
-for ((i=${g_start};i<=${g_end};i++));
+g_start=1
+g_end=100/${ratio}
+for ((i=${g_start};i<${g_end};i++));
 do
-    percentage = ${i} * ${ratio}
+    percentage=${i}*${ratio}
     echo "Start training job with ${percentage}% of training data..."
     job_name=duorat_new_db_content_${dataset}_${percentage}p
     job_log=${logs_folder}/train_duorat_${dataset}_${percentage}p
