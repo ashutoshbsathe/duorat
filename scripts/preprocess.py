@@ -28,12 +28,10 @@ class Preprocessor:
     def preprocess(self, sections, keep_vocab):
         self.model_preproc.clear_items()
 
-        if isinstance(self.config["data"], dict):
-            datasets = [self.config["data"]]
-        elif isinstance(self.config["data"], list):
+        if isinstance(self.config["data"], list):
             datasets = self.config["data"]
         else:
-            raise ValueError(f"Error in config.data, either a list or dictionary.")
+            datasets = [self.config["data"]]
 
         for dataset in datasets:
             if 'name' in dataset:

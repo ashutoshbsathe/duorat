@@ -209,6 +209,9 @@ sh run_learning_curve_slurm.sh sparc 5
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-cosql-new-db-content.jsonnet --logdir ./logdir/duorat-cosql-new-db-content-5p --train-sample-ratio 5
 sh run_learning_curve_slurm.sh cosql 5
 
+# *** Unified training (Spider + Sparc + CoSQL)
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-sparc-cosql-new-db-content.jsonnet --logdir ./logdir/duorat-spider-sparc-cosql-new-db-content
+
 # *** User intent prediction
 python convert_to_fasttext_format.py cosql_train.json cosql_train_intent.fasttext
 python convert_to_fasttext_format.py cosql_dev.json cosql_dev_intent.fasttext

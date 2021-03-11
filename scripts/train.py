@@ -555,7 +555,11 @@ def main(
         logger.log("Skip preprocessing..")
     else:
         logger.log("Running preprocessing...")
-        sections = [key for key, v in config["data"].items() if isinstance(v, dict)]
+        if isinstance(config["data"], list):
+            dataset = config["data"][0]
+        else:
+            dataset = config["data"]
+        sections = [key for key, v in dataset.items() if isinstance(v, dict)]
         keep_vocab = False
         preprocessor = Preprocessor(config)
         preprocessor.preprocess(sections, keep_vocab)
