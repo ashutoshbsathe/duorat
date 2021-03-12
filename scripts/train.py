@@ -42,6 +42,7 @@ from torch.utils.data import DataLoader
 
 # noinspection PyUnresolvedReferences
 from duorat import datasets
+from duorat.datasets.unified_dataset import UnifiedDataset
 
 # noinspection PyUnresolvedReferences
 from duorat import preproc
@@ -214,14 +215,15 @@ class Trainer:
 
         # 3. Get training data somewhere
         with self.data_random:
-            data_splits = self.config["train"].get("data_splits", None)
-            if data_splits is not None:
-                self.logger.log(f"Using custom training data splits: {data_splits}.")
-            else:
-                data_splits = [
-                    section for section in self.config["data"] if "train" in section
-                                                                  and isinstance(self.config["data"][section], dict)
-                ]
+            # data_splits = self.config["train"].get("data_splits", None)
+            # if data_splits is not None:
+            #     self.logger.log(f"Using custom training data splits: {data_splits}.")
+            # else:
+            #     data_splits = [
+            #         section for section in self.config["data"] if "train" in section
+            #                                                       and isinstance(self.config["data"][section], dict)
+            #     ]
+            data_splits = ['train', 'val']
             train_data = list(
                 itertools.chain.from_iterable(
                     self.model_preproc.dataset(split) for split in data_splits
@@ -392,8 +394,23 @@ class Trainer:
     def _infer(self, modeldir, last_step, eval_section):
         self.logger.log("Inferring...")
 
-        orig_data = registry.construct("dataset", self.config["data"][eval_section])
-        orig_data.sample(sample_size=self.config["data"].get(f'{eval_section}_sample_size', None))
+        # retrieve original data --> @Vu Hoang: can we do this step only once?
+        orig_data = UnifiedDataset()
+        if isinstance(self.config["data"], list):
+            datasets = self.config["data"]
+        else:
+            datasets = [self.config["data"]]
+
+        for dataset in datasets:
+            if 'name' in dataset:
+                print(f"Processing the {dataset['name']} dataset...")
+
+            loaded_dataset = registry.construct("dataset", self.config["data"][eval_section])
+            loaded_dataset.sample(sample_size=self.config["data"].get(f'{eval_section}_sample_size', None))
+
+            orig_data.extend(loaded_dataset.get_examples())
+
+        # get preprocessed data
         preproc_data: List[RATPreprocItem] = self.model_preproc.dataset(eval_section)
 
         self.model.eval()
