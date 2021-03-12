@@ -751,7 +751,7 @@ def duo_rat_encoder_item(
         source_relation_types=source_relation_types,
         max_supported_input_length=max_supported_input_length,
     )
-    if interaction_size == 0 or len(preproc_item.interaction) - interaction_size < 0:
+    if preproc_item.interaction is None or len(preproc_item.interaction) - interaction_size < 0:
         encoder_item_builder.add_input_tokens(
             input_tokens=itertools.chain(
                 question_input_tokens(
