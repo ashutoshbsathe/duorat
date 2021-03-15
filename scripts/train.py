@@ -417,8 +417,9 @@ class Trainer:
         for dataset in datasets:
             if 'name' in dataset:
                 print(f"Inferring the {dataset['name']} dataset...")
+                name = dataset['name']
             else:
-                dataset['name'] = 'default'
+                name = 'default'
 
             orig_data = registry.construct("dataset", self.config["data"][eval_section])
             orig_data.sample(sample_size=self.config["data"].get(f'{eval_section}_sample_size', None))
@@ -445,12 +446,12 @@ class Trainer:
                 )
             self.model.train()
 
-            with open(f"{modeldir}/output-{last_step}-{dataset['name']}", "w") as output_dst:
+            with open(f"{modeldir}/output-{last_step}-{name}", "w") as output_dst:
                 for line in inferred_lines:
                     output_dst.write(line)
 
             if isinstance(self.model.preproc.transition_system, SpiderTransitionSystem):
-                eval_results[dataset['name']] = evaluate_default(orig_data, load_from_lines(inferred_lines))
+                eval_results[name] = evaluate_default(orig_data, load_from_lines(inferred_lines))
             else:
                 raise NotImplementedError
 
