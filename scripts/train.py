@@ -214,15 +214,16 @@ class Trainer:
 
         # 3. Get training data somewhere
         with self.data_random:
-            # data_splits = self.config["train"].get("data_splits", None)
-            # if data_splits is not None:
-            #     self.logger.log(f"Using custom training data splits: {data_splits}.")
-            # else:
-            #     data_splits = [
-            #         section for section in self.config["data"] if "train" in section
-            #                                                       and isinstance(self.config["data"][section], dict)
-            #     ]
-            data_splits = ['train', 'val']
+            data_splits = self.config["train"].get("data_splits", None)
+            if data_splits is not None:
+                self.logger.log(f"Using custom training data splits: {data_splits}.")
+            else:
+                # data_splits = [
+                #     section for section, _ in self.config["data"].items() if "train" in section
+                #                                                   and isinstance(self.config["data"][section], dict)
+                # ]
+                data_splits = ["train"]
+
             train_data = list(
                 itertools.chain.from_iterable(
                     self.model_preproc.dataset(split) for split in data_splits
@@ -244,7 +245,11 @@ class Trainer:
             batch_size=self.config["train"]["eval_batch_size"],
             collate_fn=lambda x: x,
         )
-        val_data = self.model_preproc.dataset("val")
+        if isinstance(self.config["data"], list):
+            val_data = torch.utils.data.ConcatDataset(
+                [self.model_preproc.dataset(f"{dataset['name']}_val") for dataset in self.config["data"]])
+        else:
+            val_data = self.model_preproc.dataset("val")
         val_data_loader = DataLoader(
             val_data,
             batch_size=self.config["train"]["eval_batch_size"],
@@ -407,7 +412,6 @@ class Trainer:
     def _infer(self, modeldir, last_step, eval_section):
         self.logger.log("Inferring...")
 
-        # retrieve original data --> @Vu Hoang: can we do this step only once?
         if isinstance(self.config["data"], list):
             datasets = self.config["data"]
         else:
@@ -421,11 +425,15 @@ class Trainer:
             else:
                 name = 'default'
 
-            orig_data = registry.construct("dataset", self.config["data"][eval_section])
-            orig_data.sample(sample_size=self.config["data"].get(f'{eval_section}_sample_size', None))
+            # retrieve original data --> @Vu Hoang: can we do this step only once?
+            orig_data = registry.construct("dataset", dataset[eval_section])
+            orig_data.sample(sample_size=dataset.get(f'{eval_section}_sample_size', None))
 
             # get preprocessed data
-            preproc_data: List[RATPreprocItem] = self.model_preproc.dataset(eval_section)
+            if name is 'default':
+                preproc_data: List[RATPreprocItem] = self.model_preproc.dataset(eval_section)
+            else:
+                preproc_data: List[RATPreprocItem] = self.model_preproc.dataset(f"{name}_{eval_section}")
 
             self.model.eval()
             with torch.no_grad():
