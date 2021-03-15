@@ -42,7 +42,6 @@ from torch.utils.data import DataLoader
 
 # noinspection PyUnresolvedReferences
 from duorat import datasets
-from duorat.datasets.unified_dataset import UnifiedDataset
 
 # noinspection PyUnresolvedReferences
 from duorat import preproc
@@ -395,7 +394,6 @@ class Trainer:
         self.logger.log("Inferring...")
 
         # retrieve original data --> @Vu Hoang: can we do this step only once?
-        orig_data = UnifiedDataset()
         if isinstance(self.config["data"], list):
             datasets = self.config["data"]
         else:
@@ -404,42 +402,42 @@ class Trainer:
         for dataset in datasets:
             if 'name' in dataset:
                 print(f"Processing the {dataset['name']} dataset...")
+            else:
+                dataset['name'] = 'default'
 
-            loaded_dataset = registry.construct("dataset", self.config["data"][eval_section])
-            loaded_dataset.sample(sample_size=self.config["data"].get(f'{eval_section}_sample_size', None))
+            orig_data = registry.construct("dataset", self.config["data"][eval_section])
+            orig_data.sample(sample_size=self.config["data"].get(f'{eval_section}_sample_size', None))
 
-            orig_data.extend(loaded_dataset.get_examples())
+            # get preprocessed data
+            preproc_data: List[RATPreprocItem] = self.model_preproc.dataset(eval_section)
 
-        # get preprocessed data
-        preproc_data: List[RATPreprocItem] = self.model_preproc.dataset(eval_section)
-
-        self.model.eval()
-        with torch.no_grad():
-            if isinstance(self.model.preproc.transition_system, SpiderTransitionSystem):
-                # Orig data only used with SpiderTransitionSystem
-                assert len(orig_data) == len(preproc_data)
-            inferred_lines = list(
-                self._inner_infer(
-                    model=self.model,
-                    orig_data=orig_data,
-                    preproc_data=preproc_data,
-                    nproc=self.config["train"]["eval_nproc"],
-                    beam_size=self.config["train"]["eval_beam_size"],
-                    decode_max_time_step=self.config["train"][
-                        "eval_decode_max_time_step"
-                    ],
+            self.model.eval()
+            with torch.no_grad():
+                if isinstance(self.model.preproc.transition_system, SpiderTransitionSystem):
+                    # Orig data only used with SpiderTransitionSystem
+                    assert len(orig_data) == len(preproc_data)
+                inferred_lines = list(
+                    self._inner_infer(
+                        model=self.model,
+                        orig_data=orig_data,
+                        preproc_data=preproc_data,
+                        nproc=self.config["train"]["eval_nproc"],
+                        beam_size=self.config["train"]["eval_beam_size"],
+                        decode_max_time_step=self.config["train"][
+                            "eval_decode_max_time_step"
+                        ],
+                    )
                 )
-            )
-        self.model.train()
+            self.model.train()
 
-        with open(f"{modeldir}/output-{last_step}", "w") as output_dst:
-            for line in inferred_lines:
-                output_dst.write(line)
+            with open(f"{modeldir}/output-{last_step}-{dataset['name']}", "w") as output_dst:
+                for line in inferred_lines:
+                    output_dst.write(line)
 
-        if isinstance(self.model.preproc.transition_system, SpiderTransitionSystem):
-            return evaluate_default(orig_data, load_from_lines(inferred_lines))
-        else:
-            raise NotImplementedError
+            if isinstance(self.model.preproc.transition_system, SpiderTransitionSystem):
+                return evaluate_default(orig_data, load_from_lines(inferred_lines))
+            else:
+                raise NotImplementedError
 
     @classmethod
     def _inner_infer(
