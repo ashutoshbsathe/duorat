@@ -379,14 +379,28 @@ class Trainer:
 
         all_exact = 0
         if last_step >= self.config["train"]["infer_min_n"]:
-            metrics = self._infer(modeldir, last_step, eval_section)
-            stats.update(
-                {
-                    "{}_exact".format(level): metrics["total_scores"][level]["exact"]
-                    for level in LEVELS
-                }
-            )
-            all_exact = metrics["total_scores"]["all"]["exact"]
+            eval_metrics = self._infer(modeldir, last_step, eval_section)
+            if len(eval_metrics) == 1:
+                metrics = eval_metrics[list(eval_metrics.keys())[0]]
+                stats.update(
+                    {
+                        "{}_exact".format(level): metrics["total_scores"][level]["exact"]
+                        for level in LEVELS
+                    }
+                )
+                all_exact = metrics["total_scores"]["all"]["exact"]
+            else:  # multiple val datasets
+                all_exact = 0.
+                for dataset_name, metrics in eval_metrics.items():
+                    stats.update(
+                        {
+                            f"{dataset_name}_{level}_exact": metrics["total_scores"][level]["exact"]
+                            for level in LEVELS
+                        }
+                    )
+                    all_exact += metrics["total_scores"]["all"]["exact"]
+                # @Vu Hoang: average score for all_exact, maybe better one?
+                all_exact /= len(eval_metrics)
         self._log_stats(last_step, eval_section, stats)
         return all_exact
 
@@ -399,9 +413,10 @@ class Trainer:
         else:
             datasets = [self.config["data"]]
 
+        eval_results = {}
         for dataset in datasets:
             if 'name' in dataset:
-                print(f"Processing the {dataset['name']} dataset...")
+                print(f"Inferring the {dataset['name']} dataset...")
             else:
                 dataset['name'] = 'default'
 
@@ -435,9 +450,11 @@ class Trainer:
                     output_dst.write(line)
 
             if isinstance(self.model.preproc.transition_system, SpiderTransitionSystem):
-                return evaluate_default(orig_data, load_from_lines(inferred_lines))
+                eval_results[dataset['name']] = evaluate_default(orig_data, load_from_lines(inferred_lines))
             else:
                 raise NotImplementedError
+
+        return eval_results
 
     @classmethod
     def _inner_infer(
