@@ -222,14 +222,18 @@ class Trainer:
                 #     section for section, _ in self.config["data"].items() if "train" in section
                 #                                                   and isinstance(self.config["data"][section], dict)
                 # ]
-                data_splits = ["train"]
+                if isinstance(self.config["data"], list):
+                    datasets = self.config["data"]
+                else:
+                    datasets = [self.config["data"]]
+                data_splits = [f"{dataset['name']}_train" if 'name' in dataset else "train" for dataset in datasets]
 
             train_data = list(
                 itertools.chain.from_iterable(
                     self.model_preproc.dataset(split) for split in data_splits
                 )
             )
-            self.logger.log(f"{len(train_data)} training examples")
+            self.logger.log(f"There are {len(train_data)} training examples.")
 
             train_data_loader = self._yield_batches_from_epochs(
                 DataLoader(
@@ -240,16 +244,21 @@ class Trainer:
                     collate_fn=lambda x: x,
                 )
             )
+
+        # loader for train data
         train_eval_data_loader = DataLoader(
             train_data,
             batch_size=self.config["train"]["eval_batch_size"],
             collate_fn=lambda x: x,
         )
+
+        # loader for val data
         if isinstance(self.config["data"], list):
-            val_data = torch.utils.data.ConcatDataset(
-                [self.model_preproc.dataset(f"{dataset['name']}_val") for dataset in self.config["data"]])
+            val_data = list(itertools.chain.from_iterable(
+                self.model_preproc.dataset(f"{dataset['name']}_val") for dataset in self.config["data"]))
         else:
             val_data = self.model_preproc.dataset("val")
+        self.logger.log(f"There are {len(val_data)} validation examples.")
         val_data_loader = DataLoader(
             val_data,
             batch_size=self.config["train"]["eval_batch_size"],
