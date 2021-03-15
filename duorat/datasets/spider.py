@@ -169,9 +169,6 @@ def load_original_schemas(tables_paths):
 
 @registry.register("dataset", "spider")
 class SpiderDataset(Dataset):
-    def __init__(self):
-        self.examples = []
-
     def __init__(self, paths: List[str], tables_paths: List[str], db_path: str):
         self.paths = paths
         self.db_path = db_path

@@ -6,7 +6,7 @@ from typing import List
 
 class UnifiedDataset(CoSQLDataset):
     def __init__(self):
-        super().__init__()
+        self.examples = []
 
     def extend(self, examples: List[SpiderItem]):
         self.examples.extend(examples)
