@@ -584,8 +584,8 @@ def main(
     if args.force_train:
         try:
             logdir_path = pathlib.Path(args.logdir)
-            shutil.rmtree(logdir_path)
-            os.makedirs(logdir_path)
+            shutil.rmtree(logdir_path, ignore_errors=True)
+            os.makedirs(logdir_path, exist_ok=True)
         except OSError as e:
             print("Error: %s : %s" % (args.logdir, e.strerror))
 
