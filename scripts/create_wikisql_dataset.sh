@@ -3,9 +3,9 @@
 
 # This script must be executed in the duorat's root dir.
 
-DATA_DIR='./data'
 MICHIGAN_GITHUB=https://raw.githubusercontent.com/jkkummerfeld/text2sql-data/master
-CODE='.'
+CODE=$PWD
+DATA_DIR=${CODE}/data
 
 # WikiSQL
 function go_wikisql {
