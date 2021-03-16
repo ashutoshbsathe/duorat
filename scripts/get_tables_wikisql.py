@@ -64,7 +64,7 @@ def dump_wikisql_db_json_schema(db_file, table_file):
             # table_info["column_names_original"].append((0, col[1]))
             # table_info["column_names"].append((0, col[1].lower().replace("_", " ")))
             table_info["column_names_original"].append((0, col_name))
-            table_info["column_names"].append((0, col_name.lower().replace("_", " ").replace("/", " ")))
+            table_info["column_names"].append((0, col_name.lower().replace("_", " ")))
 
             # varchar, '' -> text, int, numeric -> integer,
             col_type = col[2].lower()
