@@ -25,13 +25,13 @@ function go_wikisql {
     cd ..
     cd -
 
-    python $CODE/scripts/get_tables_new.py\
+    python $CODE/scripts/get_tables_wikisql.py\
         ${DATA_DIR}/wikisql/WikiSQL/data/train.db\
         ${DATA_DIR}/wikisql/tables_train.json
-    python $CODE/scripts/get_tables_new.py\
+    python $CODE/scripts/get_tables_wikisql.py\
         ${DATA_DIR}/wikisql/WikiSQL/data/dev.db\
         ${DATA_DIR}/wikisql/tables_dev.json
-    python $CODE/scripts/get_tables_new.py\
+    python $CODE/scripts/get_tables_wikisql.py\
         ${DATA_DIR}/wikisql/WikiSQL/data/test.db\
         ${DATA_DIR}/wikisql/tables_test.json
 }
