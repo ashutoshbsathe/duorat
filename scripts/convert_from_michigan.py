@@ -103,7 +103,7 @@ if __name__ == "__main__":
     for item in get_nl_sql_pairs(args.input, args.split, with_dbs=args.with_dbs):
         if args.with_dbs:
             question, query, table_id = item
-            db_id = f"{args.db_id}_{table_id}"
+            db_id = f"table_{table_id.replace('-', '_')}"
         else:
             question, query = item
             db_id = args.db_id

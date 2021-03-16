@@ -24,7 +24,7 @@ def dump_wikisql_db_json_schema(db, db_name, db_id):
         table_name = item[0]
 
         table_info = {
-            "db_id": f"{db_name}-{db_id}_{table_name}",
+            "db_id": f"{table_name}",
             "table_names_original": [],
             "table_names": [],
             "column_names_original": [(-1, "*")],
