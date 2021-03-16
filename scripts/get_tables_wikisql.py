@@ -10,7 +10,7 @@ import sqlite3
 from duorat.preproc.utils import refine_schema_names
 
 
-def dump_wikisql_db_json_schema(db, db_name, db_id):
+def dump_wikisql_db_json_schema(db):
     """read table and column info"""
 
     conn = sqlite3.connect(db)
@@ -95,7 +95,7 @@ if __name__ == "__main__":
     assert sqlite_file.endswith('.db')
     db_id = os.path.basename(sqlite_file)[:-3]
 
-    schemas = dump_wikisql_db_json_schema(sqlite_file, 'wikisql', db_id)
+    schemas = dump_wikisql_db_json_schema(sqlite_file)
     schemas = [refine_schema_names(schema) for schema in schemas]
 
     with open(output_file, "wt") as out:
