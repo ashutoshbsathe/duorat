@@ -103,4 +103,4 @@ if __name__ == "__main__":
         })
 
     with open(args.output, 'w') as output:
-        json.dump(items, output)
+        json.dump(items, output, indent=2, separators=(",", ": "))

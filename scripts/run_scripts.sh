@@ -76,14 +76,17 @@ python3 scripts/split_spider_by_db.py --aug-data train_oda_dm_para.json --aug-su
 # *** Evaluate on other semantic parsing datasets
 
 # Geo
+cd ./data
 bash scripts/download_michigan_no_docker.sh geo
 python scripts/infer_questions.py --logdir ./logdir/duorat-new-db-content-bs4-ac7 --data-config data/michigan.libsonnet --questions data/database/geo_test/examples.json --output-google ./logdir/duorat-new-db-content-bs4-ac7/inferred_geo.json
 python scripts/evaluation_google.py --predictions_filepath ./logdir/duorat-new-db-content-bs4-ac7/inferred_geo.json --output_filepath ./logdir/duorat-new-db-content-bs4-ac7/output_geo.json --cache_filepath data/database/geo_test/geo_cache.json  --timeout 180
 [NOT_EXIST] python scripts/filter_results.py ./logdir/duorat-new-db-content-bs4-ac7/output_geo.json
 
 # Atis (failed)
+bash scripts/download_michigan_no_docker.sh atis
 
 # Academic (failed)
+bash scripts/download_michigan_no_docker.sh academic
 
 # Restaurants
 bash scripts/download_michigan_no_docker.sh restaurants
@@ -98,10 +101,13 @@ bash scripts/download_michigan_no_docker.sh imdb
 python scripts/infer_questions.py --logdir ./logdir/duorat-new-db-content-bs4-ac7 --data-config data/michigan_imdb.libsonnet --questions data/database/imdb_test/examples.json --output-google ./logdir/duorat-new-db-content-bs4-ac7/inferred_imdb.json
 
 # Scholar
+bash scripts/download_michigan_no_docker.sh scholar
 
 # Advising
+bash scripts/download_michigan_no_docker.sh advising
 
 # WikiSQL
+bash scripts/download_michigan_no_docker.sh wikisql
 
 # *** Sparc
 
