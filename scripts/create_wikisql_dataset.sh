@@ -5,7 +5,7 @@
 
 DATA_DIR='./data'
 MICHIGAN_GITHUB=https://raw.githubusercontent.com/jkkummerfeld/text2sql-data/master
-CODE='./'
+CODE='.'
 
 # WikiSQL
 function go_wikisql {
@@ -36,4 +36,5 @@ function go_wikisql {
         ${DATA_DIR}/wikisql/tables_test.json
 }
 
+rm -rf $DATA_DIR/wikisql
 go_wikisql

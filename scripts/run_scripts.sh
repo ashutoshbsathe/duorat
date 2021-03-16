@@ -107,7 +107,7 @@ bash scripts/download_michigan_no_docker.sh scholar
 bash scripts/download_michigan_no_docker.sh advising
 
 # WikiSQL
-bash scripts/download_michigan_no_docker.sh wikisql
+bash scripts/create_wikisql_dataset.sh
 
 # *** Sparc
 
