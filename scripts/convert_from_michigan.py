@@ -90,13 +90,21 @@ if __name__ == "__main__":
     parser.add_argument('--db-id', required=True)
     parser.add_argument('--output', required=True)
     parser.add_argument('--split', action='append')
+    parser.add_argument('--with-dbs', required=False, default=False)
     args = parser.parse_args()
     print(args)
 
     items = []
-    for question, query in get_nl_sql_pairs(args.input, args.split):
+    for item in get_nl_sql_pairs(args.input, args.split, with_dbs=args.with_dbs):
+        if args.with_dbs:
+            question, query, table_id = item
+            db_id = f"{args.db_id}_{table_id}"
+        else:
+            question, query = item
+            db_id = args.db_id
+
         items.append({
-            'db_id': args.db_id,
+            'db_id': db_id,
             'query': query,
             'sql': "",
             'question': question
