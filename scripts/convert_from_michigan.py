@@ -90,7 +90,12 @@ if __name__ == "__main__":
     parser.add_argument('--db-id', required=True)
     parser.add_argument('--output', required=True)
     parser.add_argument('--split', action='append')
-    parser.add_argument('--with-dbs', required=False, default=False)
+    parser.add_argument(
+        "--with-dbs",
+        default=False,
+        action="store_true",
+        help="If True, consider table-id, e.g., in WikiSQL dataset.",
+    )
     args = parser.parse_args()
     print(args)
 

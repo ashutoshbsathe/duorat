@@ -13,11 +13,11 @@ function go_wikisql {
     wget $MICHIGAN_GITHUB/data/wikisql.json.bz2 || exit
     bzip2 -d wikisql.json.bz2
     python $CODE/scripts/convert_from_michigan.py --input wikisql.json --db-id wikisql_train --output examples_train.json\
-        --split train
+        --split train --with-dbs
     python $CODE/scripts/convert_from_michigan.py --input wikisql.json --db-id wikisql_dev --output examples_dev.json\
-        --split dev
+        --split dev --with-dbs
     python $CODE/scripts/convert_from_michigan.py --input wikisql.json --db-id wikisql_test --output examples_test.json\
-        --split test
+        --split test --with-dbs
     git clone https://github.com/salesforce/WikiSQL.git || exit
     cd WikiSQL
     bzip2 -d data.tar.bz2
