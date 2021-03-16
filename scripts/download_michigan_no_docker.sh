@@ -203,35 +203,6 @@ function go_advising {
     create_schema_file advising
 }
 
-# WikiSQL
-function go_wikisql {
-    mkdir wikisql && cd wikisql
-    wget $MICHIGAN_GITHUB/data/wikisql.json.bz2 || exit
-    bzip2 -d wikisql.json.bz2
-    python $CODE/scripts/convert_from_michigan.py --input wikisql.json --db-id wikisql_train --output examples_train.json\
-        --split train
-    python $CODE/scripts/convert_from_michigan.py --input wikisql.json --db-id wikisql_dev --output examples_dev.json\
-        --split dev
-    python $CODE/scripts/convert_from_michigan.py --input wikisql.json --db-id wikisql_test --output examples_test.json\
-        --split test
-    git clone https://github.com/salesforce/WikiSQL.git || exit
-    cd WikiSQL
-    bzip2 -d data.tar.bz2
-    tar -xvf data.tar
-    cd ..
-    cd -
-
-    python $CODE/scripts/get_tables_new.py\
-        $DATABASE_DIR/wikisql/WikiSQL/data/train.db\
-        $DATABASE_DIR/wikisql/tables_train.json
-    python $CODE/scripts/get_tables_new.py\
-        $DATABASE_DIR/wikisql/WikiSQL/data/dev.db\
-        $DATABASE_DIR/wikisql/tables_dev.json
-    python $CODE/scripts/get_tables_new.py\
-        $DATABASE_DIR/wikisql/WikiSQL/data/test.db\
-        $DATABASE_DIR/wikisql/tables_test.json
-}
-
 cd $DATABASE_DIR
 
 for DB in $@
