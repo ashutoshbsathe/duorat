@@ -43,8 +43,8 @@ def dump_wikisql_db_json_schema(db, db_name, db_id):
         fk_holder.extend([[(table_name, fk[3]), (fk[2], fk[4])] for fk in fks])
         cur = conn.execute("PRAGMA table_info('{}') ".format(table_name))
         for j, col in enumerate(cur.fetchall()):
-            table_info["column_names_original"].append((j, col[1]))
-            table_info["column_names"].append((j, col[1].lower().replace("_", " ")))
+            table_info["column_names_original"].append((0, col[1]))
+            table_info["column_names"].append((0, col[1].lower().replace("_", " ")))
             # varchar, '' -> text, int, numeric -> integer,
             col_type = col[2].lower()
             if (
