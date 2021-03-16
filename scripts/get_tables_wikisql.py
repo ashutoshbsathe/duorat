@@ -10,10 +10,18 @@ import sqlite3
 from duorat.preproc.utils import refine_schema_names
 
 
-def dump_wikisql_db_json_schema(db):
+def dump_wikisql_db_json_schema(db_file, table_file):
     """read table and column info"""
 
-    conn = sqlite3.connect(db)
+    # read .tables.jsonl file
+    table_cols_dict = {}
+    f_table_file = open(table_file, 'r')
+    for line in f_table_file:
+        tab_info = json.loads(line.strip())
+        table_cols_dict[f"table_{tab_info['id'].replace('-', '_')}"] = tab_info["header"]
+
+    # read .db file
+    conn = sqlite3.connect(db_file)
     conn.execute("pragma foreign_keys=ON")
     cursor = conn.execute("SELECT name FROM sqlite_master WHERE type='table';")
 
@@ -43,8 +51,21 @@ def dump_wikisql_db_json_schema(db):
         fk_holder.extend([[(table_name, fk[3]), (fk[2], fk[4])] for fk in fks])
         cur = conn.execute("PRAGMA table_info('{}') ".format(table_name))
         for j, col in enumerate(cur.fetchall()):
-            table_info["column_names_original"].append((0, col[1]))
-            table_info["column_names"].append((0, col[1].lower().replace("_", " ")))
+            if table_name in table_cols_dict:
+                col_id = int(col[1].replace('col', ''))
+                if 0 <= col_id < len(table_cols_dict[table_name]):
+                    col_name = table_cols_dict[table_name][col_id]
+                else:
+                    print(f"WARNING: {col[1]} is not valid in {table_cols_dict[table_name]}.")
+                    col_name = col[1]
+            else:
+                print(f"WARNING: {table_name} does not exist in {table_file}.")
+                col_name = col[1]
+            # table_info["column_names_original"].append((0, col[1]))
+            # table_info["column_names"].append((0, col[1].lower().replace("_", " ")))
+            table_info["column_names_original"].append((0, col_name))
+            table_info["column_names"].append((0, col_name.lower().replace("_", " ")))
+
             # varchar, '' -> text, int, numeric -> integer,
             col_type = col[2].lower()
             if (
@@ -86,16 +107,17 @@ if __name__ == "__main__":
     """
     if len(sys.argv) < 2:
         print(
-            "Usage: python get_tables_wikisql.py [sqlite file] [output file name e.g. output.json]"
+            "Usage: python get_tables_wikisql.py [sqlite file] [JSON table file] [output file name e.g. output.json]"
         )
         sys.exit()
     sqlite_file = sys.argv[1]
-    output_file = sys.argv[2]
+    table_file = sys.argv[2]
+    output_file = sys.argv[3]
 
     assert sqlite_file.endswith('.db')
     db_id = os.path.basename(sqlite_file)[:-3]
 
-    schemas = dump_wikisql_db_json_schema(sqlite_file)
+    schemas = dump_wikisql_db_json_schema(sqlite_file, table_file)
     schemas = [refine_schema_names(schema) for schema in schemas]
 
     with open(output_file, "wt") as out:
