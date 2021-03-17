@@ -432,7 +432,7 @@ async def text2sql_infer(request: Text2SQLInferenceRequest):
 
 
 @app.post('/text2sql/infer_followup', response_class=JSONResponse)
-async def text2sql_infer(request: Text2SQLWithFollowUpInferenceRequest):
+async def text2sql_infer_followup(request: Text2SQLWithFollowUpInferenceRequest):
     print(f'Attempting for a request with a follow-up: {request}')
 
     if request.db_type == 'u_db':

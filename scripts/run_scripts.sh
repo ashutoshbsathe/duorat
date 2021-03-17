@@ -134,7 +134,7 @@ python scripts/get_testsuite_preds.py ./logdir/duorat-sparc-new-db-content/val-d
 [FAILED] CUDA_VISIBLE_DEVICES=3 python scripts/eval.py --config configs/duorat/duorat-sparc-new-db-content.jsonnet --section val --do-execute --inferred ./logdir/duorat-sparc-new-db-content/val-duorat-sparc-new-db-content.output --output ./logdir/duorat-sparc-new-db-content/val-duorat-sparc-new-db-content.eval
 
 # serve
-CUDA_VISIBLE_DEVICES=3 python scripts/serve.py --logdir ./logdir/duorat-sparc-new-db-content --config configs/duorat/duorat-sparc-new-db-content.jsonnet --db-path ./data/sparc/database --server-port 8200 --do-logging --log-append --do-sql-post-processing --log-file-name ./logdir/duorat-sparc-new-db-content/serve_followup.log &>./logdir/duorat-sparc-new-db-content/server_followup_conn.log &
+CUDA_VISIBLE_DEVICES=3 python scripts/serve.py --logdir ./logdir/duorat-sparc-new-db-content --config configs/duorat/duorat-sparc-new-db-content.jsonnet --db-path ./data/sparc/database --server-port 8200 --do-logging --log-append --do-sql-post-processing --log-file-name serve_followup.log &>./logdir/duorat-sparc-new-db-content/server_followup_conn.log &
 
 # testsuite eval
 # quick test
