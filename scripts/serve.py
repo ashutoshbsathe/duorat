@@ -441,6 +441,8 @@ async def text2sql_infer(request: Text2SQLWithFollowUpInferenceRequest):
     elif request.db_type == 'c_db':
         db_path = f"{DB_PATH}/{request.db_id}/{request.db_id}.sqlite"
         schema_path = f"{DB_PATH}/{request.db_id}/tables.json"
+        if not os.path.exists(schema_path):
+            schema_path = ""
 
     if logger:
         logger.log(f'DB path: {db_path}')
