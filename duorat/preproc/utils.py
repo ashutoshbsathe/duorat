@@ -355,8 +355,6 @@ def refine_schema_names(schema: Dict):
     for col in schema["column_names_original"]:
         t_id = col[0]
         column_name = col[1]
-        if t_id == -1:
-            continue
-        corrected = _prompt_column(column_name, new_schema["table_names"][t_id])
+        corrected = _prompt_column(column_name, new_schema["table_names"][t_id] if t_id >= 0 else "")
         new_schema["column_names"].append([t_id, corrected])
     return new_schema
