@@ -464,7 +464,7 @@ async def text2sql_infer_followup(request: Text2SQLWithFollowUpInferenceRequest)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description='DuoRAT Text2SQL Inference Server')
+        description='DuoRAT Text2SQL Inference Server Version 2.0')
     parser.add_argument("--server-port", required=False, type=int, default=8000)
     parser.add_argument("--logdir", required=True)
     parser.add_argument("--config",
