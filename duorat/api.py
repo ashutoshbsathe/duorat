@@ -3,7 +3,7 @@
 # Copyright (c) 2020 Element AI Inc. All rights reserved.
 import json
 import os
-from typing import Optional
+from typing import Optional, List
 
 import _jsonnet
 import torch
@@ -14,6 +14,9 @@ from duorat.datasets.spider import (
     load_tables,
     SpiderSchema,
     schema_dict_to_spider_schema,
+)
+from duorat.datasets.sparc import (
+    SparcItem
 )
 from duorat.preproc.utils import preprocess_schema_uncached, refine_schema_names
 from duorat.types import RATPreprocItem, SQLSchema, Dict
@@ -72,21 +75,43 @@ class DuoratAPI(object):
         self.preproc = self.inferer.model_preproc
         self.model = self.inferer.load_model(logdir, step=None)
 
-    def infer_query(
-        self, question: str, spider_schema: SpiderSchema, preprocessed_schema: SQLSchema
-    ):
+    def infer_query(self,
+                    question: str,
+                    spider_schema: SpiderSchema,
+                    preprocessed_schema: SQLSchema,
+                    history: List[str] = None,
+                    ):
         # TODO: we should only need the preprocessed schema here
-        spider_item = SpiderItem(
-            question=question,
-            slml_question=None,
-            query="",
-            spider_sql={},
-            spider_schema=spider_schema,
-            db_path="",
-            orig={},
-        )
+        if history is not None:
+            interaction = [SpiderItem(question=prev_question,
+                                      slml_question=None,
+                                      query="",
+                                      spider_sql={},
+                                      spider_schema=spider_schema,
+                                      db_path="",
+                                      orig={}) for prev_question in history]
+            input_item = SparcItem(
+                question=question,
+                slml_question=None,
+                query="",
+                spider_sql={},
+                spider_schema=spider_schema,
+                db_path="",
+                orig={},
+                interaction=interaction
+            )
+        else:
+            input_item = SpiderItem(
+                question=question,
+                slml_question=None,
+                query="",
+                spider_sql={},
+                spider_schema=spider_schema,
+                db_path="",
+                orig={},
+            )
         preproc_item: RATPreprocItem = self.preproc.preprocess_item(
-            spider_item,
+            input_item,
             preprocessed_schema,
             AbstractSyntaxTree(production=None, fields=(), created_time=None),
         )
@@ -95,7 +120,7 @@ class DuoratAPI(object):
         )
         if not finished_beams:
             return {
-                "slml_question": spider_item.slml_question,
+                "slml_question": input_item.slml_question,
                 "query": "",
                 "score": -1,
             }
@@ -106,7 +131,7 @@ class DuoratAPI(object):
             parsed_query, spider_schema=spider_schema
         )
         return {
-            "slml_question": spider_item.slml_question,
+            "slml_question": input_item.slml_question,
             "query": fix_detokenization(parsed_query),
             "score": finished_beams[0].score,
         }
@@ -144,8 +169,8 @@ class DuoratOnDatabase(object):
             tokenize=self.duorat.preproc._schema_tokenize,
         )
 
-    def infer_query(self, question):
-        return self.duorat.infer_query(question, self.schema, self.preprocessed_schema)
+    def infer_query(self, question, history=None):
+        return self.duorat.infer_query(question, self.schema, self.preprocessed_schema, history=history)
 
     def execute(self, query):
         return execute(query=query, db_path=self.db_path)
