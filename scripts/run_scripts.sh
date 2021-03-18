@@ -135,6 +135,8 @@ python scripts/get_testsuite_preds.py ./logdir/duorat-sparc-new-db-content/val-d
 
 # serve
 CUDA_VISIBLE_DEVICES=3 python scripts/serve.py --logdir ./logdir/duorat-sparc-new-db-content --config configs/duorat/duorat-sparc-new-db-content.jsonnet --db-path ./data/sparc/database --server-port 8200 --do-logging --log-append --do-sql-post-processing --log-file-name serve_followup.log &>./logdir/duorat-sparc-new-db-content/server_followup_conn.log &
+cd text2sql-poc-ui-demo-jet9
+node ./node_modules/@oracle/ojet-cli/ojet.js serve --server-port=8300 --livereload-port 36729
 
 # testsuite eval
 # quick test
@@ -227,6 +229,6 @@ CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-sp
 # *** User intent prediction
 python convert_to_fasttext_format.py cosql_train.json cosql_train_intent.fasttext
 python convert_to_fasttext_format.py cosql_dev.json cosql_dev_intent.fasttext
-python build_text_classifier.py /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/cosql/user_intent_prediction/cosql_train_intent.fasttext /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/cosql/user_intent_prediction/cosql_dev_intent.fasttext /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/cosql/user_intent_prediction/cosql_dev_intent.fasttext ../exp/models/cosql_intent_model.bin
+python scripts/build_text_classifier.py /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/cosql/user_intent_prediction/cosql_train_intent.preprocessed.fasttext /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/cosql/user_intent_prediction/cosql_dev_intent.preprocessed.fasttext /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/cosql/user_intent_prediction/cosql_dev_intent.preprocessed.fasttext exp/models/cosql_intent_model.bin
 # (1503, 0.8569527611443779, 0.8293625241468127)
 # Accuracy on test split: 0.8380889183808892
