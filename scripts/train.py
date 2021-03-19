@@ -360,6 +360,13 @@ class Trainer:
                             is_best=val_all_exact > best_val_all_exact,
                             best_validation_metric=max(val_all_exact, best_val_all_exact)
                         )
+                        if val_all_exact > best_val_all_exact:
+                            self.logger.log(
+                                "Step {}: got better model checkpoint with averaged val_all_exact {}. Saved.".format(
+                                    last_step,
+                                    val_all_exact
+                                )
+                            )
                         best_val_all_exact = max(val_all_exact, best_val_all_exact)
 
                     # Reset the list of losses
