@@ -64,11 +64,15 @@ class Inferer(ModelLoader):
                 output = open(f"{output_path}.{name}", "w")
             else:
                 print(f"Inferring the {args.section} section of given dataset...")
+                name = 'default'
                 output = open(output_path, "w")
 
             orig_data = registry.construct("dataset", dataset[args.section])
             sliced_orig_data = maybe_slice(orig_data, args.start_offset, args.limit)
-            preproc_data = self.model_preproc.dataset(args.section)
+            if name == 'default':
+                preproc_data = self.model_preproc.dataset(args.section)
+            else:
+                preproc_data = self.model_preproc.dataset(f"{name}_{args.section}")
             sliced_preproc_data = maybe_slice(preproc_data, args.start_offset, args.limit)
 
             with torch.no_grad():
