@@ -227,11 +227,17 @@ CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-co
 sh run_learning_curve_slurm.sh cosql 5
 
 # *** Unified training (Spider + Sparc + CoSQL)
-# dev
+# dev (for debugging)
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-sparc-cosql-dev.jsonnet --logdir ./logdir/duorat-spider-sparc-cosql-dev --force-preprocess --force-train &> logdir/train-duorat-spider-sparc-cosql-dev.log &
 
-# full
+# train
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-sparc-cosql-new-db-content.jsonnet --logdir ./logdir/duorat-spider-sparc-cosql-new-db-content --force-preprocess --force-train &> logdir/train-duorat-spider-sparc-cosql-new-db-content.log &
+
+# infer
+CUDA_VISIBLE_DEVICES=2 python scripts/infer.py --logdir ./logdir/duorat-spider-sparc-cosql-new-db-content --output ./logdir/duorat-cosql-new-db-content/duorat-spider-sparc-cosql-new-db-content.output  --force
+
+# eval
+python scripts/get_testsuite_preds.py ./logdir/duorat-cosql-new-db-content/val-duorat-cosql-new-db-content.output ./data/cosql/sql_state_tracking/cosql_dev_fixed.json ./data/cosql/sql_state_tracking/dev_gold_fixed.txt ./data/cosql/sql_state_tracking/dev_gold_fixed_filtered.txt  ./logdir/duorat-cosql-new-db-content/val-duorat-cosql-new-db-content-eval-testsuite.output "I have left the chat"
 
 # 200K steps
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-sparc-cosql-new-db-content-200k-steps.jsonnet --logdir ./logdir/duorat-spider-sparc-cosql-new-db-content &>logdir/train-duorat-spider-sparc-cosql-new-db-content-200k-steps.log &
