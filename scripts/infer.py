@@ -52,40 +52,53 @@ class Inferer(ModelLoader):
 
     def infer(self, model, output_path, args):
         # 3. Get training data somewhere
-        output = open(output_path, "w")
-        orig_data = registry.construct("dataset", self.config["data"][args.section])
-        sliced_orig_data = maybe_slice(orig_data, args.start_offset, args.limit)
-        preproc_data = self.model_preproc.dataset(args.section)
-        sliced_preproc_data = maybe_slice(preproc_data, args.start_offset, args.limit)
+        if isinstance(self.config["data"], list):
+            datasets = self.config["data"]
+        else:
+            datasets = [self.config["data"]]
 
-        with torch.no_grad():
-            if args.mode == "infer":
-                # assert len(orig_data) == len(preproc_data)
-                self._inner_infer(
-                    model,
-                    args.beam_size,
-                    args.output_history,
-                    sliced_orig_data,
-                    sliced_preproc_data,
-                    output,
-                    args.nproc,
-                    args.decode_max_time_step,
-                )
-            elif args.mode == "debug":
-                self._debug(model, sliced_orig_data, output)
-            elif args.mode == "visualize_attention":
-                model.visualize_flag = True
-                model.decoder.visualize_flag = True
-                self._visualize_attention(
-                    model,
-                    args.beam_size,
-                    args.output_history,
-                    sliced_orig_data,
-                    args.res1,
-                    args.res2,
-                    args.res3,
-                    output,
-                )
+        for dataset in datasets:
+            if 'name' in dataset:
+                print(f"Inferring the {dataset['name']} dataset...")
+                name = dataset['name']
+                output = open(f"{output_path}.{name}", "w")
+            else:
+                print(f"Inferring the {args.section} section of given dataset...")
+                output = open(output_path, "w")
+
+            orig_data = registry.construct("dataset", dataset[args.section])
+            sliced_orig_data = maybe_slice(orig_data, args.start_offset, args.limit)
+            preproc_data = self.model_preproc.dataset(args.section)
+            sliced_preproc_data = maybe_slice(preproc_data, args.start_offset, args.limit)
+
+            with torch.no_grad():
+                if args.mode == "infer":
+                    # assert len(orig_data) == len(preproc_data)
+                    self._inner_infer(
+                        model,
+                        args.beam_size,
+                        args.output_history,
+                        sliced_orig_data,
+                        sliced_preproc_data,
+                        output,
+                        args.nproc,
+                        args.decode_max_time_step,
+                    )
+                elif args.mode == "debug":
+                    self._debug(model, sliced_orig_data, output)
+                elif args.mode == "visualize_attention":
+                    model.visualize_flag = True
+                    model.decoder.visualize_flag = True
+                    self._visualize_attention(
+                        model,
+                        args.beam_size,
+                        args.output_history,
+                        sliced_orig_data,
+                        args.res1,
+                        args.res2,
+                        args.res3,
+                        output,
+                    )
 
     def _inner_infer(
         self,
