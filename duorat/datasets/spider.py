@@ -175,14 +175,14 @@ class SpiderDataset(Dataset):
         self.examples = []
 
         self.schemas, self.eval_foreign_key_maps = load_tables(tables_paths)
-        original_schemas = load_original_schemas(tables_paths)
+        self.original_schemas = load_original_schemas(tables_paths)
 
         for path in paths:
             raw_data = json.load(open(path))
             for entry in raw_data:
-                if "sql" not in entry:
+                if "sql" not in entry or entry["sql"] is "":
                     entry["sql"] = get_sql(
-                        original_schemas[entry["db_id"]], entry["query"]
+                        self.original_schemas[entry["db_id"]], entry["query"]
                     )
                 entry["question"] = entry["question"].replace('*', '')
                 item = SpiderItem(

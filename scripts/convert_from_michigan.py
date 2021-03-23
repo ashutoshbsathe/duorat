@@ -84,6 +84,13 @@ def get_nl_sql_pairs(filepath, splits, with_dbs=False):
     return pairs
 
 
+def remove_semicolon_in_sql_query(query):
+    query = str(query)
+    if query.strip().endswith(";"):
+        query = query[:-1].strip()
+    return query
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--input', required=True)
@@ -110,7 +117,7 @@ if __name__ == "__main__":
 
         items.append({
             'db_id': db_id,
-            'query': query,
+            'query': remove_semicolon_in_sql_query(query),
             'sql': "",
             'question': question
         })

@@ -248,6 +248,15 @@ def schema_tokens(
                 for table_id, table_name in sql_schema.tokenized_table_names.items()
             ),
         )
+    elif schema_token_ordering == "[column]":
+        # all the columns only, suitable for working with single-table databases (WikiSQL)
+        columns = itertools.chain(
+            *(
+                get_column_tokens(sql_schema, column_id, scoping)
+                for column_id in sql_schema.tokenized_column_names.keys()
+            )
+        )
+        return itertools.chain(columns)
     else:
         raise ValueError(
             f"Invalid value for schema_token_ordering: {schema_token_ordering}"

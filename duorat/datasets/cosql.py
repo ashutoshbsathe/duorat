@@ -1,3 +1,6 @@
+# cosql.py
+# Vu Hoang @ Oracle Corp.
+
 from typing import List, Optional
 
 from duorat.datasets.sparc import SparcDataset

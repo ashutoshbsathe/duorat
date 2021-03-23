@@ -125,6 +125,7 @@ def tag_question_with_schema_links(
         for token, raw_token in tokenized_question
     ]
 
+    # column matching
     for n in range(max_n_gram, 0, -1):
         for (start, end), question_n_gram in get_spans(
             tagged_sequence=tagged_question_tokens, n=n
@@ -206,6 +207,7 @@ def tag_question_with_schema_links(
         replace(t, tag=OUTSIDE) for t in tagged_question_tokens
     ]
 
+    # table matching
     for n in range(max_n_gram, 0, -1):
         for (start, end), question_n_gram in get_spans(
             tagged_sequence=tagged_question_tokens, n=n
