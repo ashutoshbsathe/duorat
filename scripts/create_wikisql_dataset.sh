@@ -10,20 +10,25 @@ DATA_DIR=${CODE}/data
 # WikiSQL
 function go_wikisql {
     mkdir ${DATA_DIR}/wikisql && cd ${DATA_DIR}/wikisql
+
+    # download from $MICHIGAN_GITHUB/data/wikisql.json.bz2
     wget $MICHIGAN_GITHUB/data/wikisql.json.bz2 || exit
     bzip2 -d wikisql.json.bz2
-    python $CODE/scripts/convert_from_michigan.py --input wikisql.json --db-id train --output examples_train.json\
-        --split train --with-dbs
-    python $CODE/scripts/convert_from_michigan.py --input wikisql.json --db-id dev --output examples_dev.json\
-        --split dev --with-dbs
-    python $CODE/scripts/convert_from_michigan.py --input wikisql.json --db-id test --output examples_test.json\
-        --split test --with-dbs
+
+    # download from WikiSQL github
     git clone https://github.com/salesforce/WikiSQL.git || exit
     cd WikiSQL
     bzip2 -d data.tar.bz2
     tar -xvf data.tar
-    cd ..
+    cd ../..
     cd -
+
+    python $CODE/scripts/convert_from_michigan.py --input ${DATA_DIR}/wikisql/wikisql.json --db-id train --output ${DATA_DIR}/wikisql/examples_train.json\
+        --split train --with-dbs --do-postprocess-sql
+    python $CODE/scripts/convert_from_michigan.py --input ${DATA_DIR}/wikisql/wikisql.json --db-id dev --output ${DATA_DIR}/wikisql/examples_dev.json\
+        --split dev --with-dbs --do-postprocess-sql
+    python $CODE/scripts/convert_from_michigan.py --input ${DATA_DIR}/wikisql/wikisql.json --db-id test --output ${DATA_DIR}/wikisql/examples_test.json\
+        --split test --with-dbs --do-postprocess-sql
 
     python $CODE/scripts/get_tables_wikisql.py\
         ${DATA_DIR}/wikisql/WikiSQL/data/train.db\
@@ -39,5 +44,5 @@ function go_wikisql {
         ${DATA_DIR}/wikisql/tables_test.json
 }
 
-rm -rf $DATA_DIR/wikisql
+#rm -rf $DATA_DIR/wikisql
 go_wikisql

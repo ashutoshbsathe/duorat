@@ -13,17 +13,18 @@
 # limitations under the License.
 
 import json
-import sys
 import argparse
+import re
 
 
-def get_nl_sql_pairs(filepath, splits, with_dbs=False):
+def get_nl_sql_pairs(filepath, splits, with_dbs=False, do_postprocess_sql=False):
     """Gets pairs of natural language and corresponding gold SQL for Michigan.
 
     TODO: This is Google code. Add LICENSE.
 
     From the XSP codebase.
     """
+
     with open(filepath) as infile:
         data = json.load(infile)
 
@@ -49,6 +50,16 @@ def get_nl_sql_pairs(filepath, splits, with_dbs=False):
 
             nl = example['text']
             sql = anonymized_sql
+
+            if do_postprocess_sql:
+                sql = str(sql).replace("_FIELD", "")
+                new_sql_toks = []
+                for tok in sql.split():
+                    if '._' in tok or tok == 'NO.':
+                        new_sql_toks.append(f"TABLEalias0.{tok}")
+                    else:
+                        new_sql_toks.append(tok)
+                sql = ' '.join(new_sql_toks).strip()
 
             # Go through the anonymized values and replace them in both the natural
             # language and the SQL.
@@ -97,6 +108,7 @@ if __name__ == "__main__":
     parser.add_argument('--db-id', required=True)
     parser.add_argument('--output', required=True)
     parser.add_argument('--split', action='append')
+    parser.add_argument('--do-postprocess-sql', action="store_true", default=False)
     parser.add_argument(
         "--with-dbs",
         default=False,
@@ -107,7 +119,9 @@ if __name__ == "__main__":
     print(args)
 
     items = []
-    for item in get_nl_sql_pairs(args.input, args.split, with_dbs=args.with_dbs):
+    for item in get_nl_sql_pairs(args.input, args.split,
+                                 with_dbs=args.with_dbs,
+                                 do_postprocess_sql=args.do_postprocess_sql):
         if args.with_dbs:
             question, query, table_id = item
             db_id = f"table_{table_id.replace('-', '_')}"
