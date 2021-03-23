@@ -106,9 +106,6 @@ bash scripts/download_michigan_no_docker.sh scholar
 # Advising
 bash scripts/download_michigan_no_docker.sh advising
 
-# WikiSQL
-bash scripts/create_wikisql_dataset.sh
-
 # *** Sparc
 
 # duorat-sparc-dev
@@ -256,3 +253,16 @@ python convert_to_fasttext_format.py cosql_dev.json cosql_dev_intent.fasttext
 python scripts/build_text_classifier.py /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/cosql/user_intent_prediction/cosql_train_intent.fasttext /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/cosql/user_intent_prediction/cosql_dev_intent.fasttext /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/cosql/user_intent_prediction/cosql_dev_intent.fasttext exp/models/cosql_intent_model.bin
 # (1503, 0.8569527611443779, 0.8293625241468127)
 # Accuracy on test split: 0.8380889183808892
+
+# *** WikiSQL
+# create dataset
+bash scripts/create_wikisql_dataset.sh
+
+# dev (for debugging)
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-wikisql-dev.jsonnet --logdir ./logdir/duorat-wikisql-dev --force-preprocess --force-train &> logdir/train-duorat-wikisql-dev.log &
+
+# train
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-wikisql-new-db-content.jsonnet --logdir ./logdir/duorat-wikisql-new-db-content --force-preprocess --force-train &> logdir/train-duorat-wikisql-new-db-content.log &
+
+
+# infer

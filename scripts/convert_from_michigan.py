@@ -111,6 +111,7 @@ if __name__ == "__main__":
         if args.with_dbs:
             question, query, table_id = item
             db_id = f"table_{table_id.replace('-', '_')}"
+            query = query.replace("FROM TABLE", f"FROM {db_id}")
         else:
             question, query = item
             db_id = args.db_id

@@ -44,10 +44,9 @@ class WikiSQLDataset(SpiderDataset):
     def __init__(self,
                  examples_files: List[str],
                  tables_files: List[str],
-                 db_path: str,
-                 ignore_patterns: Optional[str] = ""):
-        super().__init__(examples_files=examples_files,
-                         tables_files=tables_files,
+                 db_path: str):
+        super().__init__(paths=examples_files,
+                         tables_paths=tables_files,
                          db_path=db_path)
 
     def get_db_path(self, db_id: str):
