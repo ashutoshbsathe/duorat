@@ -180,24 +180,21 @@ class SpiderDataset(Dataset):
         for path in paths:
             raw_data = json.load(open(path))
             for entry in raw_data:
-                try:
-                    if "sql" not in entry or entry["sql"] is "":
-                        entry["sql"] = get_sql(
-                            self.original_schemas[entry["db_id"]], entry["query"]
-                        )
-                    entry["question"] = entry["question"].replace('*', '')
-                    item = SpiderItem(
-                        question=entry["question"],
-                        slml_question=entry.get("slml_question", None),
-                        query=entry["query"],
-                        spider_sql=entry["sql"],
-                        spider_schema=self.schemas[entry["db_id"]],
-                        db_path=self.get_db_path(entry["db_id"]),
-                        orig=entry,
+                if "sql" not in entry or entry["sql"] is "":
+                    entry["sql"] = get_sql(
+                        self.original_schemas[entry["db_id"]], entry["query"]
                     )
-                    self.examples.append(item)
-                except:
-                    print(f"Invalid data entry: {entry}")
+                entry["question"] = entry["question"].replace('*', '')
+                item = SpiderItem(
+                    question=entry["question"],
+                    slml_question=entry.get("slml_question", None),
+                    query=entry["query"],
+                    spider_sql=entry["sql"],
+                    spider_schema=self.schemas[entry["db_id"]],
+                    db_path=self.get_db_path(entry["db_id"]),
+                    orig=entry,
+                )
+                self.examples.append(item)
 
     def get_db_path(self, db_id: str):
         return os.path.join(self.db_path, db_id, db_id + ".sqlite")
