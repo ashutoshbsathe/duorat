@@ -44,5 +44,5 @@ function go_wikisql {
         ${DATA_DIR}/wikisql/tables_test.json
 }
 
-#rm -rf $DATA_DIR/wikisql
+rm -rf $DATA_DIR/wikisql
 go_wikisql
