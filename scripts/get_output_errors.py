@@ -22,5 +22,5 @@ with open(input_file) as inpf:
                                       "predict_sql": predicted_sql,
                                       "gold_sql": gold_sql})
 
-with open(output_file) as outf:
+with open(output_file, "w") as outf:
     json.dump(incorrect_entries, outf, indent=2)
