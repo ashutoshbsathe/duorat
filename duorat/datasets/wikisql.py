@@ -49,10 +49,9 @@ class WikiSQLDataset(SpiderDataset):
                          tables_paths=tables_files,
                          db_path=db_path)
 
-    def get_db_path(self, db_id: str):
+    def get_db_path(self, db_id: Optional[str] = ''):
         # In the WikiSQL dataset, all tables are stored in one DB file which is self.db_path.
-        # Here, we only need db_id to query the DB file.
-        return db_id
+        return self.db_path
 
     class Metrics(SpiderDataset.Metrics):
         def __init__(self, dataset):

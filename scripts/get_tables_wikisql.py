@@ -61,10 +61,29 @@ def dump_wikisql_db_json_schema(db_file, table_file):
             else:
                 print(f"WARNING: {table_name} does not exist in {table_file}.")
                 col_name = col[1]
-            # table_info["column_names_original"].append((0, col[1]))
-            # table_info["column_names"].append((0, col[1].lower().replace("_", " ")))
-            table_info["column_names_original"].append((0, col_name))
-            table_info["column_names"].append((0, col_name.lower().replace("_", " ")))
+
+            # post-process col_name
+            col_name = str(col_name).strip()
+            # col_name = "Fleet Series (Quantity)", Powertrain (Engine/Transmission)
+            # --> Fleet Series Quantity,  Powertrain Engine Transmission
+            col_name = col_name.replace('.', '').replace(',', '').replace(':', '').replace('&', '').replace('*', '').replace('!', '').replace('\'', '').replace('"', '').replace('?', '').replace(';', '').strip()
+            col_name = col_name.replace('%', 'PERCENTAGE').strip()
+            col_name = col_name.replace("’s", '').strip()
+            col_name = col_name.replace("#", 'No').strip()
+            col_name = col_name.replace("@", ' ').strip()
+            col_name = col_name.replace(">", 'Greater Than').strip()
+            col_name = col_name.replace("<", 'Less Than').strip()
+            col_name = col_name.replace("’", '').replace('’', '').replace('‘', '').replace('“', '').replace('”', '').strip()
+            col_name = col_name.replace("$", 'Dollars').strip()
+            col_name = col_name.replace("(", '').replace(')', '').strip()
+            col_name = col_name.replace("[", '').replace(']', '').strip()
+            col_name = col_name.replace("{", '').replace('}', '').strip()
+            col_name = col_name.replace('\\', '').strip()
+            col_name = col_name.replace('/', ' ').replace('-', ' ').strip()
+            col_name = col_name.replace("  ", " ").strip()
+
+            table_info["column_names_original"].append((0, col_name.upper().replace(" ", "_")))
+            table_info["column_names"].append((0, col_name.lower()))
 
             # varchar, '' -> text, int, numeric -> integer,
             col_type = col[2].lower()

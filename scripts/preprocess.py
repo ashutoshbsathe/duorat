@@ -37,6 +37,8 @@ class Preprocessor:
             if 'name' in dataset:
                 print(f"Processing the {dataset['name']} dataset...")
             for section in sections:
+                print(f"Section: '{section}' in the {dataset['name'] if 'name' in dataset else 'given'} dataset")
+
                 data = registry.construct("dataset",
                                           dataset[section])  # SpiderDataset/SparcDataset/CoSQLDataset
 

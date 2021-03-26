@@ -23,13 +23,6 @@ function go_wikisql {
     cd ../..
     cd -
 
-    python $CODE/scripts/convert_from_michigan.py --input ${DATA_DIR}/wikisql/wikisql.json --db-id train --output ${DATA_DIR}/wikisql/examples_train.json\
-        --split train --with-dbs --do-postprocess-sql
-    python $CODE/scripts/convert_from_michigan.py --input ${DATA_DIR}/wikisql/wikisql.json --db-id dev --output ${DATA_DIR}/wikisql/examples_dev.json\
-        --split dev --with-dbs --do-postprocess-sql
-    python $CODE/scripts/convert_from_michigan.py --input ${DATA_DIR}/wikisql/wikisql.json --db-id test --output ${DATA_DIR}/wikisql/examples_test.json\
-        --split test --with-dbs --do-postprocess-sql
-
     python $CODE/scripts/get_tables_wikisql.py\
         ${DATA_DIR}/wikisql/WikiSQL/data/train.db\
         ${DATA_DIR}/wikisql/WikiSQL/data/train.tables.jsonl\
@@ -42,6 +35,13 @@ function go_wikisql {
         ${DATA_DIR}/wikisql/WikiSQL/data/test.db\
         ${DATA_DIR}/wikisql/WikiSQL/data/test.tables.jsonl\
         ${DATA_DIR}/wikisql/tables_test.json
+
+    python $CODE/scripts/convert_from_ori_wikisql.py --input ${DATA_DIR}/wikisql/WikiSQL/data/train.jsonl \
+        --db-schema ${DATA_DIR}/wikisql/tables_train.json --output ${DATA_DIR}/wikisql/examples_train.json
+    python $CODE/scripts/convert_from_ori_wikisql.py --input ${DATA_DIR}/wikisql/WikiSQL/data/dev.jsonl\
+        --db-schema ${DATA_DIR}/wikisql/tables_dev.json --output ${DATA_DIR}/wikisql/examples_dev.json
+    python $CODE/scripts/convert_from_ori_wikisql.py --input ${DATA_DIR}/wikisql/WikiSQL/data/test.jsonl \
+        --db-schema ${DATA_DIR}/wikisql/tables_test.json --output ${DATA_DIR}/wikisql/examples_test.json
 }
 
 rm -rf $DATA_DIR/wikisql

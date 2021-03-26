@@ -616,7 +616,8 @@ def main(
             dataset = config["data"][0]
         else:
             dataset = config["data"]
-        sections = [key for key, v in dataset.items() if isinstance(v, dict)]
+        # sections = [key for key, v in dataset.items() if isinstance(v, dict)]
+        sections = ['train', 'val', 'test']
         keep_vocab = False
         preprocessor = Preprocessor(config)
         preprocessor.preprocess(sections, keep_vocab)

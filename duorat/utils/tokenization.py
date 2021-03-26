@@ -85,6 +85,11 @@ class BERTTokenizer(AbstractTokenizer):
         ]
         raw_token_strings_with_sharps = []
         for token, raw_token in zip(tokens, raw_token_strings):
+            # handle [UNK] token
+            if str(token) == '[UNK]':
+                raw_token_strings_with_sharps.append(raw_token)
+                continue
+
             assert (
                 token == raw_token.lower()
                 or token[2:] == raw_token.lower()

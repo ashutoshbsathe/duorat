@@ -27,7 +27,7 @@
     },
 
     train+: {
-        batch_size: 8,
+        batch_size: 32,
         n_grad_accumulation_steps: 8,
         eval_batch_size: 32,
         num_eval_items: 8421,
