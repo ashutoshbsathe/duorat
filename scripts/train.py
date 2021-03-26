@@ -611,7 +611,7 @@ def main(
     if os.path.exists(preproc_data_path) and not args.force_preprocess:
         logger.log("Skip preprocessing..")
     else:
-        logger.log("Running preprocessing...")
+        logger.log("Run preprocessing...")
         if isinstance(config["data"], list):
             dataset = config["data"][0]
         else:
@@ -626,6 +626,7 @@ def main(
         print("Done preprocessing. No further training.")
     else:
         # Construct trainer and do training
+        logger.log("Start training...")
         trainer = trainer_class(logger, config)
         trainer.train(modeldir=args.logdir)
 
