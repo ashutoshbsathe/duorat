@@ -50,7 +50,7 @@ if __name__ == "__main__":
             schema_dict[entry["db_id"].replace("table_", "").replace("_", "-")] = [e[1] for e in entry["column_names_original"] if e[0] != -1]
 
     agg_ops = ['', 'MAX', 'MIN', 'COUNT', 'SUM', 'AVG']
-    cond_ops = ['=', '>', '<', 'OP']
+    cond_ops = ['=', '>', '<']
 
     items = []
     for entry in data:
@@ -65,7 +65,7 @@ if __name__ == "__main__":
         # SELECT
         spider_sql = []
         spider_sql.append('SELECT')
-        sel_col_name = f"TABLEalias0.{schema_dict[db_id][int(ori_sql_dict['sel'])]}"
+        sel_col_name = f"{schema_dict[db_id][int(ori_sql_dict['sel'])]}"
         agg = agg_ops[int(ori_sql_dict['agg'])]
         if agg is not '':
             spider_sql.append(f"{agg}({sel_col_name})")
@@ -75,8 +75,6 @@ if __name__ == "__main__":
         # FROM
         spider_sql.append("FROM")
         spider_sql.append(f"table_{db_id.replace('-', '_')}")
-        spider_sql.append("AS")
-        spider_sql.append("TABLEalias0")
 
         # WHERE
         spider_sql.append("WHERE")
@@ -84,7 +82,7 @@ if __name__ == "__main__":
         for cond in ori_sql_dict["conds"]:
             col_ind, cond_ind, val = cond
 
-            col_name = f"TABLEalias0.{schema_dict[db_id][int(col_ind)]}"
+            col_name = f"{schema_dict[db_id][int(col_ind)]}"
             cond_txt = cond_ops[int(cond_ind)]
             try:
                 val = int(val)
