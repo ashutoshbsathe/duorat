@@ -58,6 +58,7 @@ if __name__ == "__main__":
 
         question = remove_unicode_chars(entry["question"])
         question = question.replace("\"", "")
+        question = question.replace('\'', '᾿')
 
         ori_sql_dict = entry["sql"]
         print(db_id, question, ori_sql_dict)
@@ -92,6 +93,7 @@ if __name__ == "__main__":
                 except:
                     val = str(val)
                     val = val.replace("\"", '')  # remove quote in val since it causes some issues with Spider SQL parser
+                    val = val.replace('\'', '᾿')  # dirty hack. Use a special single quote instead
 
             cur_cond_list = []
             cur_cond_list.append(col_name)
