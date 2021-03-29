@@ -118,12 +118,9 @@ for item in data["per_item"]:
     predicted_sql = postprocess(item["predicted"])
     predicted_parse_error = bool(item["predicted_parse_error"])
     exact = bool(item["exact"])
-    db_name = item["db_name"]
+    db_path = item["db_path"]
     hardness = item["hardness"]
     question = item["question"]
-
-    # Extract NL template
-    nl_template = extract_nl_template(question, db_name)
 
     def _get_table_mask_sid(mask_dict: Dict[str, str], tab_name: str) -> str:
         if tab_name in mask_dict:
@@ -140,6 +137,9 @@ for item in data["per_item"]:
         mask_dict[tab_name] = {}
         mask_dict[tab_name][col_name] = f"@COLUMN0"
         return mask_dict[tab_name][col_name]
+
+    # Extract NL template
+    nl_template = extract_nl_template(question=question, db_path=db_path)
 
     # Extract SQL template
     tab_mask_dict = {}
