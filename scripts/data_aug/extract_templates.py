@@ -89,15 +89,18 @@ for item in data["per_item"]:
     def _get_table_mask_sid(mask_dict: Dict[str, str], tab_name: str) -> str:
         if tab_name in mask_dict:
             return mask_dict[tab_name]
-        mask_dict[tab_name] = f"@TABLE{len(tab_name)}"
+        mask_dict[tab_name] = f"@TABLE{len(mask_dict)}"
         return mask_dict[tab_name]
 
 
-    def _get_column_mask_sid(mask_dict: Dict[str, str], tab_name: str, col_name: str) -> str:
+    def _get_column_mask_sid(mask_dict: Dict[str, Dict], tab_name: str, col_name: str) -> str:
         if tab_name in mask_dict:
-            return mask_dict[tab_name][col_name]
+            if col_name in mask_dict[tab_name]:
+                return mask_dict[tab_name][col_name]
+            else:
+                mask_dict[tab_name][col_name] = f"@COLUMN{len(mask_dict[tab_name])}"
         mask_dict[tab_name] = {}
-        mask_dict[tab_name][col_name] = f"@COLUMN{len(mask_dict[tab_name])}"
+        mask_dict[tab_name][col_name] = f"@COLUMN0"
         return mask_dict[tab_name][col_name]
 
 
