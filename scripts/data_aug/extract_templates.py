@@ -62,10 +62,11 @@ def is_sql_keyword(text: str) -> bool:
 
 def extract_nl_template(question: str, db_id: str) -> str:
     sql_schema = duorat_preprocessor.sql_schemas[db_id]
+    print(sql_schema)
     slml_question: str = schema_linker.question_to_slml(
         question=question, sql_schema=sql_schema,
     )
-
+    print(slml_question)
     parser = SLMLParser(sql_schema=sql_schema, tokenizer=tokenizer)
     parser.feed(data=slml_question)
     # for question_token in parser.question_tokens:
@@ -121,12 +122,11 @@ for item in data["per_item"]:
     predicted_parse_error = bool(item["predicted_parse_error"])
     exact = bool(item["exact"])
     db_name = item["db_name"]
-    db_path = item["db_path"]
     hardness = item["hardness"]
     question = item["question"]
 
     # Extract NL template
-    nl_template = extract_nl_template(question, db_path)
+    nl_template = extract_nl_template(question, db_name)
 
     def _get_table_mask_sid(mask_dict: Dict[str, str], tab_name: str) -> str:
         if tab_name in mask_dict:
