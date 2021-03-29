@@ -9,6 +9,9 @@ from duorat.utils import registry
 from duorat.utils.schema_linker import AbstractSchemaLinker
 from duorat.utils.tokenization import AbstractTokenizer
 from duorat.preproc.slml import SLMLParser
+from duorat import datasets
+from duorat.preproc import offline
+from duorat.utils import schema_linker
 
 
 def postprocess(sql: str) -> str:
@@ -77,19 +80,21 @@ duorat_config_file = sys.argv[4]
 output_file = sys.argv[5]
 
 # DuoRAT config
+print("Initializing DuoRAT config...")
 config = json.loads(_jsonnet.evaluate_file(duorat_config_file))
 config['model']['preproc']['save_path'] = os.path.join(logdir, "data")
 
 # DuoRAT preprocessor
+print("Initializing DuoRAT preprocessor...")
 duorat_preprocessor = registry.construct("preproc",
                                          config["model"]["preproc"],)
 duorat_preprocessor.load()
 
 # DuoRAT schema linker and tokenizer
+print("Initializing DuoRAT Schema Linker/Tokenizer...")
 schema_linker: AbstractSchemaLinker = registry.construct(
             "schema_linker", config["model"]["preproc"]["schema_linker"]
         )
-
 tokenizer: AbstractTokenizer = registry.construct(
             "tokenizer", config["model"]["preproc"]["tokenizer"]
         )
