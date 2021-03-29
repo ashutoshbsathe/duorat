@@ -86,7 +86,6 @@ for item in data["per_item"]:
     # Extract NL template
     nl_template = extract_nl_template(question, db_path)
 
-
     def _get_table_mask_sid(mask_dict: Dict[str, str], tab_name: str) -> str:
         if tab_name in mask_dict:
             return mask_dict[tab_name]
@@ -97,6 +96,7 @@ for item in data["per_item"]:
     def _get_column_mask_sid(mask_dict: Dict[str, str], tab_name: str, col_name: str) -> str:
         if tab_name in mask_dict:
             return mask_dict[tab_name][col_name]
+        mask_dict[tab_name] = {}
         mask_dict[tab_name][col_name] = f"@COLUMN{len(mask_dict[tab_name])}"
         return mask_dict[tab_name][col_name]
 
