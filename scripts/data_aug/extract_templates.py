@@ -1,6 +1,14 @@
+import os
 import sys
 import json
-from typing import Dict, List
+from typing import Dict
+
+import _jsonnet
+
+from duorat.utils import registry
+from duorat.utils.schema_linker import AbstractSchemaLinker
+from duorat.utils.tokenization import AbstractTokenizer
+from duorat.preproc.slml import SLMLParser
 
 
 def postprocess(sql: str) -> str:
@@ -49,13 +57,42 @@ def is_sql_keyword(text: str) -> bool:
     return False
 
 
-def extract_nl_template(question: str, db_path: str) -> str:
+def extract_nl_template(question: str, db_id: str) -> str:
+    sql_schema = duorat_preprocessor.sql_schemas[db_id]
+    slml_question: str = schema_linker.question_to_slml(
+        question=question, sql_schema=sql_schema,
+    )
+
+    parser = SLMLParser(sql_schema=sql_schema, tokenizer=tokenizer)
+    parser.feed(data=slml_question)
+    # for question_token in parser.question_tokens:
+
     return question
 
 
 sql_kw_file = sys.argv[1]
 input_file = sys.argv[2]
-output_file = sys.argv[3]
+logdir = sys.argv[3]
+duorat_config_file = sys.argv[4]
+output_file = sys.argv[5]
+
+# DuoRAT config
+config = json.loads(_jsonnet.evaluate_file(duorat_config_file))
+config['model']['preproc']['save_path'] = os.path.join(logdir, "data")
+
+# DuoRAT preprocessor
+duorat_preprocessor = registry.construct("preproc",
+                                         config["model"]["preproc"],)
+duorat_preprocessor.load()
+
+# DuoRAT schema linker and tokenizer
+schema_linker: AbstractSchemaLinker = registry.construct(
+            "schema_linker", config["model"]["preproc"]["schema_linker"]
+        )
+
+tokenizer: AbstractTokenizer = registry.construct(
+            "tokenizer", config["model"]["preproc"]["tokenizer"]
+        )
 
 # read SQL keywords
 SQL_KEYWORDS = set()
@@ -92,7 +129,6 @@ for item in data["per_item"]:
         mask_dict[tab_name] = f"@TABLE{len(mask_dict)}"
         return mask_dict[tab_name]
 
-
     def _get_column_mask_sid(mask_dict: Dict[str, Dict], tab_name: str, col_name: str) -> str:
         if tab_name in mask_dict:
             if col_name in mask_dict[tab_name]:
@@ -102,7 +138,6 @@ for item in data["per_item"]:
         mask_dict[tab_name] = {}
         mask_dict[tab_name][col_name] = f"@COLUMN0"
         return mask_dict[tab_name][col_name]
-
 
     # Extract SQL template
     tab_mask_dict = {}
@@ -165,6 +200,7 @@ for item in data["per_item"]:
         template_sql = ' '.join(template_sql_token_list)
         print(predicted_sql)
         print(template_sql)
+        print()
 
         unique_template_set.add(template_sql)
         templates_by_hardness[hardness].add(template_sql)
