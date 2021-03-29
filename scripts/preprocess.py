@@ -37,6 +37,9 @@ class Preprocessor:
             if 'name' in dataset:
                 print(f"Processing the {dataset['name']} dataset...")
             for section in sections:
+                if section not in dataset:
+                    continue
+
                 print(f"Section: '{section}' in the {dataset['name'] if 'name' in dataset else 'given'} dataset")
 
                 data = registry.construct("dataset",
@@ -51,7 +54,8 @@ class Preprocessor:
                 if 'name' in dataset:
                     real_section = f"{dataset['name']}_{real_section}"
 
-                for i, item in enumerate(tqdm.tqdm(data, desc=real_section, dynamic_ncols=True)):  # SpiderItem/SparcItem
+                for i, item in enumerate(
+                        tqdm.tqdm(data, desc=real_section, dynamic_ncols=True)):  # SpiderItem/SparcItem
                     to_add, validation_info = self.model_preproc.validate_item(
                         item, real_section
                     )

@@ -5,13 +5,15 @@ from typing import Dict
 
 import _jsonnet
 
+from duorat.types import SQLSchema
 from duorat.utils import registry
-from duorat.utils.schema_linker import AbstractSchemaLinker
-from duorat.utils.tokenization import AbstractTokenizer
 from duorat.preproc.slml import SLMLParser
-from duorat import datasets
-from duorat.preproc import offline
-from duorat.utils import schema_linker
+from duorat.preproc import offline  # *** Compulsory for registering duorat.preproc classes
+from duorat.preproc.utils import preprocess_schema_uncached, refine_schema_names
+from duorat.datasets.spider import (
+    schema_dict_to_spider_schema,
+)
+from third_party.spider.preprocess.get_tables import dump_db_json_schema
 
 
 def postprocess(sql: str) -> str:
@@ -60,14 +62,18 @@ def is_sql_keyword(text: str) -> bool:
     return False
 
 
-def extract_nl_template(question: str, db_id: str) -> str:
-    sql_schema = duorat_preprocessor.sql_schemas[db_id]
+def extract_nl_template(question: str, db_path: str) -> str:
+    sql_schema: SQLSchema = preprocess_schema_uncached(
+        schema=schema_dict_to_spider_schema(refine_schema_names(dump_db_json_schema(db_path, ""))),
+        db_path=db_path,
+        tokenize=duorat_preprocessor._schema_tokenize,
+    )
     print(sql_schema)
-    slml_question: str = schema_linker.question_to_slml(
+    slml_question: str = duorat_preprocessor.schema_linker.question_to_slml(
         question=question, sql_schema=sql_schema,
     )
     print(slml_question)
-    parser = SLMLParser(sql_schema=sql_schema, tokenizer=tokenizer)
+    parser = SLMLParser(sql_schema=sql_schema, tokenizer=duorat_preprocessor.tokenizer)
     parser.feed(data=slml_question)
     # for question_token in parser.question_tokens:
 
@@ -90,15 +96,6 @@ print("Initializing DuoRAT preprocessor...")
 duorat_preprocessor = registry.construct("preproc",
                                          config["model"]["preproc"],)
 duorat_preprocessor.load()
-
-# DuoRAT schema linker and tokenizer
-print("Initializing DuoRAT Schema Linker/Tokenizer...")
-schema_linker: AbstractSchemaLinker = registry.construct(
-            "schema_linker", config["model"]["preproc"]["schema_linker"]
-        )
-tokenizer: AbstractTokenizer = registry.construct(
-            "tokenizer", config["model"]["preproc"]["tokenizer"]
-        )
 
 # read SQL keywords
 SQL_KEYWORDS = set()

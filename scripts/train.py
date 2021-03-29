@@ -612,15 +612,15 @@ def main(
         logger.log("Skip preprocessing..")
     else:
         logger.log("Run preprocessing...")
-        if isinstance(config["data"], list):
-            dataset = config["data"][0]
-        else:
-            dataset = config["data"]
+        # if isinstance(config["data"], list):
+        #     dataset = config["data"][0]
+        # else:
+        #     dataset = config["data"]
         # sections = [key for key, v in dataset.items() if isinstance(v, dict)]
+        # Here, we fixed the section list.
         sections = ['train', 'val', 'test']
-        keep_vocab = False
         preprocessor = Preprocessor(config)
-        preprocessor.preprocess(sections, keep_vocab)
+        preprocessor.preprocess(sections=sections, keep_vocab=False)
 
     if args.preprocess_only:
         print("Done preprocessing. No further training.")
