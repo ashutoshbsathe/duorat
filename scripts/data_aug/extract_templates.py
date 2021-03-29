@@ -68,14 +68,15 @@ def extract_nl_template(question: str, db_path: str) -> str:
         db_path=db_path,
         tokenize=duorat_preprocessor._schema_tokenize,
     )
-    print(sql_schema)
+    # print(sql_schema)
     slml_question: str = duorat_preprocessor.schema_linker.question_to_slml(
         question=question, sql_schema=sql_schema,
     )
     print(slml_question)
     parser = SLMLParser(sql_schema=sql_schema, tokenizer=duorat_preprocessor.tokenizer)
     parser.feed(data=slml_question)
-    # for question_token in parser.question_tokens:
+    for question_token in parser.question_tokens:
+        print(question_token)
 
     return question
 
