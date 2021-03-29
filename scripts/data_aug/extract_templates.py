@@ -1,5 +1,6 @@
 import sys
 import json
+from typing import Dict, List
 
 
 def postprocess(sql: str) -> str:
@@ -13,7 +14,8 @@ def postprocess(sql: str) -> str:
         if ps != -1:
             pe = sql.find('"', ps + 1)
             if pe != -1:
-                sql = sql.replace(sql[ps + 1: pe], sql[ps + 1: pe].replace(".", "~").replace("NULL", "!!!!").replace("AS", "!!"))
+                sql = sql.replace(sql[ps + 1: pe],
+                                  sql[ps + 1: pe].replace(".", "~").replace("NULL", "!!!!").replace("AS", "!!"))
                 ps = pe + 1
             else:
                 break
@@ -47,6 +49,10 @@ def is_sql_keyword(text: str) -> bool:
     return False
 
 
+def extract_nl_template(question: str, db_path: str) -> str:
+    return question
+
+
 sql_kw_file = sys.argv[1]
 input_file = sys.argv[2]
 output_file = sys.argv[3]
@@ -70,16 +76,38 @@ templates_by_examples = {}
 for item in data["per_item"]:
     gold_sql = item["gold"]
     predicted_sql = postprocess(item["predicted"])
-    predicted_parse_error = item["predicted_parse_error"]
+    predicted_parse_error = bool(item["predicted_parse_error"])
     exact = bool(item["exact"])
     db_name = item["db_name"]
+    db_path = item["db_path"]
     hardness = item["hardness"]
     question = item["question"]
 
+    # Extract NL template
+    nl_template = extract_nl_template(question, db_path)
+
+
+    def _get_table_mask_sid(mask_dict: Dict[str, str], tab_name: str) -> str:
+        if tab_name in mask_dict:
+            return mask_dict[tab_name]
+        mask_dict[tab_name] = f"@TABLE{len(tab_name)}"
+        return mask_dict[tab_name]
+
+
+    def _get_column_mask_sid(mask_dict: Dict[str, str], tab_name: str, col_name: str) -> str:
+        if tab_name in mask_dict:
+            return mask_dict[tab_name][col_name]
+        mask_dict[tab_name][col_name] = f"@COLUMN{len(mask_dict[tab_name])}"
+        return mask_dict[tab_name][col_name]
+
+
+    # Extract SQL template
+    tab_mask_dict = {}
+    col_mask_dict = {}
     if exact and not predicted_parse_error:
         prev_sql_token = ''
         predicted_sql_tokens = predicted_sql.split()
-        template_sql_list = []
+        template_sql_token_list = []
         sql_comp_list = ['<', '<=', '>', '>=', '=', '!=', 'LIKE', 'BETWEEN', 'AND']
         for sql_token in predicted_sql_tokens:
             if '.' in sql_token:
@@ -91,37 +119,47 @@ for item in data["per_item"]:
                 open_bracket_pos = sql_token.find('(') + 1
                 if open_bracket_pos == -1:
                     open_bracket_pos = 0
-                sql_token = sql_token.replace(sql_token[open_bracket_pos: dot_pos], '@table')
+
+                table_name = sql_token[open_bracket_pos: dot_pos]
+                sql_token = sql_token.replace(table_name,
+                                              _get_table_mask_sid(mask_dict=tab_mask_dict,
+                                                                  tab_name=table_name))
+
                 dot_pos = sql_token.find('.')
                 if open_bracket_pos == 0:
                     if sql_token.find(')') == -1:
                         if sql_token.find(',') == -1:
-                            sql_token = sql_token.replace(sql_token[dot_pos + 1:], '@col')
+                            col_name = sql_token[dot_pos + 1:]
                         else:
-                            sql_token = sql_token.replace(sql_token[dot_pos + 1: sql_token.find(',')], '@col')
+                            col_name = sql_token[dot_pos + 1: sql_token.find(',')]
                     else:
-                        sql_token = sql_token.replace(sql_token[dot_pos + 1: sql_token.find(')')], '@col')
+                        col_name = sql_token[dot_pos + 1: sql_token.find(')')]
                 else:
-                    sql_token = sql_token.replace(sql_token[dot_pos + 1: sql_token.find(')')], '@col')
+                    col_name = sql_token[dot_pos + 1: sql_token.find(')')]
+
+                sql_token = sql_token.replace(col_name, _get_column_mask_sid(mask_dict=col_mask_dict,
+                                                                             tab_name=table_name,
+                                                                             col_name=col_name))
             elif prev_sql_token == 'FROM' or prev_sql_token == 'JOIN':
                 if sql_token.find(")") == -1:
-                    sql_token = "@table"
+                    sql_token = _get_table_mask_sid(mask_dict=tab_mask_dict, tab_name=sql_token)
                 else:
-                    sql_token = "@table)"
+                    sql_token = f"{_get_table_mask_sid(mask_dict=tab_mask_dict, tab_name=sql_token[:-1])})"
             elif not is_sql_keyword(sql_token) and sql_token not in sql_comp_list:
-                value_str = "@value"
+                value_str = "@VALUE"
                 if sql_token[-1] == ')':
-                    value_str = "@value)"
+                    value_str = "@VALUE)"
+
                 if prev_sql_token in sql_comp_list:
                     sql_token = value_str
-                elif prev_sql_token == '@value':
-                    template_sql_list.pop()
+                elif prev_sql_token == '@VALUE':
+                    template_sql_token_list.pop()
                     sql_token = value_str
 
             prev_sql_token = sql_token
-            template_sql_list.append(sql_token)
+            template_sql_token_list.append(sql_token)
 
-        template_sql = ' '.join(template_sql_list)
+        template_sql = ' '.join(template_sql_token_list)
         print(predicted_sql)
         print(template_sql)
 
@@ -135,7 +173,7 @@ for item in data["per_item"]:
 
 unique_template_list = list(unique_template_set)
 print(f"There are {len(unique_template_list)} SQL templates.")
-#print(unique_template_list)
+# print(unique_template_list)
 
 with open(output_file, "w") as fout:
     for template in sorted(unique_template_list, key=len):
@@ -161,4 +199,3 @@ with open(f"{output_file}.by_examples", "w") as fout:
         # for example in examples:
         #     fout.write(f"{example}\n")
         fout.write(f"{key}\t{len(examples)}\t{examples}\n")
-
