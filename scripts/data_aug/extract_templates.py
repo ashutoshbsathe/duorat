@@ -102,13 +102,10 @@ def extract_nl_template(tab_mask_dict: Dict[str, str],
                 elif isinstance(match_tag, ValueMatchTag):
                     if nl_token_list[-1] == "@VALUE":
                         nl_token_list.pop()
-                    if nl_token_list[-1] == '\'' or nl_token_list[-1] == '\"':
-                        nl_token_list.pop()
                     best_match = "@VALUE"
                     break
             if best_match is None:
-                if not (question_token.raw_value == '\'' or question_token.raw_value == '\"'):
-                    nl_token_list.append(question_token.raw_value)
+                nl_token_list.append(question_token.raw_value)
             else:
                 if nl_token_list[-1] == best_match:
                     nl_token_list.pop()
