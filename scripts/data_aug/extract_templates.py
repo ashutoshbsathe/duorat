@@ -97,7 +97,7 @@ def extract_nl_template(tab_mask_dict: Dict[str, str],
                     column_name = sql_schema.column_names[match_tag.column_id]
                     if table_name in col_mash_dict:
                         if column_name in col_mash_dict[table_name]:
-                            best_match = col_mash_dict[table_name][column_name]
+                            best_match = f"{tab_mask_dict[table_name]}.{col_mash_dict[table_name][column_name]}"
                             break  # hacky to avoid multiple matches
                 elif isinstance(match_tag, ValueMatchTag):
                     if nl_token_list[-1] == "@VALUE":
