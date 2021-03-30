@@ -114,7 +114,7 @@ def extract_nl_template(duorat_preprocessor: AbstractPreproc,
                 elif isinstance(match_tag, ValueMatchTag):
                     if len(nl_token_list) > 0 and nl_token_list[-1] == "@VALUE":
                         nl_token_list.pop()
-                    best_match = "@VALUE"
+                    best_match['value'] = "@VALUE"
                     break
             if len(best_match) == 0:
                 nl_token_list.append(question_token.raw_value)
@@ -124,6 +124,8 @@ def extract_nl_template(duorat_preprocessor: AbstractPreproc,
                     best_match_str = best_match['table'][0]
                 if 'column' in best_match:
                     best_match_str = best_match['column'][0]
+                if 'value' in best_match:
+                    best_match_str = best_match['value']
 
                 if len(nl_token_list) > 0 and nl_token_list[-1] == best_match_str:
                     nl_token_list.pop()
