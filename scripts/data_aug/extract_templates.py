@@ -87,13 +87,13 @@ def extract_nl_template(tab_mask_dict: Dict[str, str],
         if len(match_tags) > 0:  # matching happens!
             for match_tag in match_tags:
                 if isinstance(match_tag, TableMatchTag):
-                    table_name = sql_schema.table_names[int(match_tag.table_id)]
+                    table_name = sql_schema.table_names[match_tag.table_id]
                     if table_name in tab_mask_dict:
                         nl_token_list.append(tab_mask_dict[table_name])
                         break  # hacky to avoid multiple matches
                 elif isinstance(match_tag, ColumnMatchTag):
-                    table_name = sql_schema.table_names[int(match_tag.table_id)]
-                    column_name = sql_schema.column_names[int(match_tag.column_id)]
+                    table_name = sql_schema.table_names[match_tag.table_id]
+                    column_name = sql_schema.column_names[match_tag.column_id]
                     if table_name in col_mash_dict:
                         if column_name in col_mash_dict[table_name]:
                             nl_token_list.append(col_mash_dict[table_name][column_name])
