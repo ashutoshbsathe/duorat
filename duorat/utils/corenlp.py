@@ -54,7 +54,11 @@ class CoreNLP:
                                             max_char_length=100000)
 
     def __del__(self):
-        self.client.stop()
+        if self.client.is_alive():
+            try:
+                self.client.stop()
+            except:
+                pass
 
     def annotate(self, text, annotators=None, output_format=None, properties=None):
         try:

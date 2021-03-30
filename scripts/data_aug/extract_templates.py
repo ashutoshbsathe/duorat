@@ -264,11 +264,11 @@ def extract_nl2sql_templates(sql_kw_file: str,
             if (nl_template, sql_template) in template_collection:
                 template_collection[(nl_template, sql_template)].append((question, gold_sql, db_name))
             else:
-                template_collection[(nl_template, sql_template)] = []
+                template_collection[(nl_template, sql_template)] = [(question, gold_sql, db_name)]
             if (nl_template, sql_template) in templates_by_hardness[hardness]:
                 templates_by_hardness[hardness][(nl_template, sql_template)].append((question, gold_sql, db_name))
             else:
-                templates_by_hardness[hardness][(nl_template, sql_template)] = []
+                templates_by_hardness[hardness][(nl_template, sql_template)] = [(question, gold_sql, db_name)]
 
     print(f"Done! There are {len(template_collection)} NL<->SQL templates.")
 
