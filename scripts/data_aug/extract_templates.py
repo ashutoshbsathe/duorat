@@ -72,7 +72,7 @@ def extract_nl_template(tab_mask_dict: Dict[str, str],
         db_path=db_path,
         tokenize=duorat_preprocessor._schema_tokenize,
     )
-    # print(sql_schema)
+    print(sql_schema)
     slml_question: str = duorat_preprocessor.schema_linker.question_to_slml(
         question=question, sql_schema=sql_schema,
     )
@@ -168,8 +168,9 @@ for item in data["per_item"]:
                 return mask_dict[tab_name][col_name]
             else:
                 mask_dict[tab_name][col_name] = f"@COLUMN{len(mask_dict[tab_name])}"
-        mask_dict[tab_name] = {}
-        mask_dict[tab_name][col_name] = f"@COLUMN0"
+        else:
+            mask_dict[tab_name] = {}
+            mask_dict[tab_name][col_name] = f"@COLUMN0"
         return mask_dict[tab_name][col_name]
 
     # Extract SQL template
