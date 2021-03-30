@@ -139,8 +139,8 @@ with open(input_file) as f:
 
 unique_template_set = set()
 templates_by_hardness = {"easy": set(), "medium": set(), "hard": set(), "extra": set()}
-questions_by_hardness = {"easy": set(), "medium": set(), "hard": set(), "extra": set()}
-templates_by_examples = {}
+# questions_by_hardness = {"easy": set(), "medium": set(), "hard": set(), "extra": set()}
+# templates_by_examples = {}
 for item in data["per_item"]:
     gold_sql = item["gold"]
     predicted_sql = postprocess(item["predicted"])
@@ -165,9 +165,6 @@ for item in data["per_item"]:
         mask_dict[tab_name] = {}
         mask_dict[tab_name][col_name] = f"@COLUMN0"
         return mask_dict[tab_name][col_name]
-
-    # Extract NL template
-    nl_template = extract_nl_template(question=question, db_path=db_path)
 
     # Extract SQL template
     tab_mask_dict = {}
@@ -227,44 +224,47 @@ for item in data["per_item"]:
             prev_sql_token = sql_token
             template_sql_token_list.append(sql_token)
 
-        template_sql = ' '.join(template_sql_token_list)
-        print(predicted_sql)
-        print(template_sql)
-        print()
+        sql_template = ' '.join(template_sql_token_list)
+        print(f"Predicted SQL: {predicted_sql}")
+        print(f"SQL Template: {sql_template}")
 
-        unique_template_set.add(template_sql)
-        templates_by_hardness[hardness].add(template_sql)
-        questions_by_hardness[hardness].add(question)
-        if template_sql not in templates_by_examples:
-            templates_by_examples[template_sql] = [question]
-        else:
-            templates_by_examples[template_sql].append(question)
+        # Extract NL template
+        nl_template = extract_nl_template(tab_mask_dict=tab_mask_dict,
+                                          col_mash_dict=col_mask_dict,
+                                          question=question,
+                                          db_path=db_path)
+        print(f"NL Template: {nl_template}")
+
+        print("------------------------")
+
+        unique_template_set.add((nl_template, sql_template))
+        templates_by_hardness[hardness].add((nl_template, sql_template))
 
 unique_template_list = list(unique_template_set)
-print(f"There are {len(unique_template_list)} SQL templates.")
+print(f"There are {len(unique_template_list)} NL<->SQL templates.")
 # print(unique_template_list)
 
 with open(output_file, "w") as fout:
-    for template in sorted(unique_template_list, key=len):
-        fout.write(f"{template}\n")
+    for nl_template, sql_template in sorted(unique_template_list, key=len):
+        fout.write(f"{nl_template}\t{sql_template}\n")
 
 for key, val in templates_by_hardness.items():
     with open(f"{output_file}.{key}", "w") as fout:
         fout.write(f"{len(val)}\n")
-        for template in sorted(list(val), key=len):
-            fout.write(f"{template}\n")
-
-for key, val in questions_by_hardness.items():
-    with open(f"{output_file}.questions.{key}", "w") as fout:
-        fout.write(f"{len(val)}\n")
-        for template in sorted(list(val), key=len):
-            fout.write(f"{template}\n")
-
-with open(f"{output_file}.by_examples", "w") as fout:
-    for key, examples in sorted(templates_by_examples.items(), key=lambda item: len(item[1]), reverse=True):
-        # fout.write("-------------------\n")
-        # fout.write(f"Template ({len(examples)} examples): {key}\n")
-        # fout.write(f"Examples:\n")
-        # for example in examples:
-        #     fout.write(f"{example}\n")
-        fout.write(f"{key}\t{len(examples)}\t{examples}\n")
+        for nl_template, sql_template in sorted(list(val), key=len):
+            fout.write(f"{nl_template}\t{sql_template}\n")
+#
+# for key, val in questions_by_hardness.items():
+#     with open(f"{output_file}.questions.{key}", "w") as fout:
+#         fout.write(f"{len(val)}\n")
+#         for template in sorted(list(val), key=len):
+#             fout.write(f"{template}\n")
+#
+# with open(f"{output_file}.by_examples", "w") as fout:
+#     for key, examples in sorted(templates_by_examples.items(), key=lambda item: len(item[1]), reverse=True):
+#         # fout.write("-------------------\n")
+#         # fout.write(f"Template ({len(examples)} examples): {key}\n")
+#         # fout.write(f"Examples:\n")
+#         # for example in examples:
+#         #     fout.write(f"{example}\n")
+#         fout.write(f"{key}\t{len(examples)}\t{examples}\n")
