@@ -17,7 +17,7 @@ from duorat.datasets.spider import (
 )
 from duorat.preproc.abstract_preproc import AbstractPreproc
 from third_party.spider.preprocess.get_tables import dump_db_json_schema
-from duorat.types import ColumnMatchTag, TableMatchTag, ValueMatchTag
+from duorat.types import ColumnMatchTag, TableMatchTag, ValueMatchTag, HighConfidenceMatch, LowConfidenceMatch
 
 
 def postprocess(sql: str) -> str:
@@ -89,31 +89,45 @@ def extract_nl_template(duorat_preprocessor: AbstractPreproc,
         print(question_token)
         match_tags = question_token.match_tags
         if len(match_tags) > 0:  # matching happens!
-            best_match = None
+            best_match = {}
             for match_tag in match_tags:
                 if isinstance(match_tag, TableMatchTag):
                     table_name = sql_schema.original_table_names[match_tag.table_id]
                     if table_name in tab_mask_dict:
-                        best_match = tab_mask_dict[table_name]
-                        break  # hacky to avoid multiple matches
+                        if 'table' not in best_match:
+                            best_match['table'] = (tab_mask_dict[table_name], match_tag.confidence)
+                        else:
+                            if match_tag.confidence > best_match['table'][1]:
+                                best_match['table'] = (tab_mask_dict[table_name], match_tag.confidence)
+                        # break  # hacky to avoid multiple matches
                 elif isinstance(match_tag, ColumnMatchTag):
                     table_name = sql_schema.original_table_names[match_tag.table_id]
                     column_name = sql_schema.original_column_names[match_tag.column_id]
                     if table_name in col_mash_dict:
                         if column_name in col_mash_dict[table_name]:
-                            best_match = f"{tab_mask_dict[table_name]}.{col_mash_dict[table_name][column_name]}"
-                            break  # hacky to avoid multiple matches
+                            if 'column' not in best_match:
+                                best_match['column'] = (f"{tab_mask_dict[table_name]}.{col_mash_dict[table_name][column_name]}", match_tag.confidence)
+                            else:
+                                if match_tag.confidence > best_match['column'][1]:
+                                    best_match['column'] = (f"{tab_mask_dict[table_name]}.{col_mash_dict[table_name][column_name]}", match_tag.confidence)
+                            # break  # hacky to avoid multiple matches
                 elif isinstance(match_tag, ValueMatchTag):
                     if len(nl_token_list) > 0 and nl_token_list[-1] == "@VALUE":
                         nl_token_list.pop()
                     best_match = "@VALUE"
                     break
-            if best_match is None:
+            if best_match:
                 nl_token_list.append(question_token.raw_value)
             else:
-                if len(nl_token_list) > 0 and nl_token_list[-1] == best_match:
+                # Suppose, column is preferred than table
+                if 'table' in best_match:
+                    best_match_str = best_match['table'][1]
+                if 'column' in best_match:
+                    best_match_str = best_match['column'][1]
+
+                if len(nl_token_list) > 0 and nl_token_list[-1] == best_match_str:
                     nl_token_list.pop()
-                nl_token_list.append(best_match)
+                nl_token_list.append(best_match_str)
         else:
             nl_token_list.append(question_token.raw_value)
 
