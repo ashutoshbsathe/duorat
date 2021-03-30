@@ -270,8 +270,9 @@ def extract_nl2sql_templates(sql_kw_file: str,
             else:
                 templates_by_hardness[hardness][(nl_template, sql_template)] = []
 
-    print(f"There are {len(template_collection)} NL<->SQL templates.")
+    print(f"Done! There are {len(template_collection)} NL<->SQL templates.")
 
+    print(f"Writing resulting templates to output file {output_file} (w/ {'raw text format' if not output_in_csv else 'CSV format'})")
     if not output_in_csv:
         with open(output_file, "w") as fout:
             for template, examples in template_collection.items():
@@ -354,6 +355,7 @@ if __name__ == '__main__':
     duorat_preprocessor.load()
 
     # Extract NL2SQL templates
+    print(f"Extracting NL2SQL templates from {input_file}...")
     extract_nl2sql_templates(sql_kw_file=sql_kw_file,
                              input_file=input_file,
                              output_file=output_file,
