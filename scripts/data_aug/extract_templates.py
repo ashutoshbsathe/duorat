@@ -7,6 +7,8 @@ import argparse
 
 import _jsonnet
 
+import tqdm
+
 from duorat.types import SQLSchema
 from duorat.utils import registry
 from duorat.preproc.slml import SLMLParser
@@ -76,17 +78,17 @@ def extract_nl_template(duorat_preprocessor: AbstractPreproc,
         db_path=db_path,
         tokenize=duorat_preprocessor._schema_tokenize,
     )
-    print(sql_schema)
+    # print(sql_schema)
     slml_question: str = duorat_preprocessor.schema_linker.question_to_slml(
         question=question, sql_schema=sql_schema,
     )
-    print(slml_question)
+    # print(slml_question)
     parser = SLMLParser(sql_schema=sql_schema, tokenizer=duorat_preprocessor.tokenizer)
     parser.feed(data=slml_question)
 
     nl_token_list = []
     for question_token in parser.question_tokens:
-        print(question_token)
+        # print(question_token)
         match_tags = question_token.match_tags
         if len(match_tags) > 0:  # matching happens!
             best_match = {}
@@ -155,7 +157,7 @@ def extract_nl2sql_templates(sql_kw_file: str,
 
     template_collection = {}
     templates_by_hardness = {"easy": {}, "medium": {}, "hard": {}, "extra": {}}
-    for item in data["per_item"]:
+    for item in tqdm(data["per_item"]):
         gold_sql = item["gold"]
         predicted_sql = postprocess(item["predicted"])
         predicted_parse_error = bool(item["predicted_parse_error"])
@@ -242,21 +244,21 @@ def extract_nl2sql_templates(sql_kw_file: str,
                 template_sql_token_list.append(sql_token)
 
             sql_template = ' '.join(template_sql_token_list)
-            print(f"Predicted SQL: {predicted_sql}")
-            print(f"SQL Template: {sql_template}")
+            # print(f"Predicted SQL: {predicted_sql}")
+            # print(f"SQL Template: {sql_template}")
 
             # Extract NL template
-            print(tab_mask_dict)
-            print(col_mask_dict)
+            # print(tab_mask_dict)
+            # print(col_mask_dict)
             nl_template = extract_nl_template(duorat_preprocessor=duorat_preprocessor,
                                               tab_mask_dict=tab_mask_dict,
                                               col_mash_dict=col_mask_dict,
                                               question=question,
                                               db_path=db_path)
-            print(f"NL: {question}")
-            print(f"NL Template: {nl_template}")
-
-            print("------------------------")
+            # print(f"NL: {question}")
+            # print(f"NL Template: {nl_template}")
+            #
+            # print("------------------------")
 
             # unique_template_set.add((question, nl_template, gold_sql, sql_template))
             if (nl_template, sql_template) in template_collection:
