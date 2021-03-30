@@ -116,7 +116,7 @@ def extract_nl_template(duorat_preprocessor: AbstractPreproc,
                         nl_token_list.pop()
                     best_match = "@VALUE"
                     break
-            if best_match:
+            if len(best_match) > 0:
                 nl_token_list.append(question_token.raw_value)
             else:
                 # Suppose, column is preferred than table
