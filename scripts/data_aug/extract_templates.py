@@ -102,6 +102,8 @@ def extract_nl_template(tab_mask_dict: Dict[str, str],
                     if nl_token_list[-1] == "@VALUE":
                         nl_token_list.pop()
                     nl_token_list.append("@VALUE")
+                    break
+                nl_token_list.append(question_token.raw_value)
         else:
             nl_token_list.append(question_token.raw_value)
 
@@ -233,6 +235,7 @@ for item in data["per_item"]:
                                           col_mash_dict=col_mask_dict,
                                           question=question,
                                           db_path=db_path)
+        print(f"NL: {question}")
         print(f"NL Template: {nl_template}")
 
         print("------------------------")
