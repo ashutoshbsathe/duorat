@@ -14,6 +14,7 @@ from duorat.datasets.spider import (
     schema_dict_to_spider_schema,
 )
 from third_party.spider.preprocess.get_tables import dump_db_json_schema
+from duorat.types import ColumnMatchTag, TableMatchTag, ValueMatchTag
 
 
 def postprocess(sql: str) -> str:
@@ -62,7 +63,10 @@ def is_sql_keyword(text: str) -> bool:
     return False
 
 
-def extract_nl_template(question: str, db_path: str) -> str:
+def extract_nl_template(tab_mask_dict: Dict[str, str],
+                        col_mash_dict: Dict[str, Dict],
+                        question: str,
+                        db_path: str) -> str:
     sql_schema: SQLSchema = preprocess_schema_uncached(
         schema=schema_dict_to_spider_schema(refine_schema_names(dump_db_json_schema(db_path, ""))),
         db_path=db_path,
@@ -75,10 +79,33 @@ def extract_nl_template(question: str, db_path: str) -> str:
     print(slml_question)
     parser = SLMLParser(sql_schema=sql_schema, tokenizer=duorat_preprocessor.tokenizer)
     parser.feed(data=slml_question)
+
+    nl_token_list = []
     for question_token in parser.question_tokens:
         print(question_token)
+        match_tags = question_token.match_tags
+        if len(match_tags) > 0:  # matching happens!
+            for match_tag in match_tags:
+                if isinstance(match_tag, TableMatchTag):
+                    table_name = sql_schema.table_names[int(match_tag.table_id)]
+                    if table_name in tab_mask_dict:
+                        nl_token_list.append(tab_mask_dict[table_name])
+                        break  # hacky to avoid multiple matches
+                elif isinstance(match_tag, ColumnMatchTag):
+                    table_name = sql_schema.table_names[int(match_tag.table_id)]
+                    column_name = sql_schema.column_names[int(match_tag.column_id)]
+                    if table_name in col_mash_dict:
+                        if column_name in col_mash_dict[table_name]:
+                            nl_token_list.append(col_mash_dict[table_name][column_name])
+                            break  # hacky to avoid multiple matches
+                elif isinstance(match_tag, ValueMatchTag):
+                    if nl_token_list[-1] == "@VALUE":
+                        nl_token_list.pop()
+                    nl_token_list.append("@VALUE")
+        else:
+            nl_token_list.append(question_token.raw_value)
 
-    return question
+    return ' '.join(nl_token_list)
 
 
 sql_kw_file = sys.argv[1]
