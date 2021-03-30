@@ -88,13 +88,13 @@ def extract_nl_template(tab_mask_dict: Dict[str, str],
             best_match = None
             for match_tag in match_tags:
                 if isinstance(match_tag, TableMatchTag):
-                    table_name = sql_schema.table_names[match_tag.table_id]
+                    table_name = sql_schema.original_table_names[match_tag.table_id]
                     if table_name in tab_mask_dict:
                         best_match = tab_mask_dict[table_name]
                         break  # hacky to avoid multiple matches
                 elif isinstance(match_tag, ColumnMatchTag):
-                    table_name = sql_schema.table_names[match_tag.table_id]
-                    column_name = sql_schema.column_names[match_tag.column_id]
+                    table_name = sql_schema.original_table_names[match_tag.table_id]
+                    column_name = sql_schema.original_column_names[match_tag.column_id]
                     if table_name in col_mash_dict:
                         if column_name in col_mash_dict[table_name]:
                             best_match = f"{tab_mask_dict[table_name]}.{col_mash_dict[table_name][column_name]}"
@@ -111,7 +111,7 @@ def extract_nl_template(tab_mask_dict: Dict[str, str],
         else:
             nl_token_list.append(question_token.raw_value)
 
-    return ' '.join(nl_token_list)
+    return duorat_preprocessor.tokenizer.detokenize(xs=nl_token_list)
 
 
 sql_kw_file = sys.argv[1]
