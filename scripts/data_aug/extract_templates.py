@@ -85,25 +85,29 @@ def extract_nl_template(tab_mask_dict: Dict[str, str],
         print(question_token)
         match_tags = question_token.match_tags
         if len(match_tags) > 0:  # matching happens!
+            best_match = None
             for match_tag in match_tags:
                 if isinstance(match_tag, TableMatchTag):
                     table_name = sql_schema.table_names[match_tag.table_id]
                     if table_name in tab_mask_dict:
-                        nl_token_list.append(tab_mask_dict[table_name])
+                        best_match = tab_mask_dict[table_name]
                         break  # hacky to avoid multiple matches
                 elif isinstance(match_tag, ColumnMatchTag):
                     table_name = sql_schema.table_names[match_tag.table_id]
                     column_name = sql_schema.column_names[match_tag.column_id]
                     if table_name in col_mash_dict:
                         if column_name in col_mash_dict[table_name]:
-                            nl_token_list.append(col_mash_dict[table_name][column_name])
+                            best_match = col_mash_dict[table_name][column_name]
                             break  # hacky to avoid multiple matches
                 elif isinstance(match_tag, ValueMatchTag):
                     if nl_token_list[-1] == "@VALUE":
                         nl_token_list.pop()
-                    nl_token_list.append("@VALUE")
+                    best_match = "@VALUE"
                     break
+            if best_match is None:
                 nl_token_list.append(question_token.raw_value)
+            else:
+                nl_token_list.append(best_match)
         else:
             nl_token_list.append(question_token.raw_value)
 
