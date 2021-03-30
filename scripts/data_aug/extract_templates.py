@@ -126,6 +126,7 @@ output_file = sys.argv[5]
 print("Initializing DuoRAT config...")
 config = json.loads(_jsonnet.evaluate_file(duorat_config_file))
 config['model']['preproc']['save_path'] = os.path.join(logdir, "data")
+config['model']['preproc']['schema_linker']['with_stemming'] = True  # Set it to True
 
 # DuoRAT preprocessor
 print("Initializing DuoRAT preprocessor...")

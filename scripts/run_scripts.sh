@@ -267,4 +267,5 @@ CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-wi
 # infer
 
 # *** Extracting NL2SQL templates
-python scripts/data_aug/extract_templates.py ./scripts/data_aug/sql_keywords.txt ./logdir/duorat-new-db-content-bs4-ac7/train-duorat-new-db-content-bs4-ac7.eval ./logdir/duorat-new-db-content-bs4-ac7 ./configs/duorat/duorat-new-db-content.jsonnet ./logdir/duorat-new-db-content-bs4-ac7/train-duorat-new-db-content-bs4-ac7-new-templates
+# Spider
+python scripts/data_aug/extract_templates.py ./scripts/data_aug/sql_keywords.txt ./logdir/duorat-new-db-content-bs4-ac7/train-duorat-new-db-content-bs4-ac7.eval ./logdir/duorat-new-db-content-bs4-ac7 ./configs/duorat/duorat-new-db-content.jsonnet ./logdir/duorat-new-db-content-bs4-ac7/train_spider.nl2sql_templates
