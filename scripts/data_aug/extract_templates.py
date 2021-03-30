@@ -235,6 +235,8 @@ for item in data["per_item"]:
         print(f"SQL Template: {sql_template}")
 
         # Extract NL template
+        print(tab_mask_dict)
+        print(col_mask_dict)
         nl_template = extract_nl_template(tab_mask_dict=tab_mask_dict,
                                           col_mash_dict=col_mask_dict,
                                           question=question,
