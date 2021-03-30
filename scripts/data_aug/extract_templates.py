@@ -104,14 +104,14 @@ def extract_nl_template(duorat_preprocessor: AbstractPreproc,
                             best_match = f"{tab_mask_dict[table_name]}.{col_mash_dict[table_name][column_name]}"
                             break  # hacky to avoid multiple matches
                 elif isinstance(match_tag, ValueMatchTag):
-                    if nl_token_list[-1] == "@VALUE":
+                    if len(nl_token_list) > 0 and nl_token_list[-1] == "@VALUE":
                         nl_token_list.pop()
                     best_match = "@VALUE"
                     break
             if best_match is None:
                 nl_token_list.append(question_token.raw_value)
             else:
-                if nl_token_list[-1] == best_match:
+                if len(nl_token_list) > 0 and nl_token_list[-1] == best_match:
                     nl_token_list.pop()
                 nl_token_list.append(best_match)
         else:
@@ -137,14 +137,15 @@ def extract_nl2sql_templates(sql_kw_file: str,
     with open(input_file) as f:
         data = json.load(f)
 
-    unique_template_set = set()
-    templates_by_hardness = {"easy": set(), "medium": set(), "hard": set(), "extra": set()}
+    template_collection = {}
+    templates_by_hardness = {"easy": {}, "medium": {}, "hard": {}, "extra": {}}
     for item in data["per_item"]:
         gold_sql = item["gold"]
         predicted_sql = postprocess(item["predicted"])
         predicted_parse_error = bool(item["predicted_parse_error"])
         exact = bool(item["exact"])
         db_path = item["db_path"]
+        db_name = item["db_name"]
         hardness = item["hardness"]
         question = item["question"]
 
@@ -241,47 +242,50 @@ def extract_nl2sql_templates(sql_kw_file: str,
 
             print("------------------------")
 
-            unique_template_set.add((question, nl_template, gold_sql, sql_template))
-            templates_by_hardness[hardness].add((question, nl_template, gold_sql, sql_template))
+            # unique_template_set.add((question, nl_template, gold_sql, sql_template))
+            if (nl_template, sql_template) in template_collection:
+                template_collection[(nl_template, sql_template)].append((question, gold_sql, db_name))
+            else:
+                template_collection[(nl_template, sql_template)] = []
+            if (nl_template, sql_template) in templates_by_hardness[hardness]:
+                templates_by_hardness[hardness][(nl_template, sql_template)].append((question, gold_sql, db_name))
+            else:
+                templates_by_hardness[hardness][(nl_template, sql_template)] = []
 
-    unique_template_list = list(unique_template_set)
-    print(f"There are {len(unique_template_list)} NL<->SQL templates.")
-    # print(unique_template_list)
+    print(f"There are {len(template_collection)} NL<->SQL templates.")
 
     if not output_in_csv:
         with open(output_file, "w") as fout:
-            for question, nl_template, gold_sql, sql_template in sorted(unique_template_list, key=len):
-                fout.write(f"{question}\t{nl_template}\t{gold_sql}\t{sql_template}\n")
+            for template, examples in template_collection.items():
+                for example in examples:
+                    fout.write(f"{template[0]}\t{template[1]}\t{example[0]}\t{example[1]}\t{example[2]}\n")
 
-        for key, val in templates_by_hardness.items():
-            with open(f"{output_file}.{key}", "w") as fout:
-                fout.write(f"{len(val)}\n")
-                for question, nl_template, gold_sql, sql_template in sorted(list(val), key=len):
-                    fout.write(f"{question}\t{nl_template}\t{gold_sql}\t{sql_template}\n")
+        for hardness, hardness_template_collection in templates_by_hardness.items():
+            with open(f"{output_file}.{hardness}", "w") as fout:
+                fout.write(f"{len(hardness_template_collection)}\n")
+                for template, examples in hardness_template_collection.items():
+                    for example in examples:
+                        fout.write(f"{template[0]}\t{template[1]}\t{example[0]}\t{example[1]}\t{example[2]}\n")
     else:
-        fieldnames = ['question', 'question_template', 'gold_sql', 'sql_template']
+        fieldnames = ['nl_template', 'sql_template', 'examples']
         with open(output_file, 'w', newline='') as fcsvfile:
             writer = csv.DictWriter(fcsvfile, fieldnames=fieldnames)
-
             writer.writeheader()
-            for question, nl_template, gold_sql, sql_template in sorted(unique_template_list, key=len):
-                writer.writerow({'question': question,
-                                 'nl_template': nl_template,
-                                 'gold_sql': gold_sql,
-                                 'sql_template': sql_template
+            for template, examples in template_collection.items():
+                writer.writerow({'nl_template': template[0],
+                                 'sql_template': template[1],
+                                 'examples': str(examples)
                                  }
                                 )
 
-        for key, val in templates_by_hardness.items():
-            with open(f"{output_file}.{key}", "w", newline='') as fcsvfile:
+        for hardness, hardness_template_collection in templates_by_hardness.items():
+            with open(f"{output_file}.{hardness}", "w", newline='') as fcsvfile:
                 hardness_writer = csv.DictWriter(fcsvfile, fieldnames=fieldnames)
-
                 hardness_writer.writeheader()
-                for question, nl_template, gold_sql, sql_template in sorted(list(val), key=len):
-                    hardness_writer.writerow({'question': question,
-                                              'nl_template': nl_template,
-                                              'gold_sql': gold_sql,
-                                              'sql_template': sql_template
+                for template, examples in hardness_template_collection.items():
+                    hardness_writer.writerow({'nl_template': template[0],
+                                              'sql_template': template[1],
+                                              'examples': str(examples)
                                               }
                                              )
 
