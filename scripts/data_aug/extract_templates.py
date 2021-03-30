@@ -157,7 +157,7 @@ def extract_nl2sql_templates(sql_kw_file: str,
 
     template_collection = {}
     templates_by_hardness = {"easy": {}, "medium": {}, "hard": {}, "extra": {}}
-    for item in tqdm(data["per_item"]):
+    for item in tqdm.tqdm(data["per_item"]):
         gold_sql = item["gold"]
         predicted_sql = postprocess(item["predicted"])
         predicted_parse_error = bool(item["predicted_parse_error"])
