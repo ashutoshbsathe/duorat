@@ -114,20 +114,20 @@ def extract_nl_template(duorat_preprocessor: AbstractPreproc,
                                     best_match['column'] = (f"{tab_mask_dict[table_name]}.{col_mash_dict[table_name][column_name]}", match_tag.confidence)
                             # break  # hacky to avoid multiple matches
                 elif isinstance(match_tag, ValueMatchTag):
-                    if len(nl_token_list) > 0 and nl_token_list[-1] == "@VALUE":
+                    if len(nl_token_list) > 0 and nl_token_list[-1] == "VALUE":
                         nl_token_list.pop()
-                    best_match['value'] = "@VALUE"
+                    best_match['value'] = "VALUE"
                     break
             if len(best_match) == 0:
                 nl_token_list.append(question_token.raw_value)
             else:
-                # Suppose, column is preferred than table
+                # Suppose, column > table > value
+                if 'value' in best_match:
+                    best_match_str = best_match['value']
                 if 'table' in best_match:
                     best_match_str = best_match['table'][0]
                 if 'column' in best_match:
                     best_match_str = best_match['column'][0]
-                if 'value' in best_match:
-                    best_match_str = best_match['value']
 
                 if len(nl_token_list) > 0 and nl_token_list[-1] == best_match_str:
                     nl_token_list.pop()
@@ -167,10 +167,13 @@ def extract_nl2sql_templates(sql_kw_file: str,
         hardness = item["hardness"]
         question = item["question"]
 
+        if db_name != "department_management" and question != "How many heads of the departments are older than 56 ?":
+            continue
+
         def _get_table_mask_sid(mask_dict: Dict[str, str], tab_name: str) -> str:
             if tab_name in mask_dict:
                 return mask_dict[tab_name]
-            mask_dict[tab_name] = f"@TABLE{len(mask_dict)}"
+            mask_dict[tab_name] = f"TABLE#{len(mask_dict)}"
             return mask_dict[tab_name]
 
         def _get_column_mask_sid(mask_dict: Dict[str, Dict], tab_name: str, col_name: str) -> str:
@@ -178,10 +181,10 @@ def extract_nl2sql_templates(sql_kw_file: str,
                 if col_name in mask_dict[tab_name]:
                     return mask_dict[tab_name][col_name]
                 else:
-                    mask_dict[tab_name][col_name] = f"@COLUMN{len(mask_dict[tab_name])}"
+                    mask_dict[tab_name][col_name] = f"COLUMN#{len(mask_dict[tab_name])}"
             else:
                 mask_dict[tab_name] = {}
-                mask_dict[tab_name][col_name] = f"@COLUMN0"
+                mask_dict[tab_name][col_name] = f"COLUMN#0"
             return mask_dict[tab_name][col_name]
 
         # Extract SQL template
@@ -230,13 +233,13 @@ def extract_nl2sql_templates(sql_kw_file: str,
                         sql_token = f"{_get_table_mask_sid(mask_dict=tab_mask_dict, tab_name=sql_token[:-1])})"
                 elif not is_sql_keyword(text=sql_token,
                                         sql_keyword_set=sql_keyword_set) and sql_token not in sql_comp_list:
-                    value_str = "@VALUE"
+                    value_str = "VALUE"
                     if sql_token[-1] == ')':
-                        value_str = "@VALUE)"
+                        value_str = "VALUE)"
 
                     if prev_sql_token in sql_comp_list:
                         sql_token = value_str
-                    elif prev_sql_token == '@VALUE':
+                    elif prev_sql_token == 'VALUE':
                         template_sql_token_list.pop()
                         sql_token = value_str
 
