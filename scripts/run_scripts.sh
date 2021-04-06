@@ -120,7 +120,7 @@ CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-sp
 # duorat-sparc-new-db-content
 
 # train
-# interaction history (1) in the inputs
+# interaction history (source, 1) in the inputs
 CUDA_VISIBLE_DEVICES=3 python scripts/train.py --config configs/duorat/duorat-sparc-new-db-content.jsonnet --logdir ./logdir/duorat-sparc-new-db-content --force-preprocess --force-train &> logdir/train-duorat-sparc-new-db-content.log &
 CUDA_VISIBLE_DEVICES=3 python scripts/train.py --config configs/duorat/duorat-sparc-new-db-content-150k-steps.jsonnet --logdir ./logdir/duorat-sparc-new-db-content &> logdir/train-duorat-sparc-new-db-content.log1 &
 
@@ -150,16 +150,19 @@ python3 evaluation.py --gold /mnt/shared/vchoang/works/projects/oda/text2sql/cod
 # testsuite execution accuracy with values
 python3 evaluation.py --gold /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/sparc/dev_gold_fixed.txt --pred /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/logdir/duorat-sparc-new-db-content/val-duorat-sparc-new-db-content-eval-testsuite.output --db ./database --etype exec --progress_bar_for_each_datapoint
 
-# interaction history (1) in the inputs (run2)
+# interaction history (source, 1) in the inputs (run2)
 CUDA_VISIBLE_DEVICES=3 python scripts/train.py --config configs/duorat/duorat-sparc-new-db-content.jsonnet --logdir ./logdir/duorat-sparc-new-db-content-run2 --force-preprocess --force-train &> logdir/train-duorat-sparc-new-db-content-run2.log &
 
-# interaction history (1) in the inputs (run3)
+# interaction history (source, 1) in the inputs (run3)
 CUDA_VISIBLE_DEVICES=3 python scripts/train.py --config configs/duorat/duorat-sparc-new-db-content.jsonnet --logdir ./logdir/duorat-sparc-new-db-content-run3 --force-preprocess --force-train &> logdir/train-duorat-sparc-new-db-content-run3.log &
 
-# interaction history (2) in the inputs
+# interaction history (source, 2) in the inputs
 CUDA_VISIBLE_DEVICES=2 python scripts/train.py --config configs/duorat/duorat-sparc-new-db-content-int2.jsonnet --logdir ./logdir/duorat-sparc-new-db-content-int2 --force-preprocess --force-train &> logdir/train-duorat-sparc-new-db-content-int2.log &
 
 CUDA_VISIBLE_DEVICES=2 python scripts/train.py --config configs/duorat/duorat-sparc-new-db-content-int2.jsonnet --logdir ./logdir/duorat-sparc-new-db-content-int2 &> logdir/train-duorat-sparc-new-db-content-int2.log1 &
+
+# interaction history (target, 1) in the inputs
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-sparc-new-db-content-target-interaction.jsonnet --logdir ./logdir/duorat-sparc-new-db-content-target-interaction --force-preprocess --force-train &> logdir/train-duorat-sparc-new-db-content-target-interaction.log &
 
 # *** CoSQL
 

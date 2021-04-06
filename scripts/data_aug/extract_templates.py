@@ -1,7 +1,12 @@
+# Vu Hoang (vu.hoang@oracle.com)
+# Oracle Corp.
+# Implementation of NL2SQL Template Extraction Algorithm
+
 import os
 import json
-from typing import Dict, Set
+from typing import Dict, Set, List
 import csv
+from bidict import bidict
 
 import argparse
 
@@ -19,44 +24,44 @@ from duorat.datasets.spider import (
 )
 from duorat.preproc.abstract_preproc import AbstractPreproc
 from third_party.spider.preprocess.get_tables import dump_db_json_schema
-from duorat.types import ColumnMatchTag, TableMatchTag, ValueMatchTag, HighConfidenceMatch, LowConfidenceMatch
+from duorat.types import ColumnMatchTag, TableMatchTag, ValueMatchTag, HighConfidenceMatch
 
 
-def postprocess(sql: str) -> str:
+def postprocess_question(question: str) -> str:
+    question = question.strip()
+    if question.startswith("\"") and question.endswith("\""):
+        question = question[1:-1]
+
+    question = question.replace("\"\"", "\"")
+    question = question.replace("  ", " ")
+
+    return question.strip()
+
+
+def postprocess_sql(sql: str) -> str:
     # " AirCon " -> "AirCon"
+    sql = sql.strip()
+    if sql.startswith("\"") and sql.endswith("\""):
+        sql = sql[1:-1]
+
+    if sql.endswith(';'):
+        sql = sql[:-1]
+
+    sql = sql.replace("\"\"", "\"")
     sql = sql.replace("\"", " \" ")
     sql = sql.replace("  ", " ")
-    # sql = sql.replace("\" ", "\"").replace(" \"", "\"")
-    ps = 0
-    while True:
-        ps = sql.find('"', ps)
-        if ps != -1:
-            pe = sql.find('"', ps + 1)
-            if pe != -1:
-                sql = sql.replace(sql[ps + 1: pe],
-                                  sql[ps + 1: pe].replace(".", "~").replace("NULL", "!!!!").replace("AS", "!!"))
-                ps = pe + 1
-            else:
-                break
-        else:
-            break
 
     # 7 . 5 -> 7.5
     sql = sql.replace(" . ", ".")
 
-    # =" -> = "
-    # sql = sql.replace("=\"", "= \"")
+    #  stanley.monahan @ example.org -->  stanley.monahan@example.org
+    sql = sql.replace(" @ ", "@")
 
-    # LIKE" -> LIKE "
-    # sql = sql.replace("LIKE\"", "LIKE \"")
+    return sql.strip()
 
-    # "OR -> " OR
-    # sql = sql.replace("\"OR", "\" OR")
 
-    # "AND -> " AND
-    # sql = sql.replace("\"AND", "\" AND")
-
-    return sql
+def remove_quotes(text: str) -> str:
+    return text.replace('\'', '').replace('"', '')
 
 
 def is_sql_keyword(text: str, sql_keyword_set: Set) -> bool:
@@ -70,9 +75,16 @@ def is_sql_keyword(text: str, sql_keyword_set: Set) -> bool:
 
 def extract_nl_template(duorat_preprocessor: AbstractPreproc,
                         tab_mask_dict: Dict[str, str],
-                        col_mash_dict: Dict[str, Dict],
+                        col_mask_dict: Dict[str, Dict],
+                        val_mask_dict: bidict,
                         question: str,
-                        db_path: str) -> str:
+                        db_path: str,
+                        max_ngrams: int = 5) -> str:
+    def _maybe_naive_postprocess_slml_output(slml: str) -> str:
+        slml = slml.replace("-LRB-", "(").replace("-RRB-", ")")
+
+        return slml
+
     sql_schema: SQLSchema = preprocess_schema_uncached(
         schema=schema_dict_to_spider_schema(refine_schema_names(dump_db_json_schema(db_path, ""))),
         db_path=db_path,
@@ -82,6 +94,8 @@ def extract_nl_template(duorat_preprocessor: AbstractPreproc,
     slml_question: str = duorat_preprocessor.schema_linker.question_to_slml(
         question=question, sql_schema=sql_schema,
     )
+    slml_question = _maybe_naive_postprocess_slml_output(slml=slml_question)
+
     # print(slml_question)
     parser = SLMLParser(sql_schema=sql_schema, tokenizer=duorat_preprocessor.tokenizer)
     parser.feed(data=slml_question)
@@ -101,31 +115,55 @@ def extract_nl_template(duorat_preprocessor: AbstractPreproc,
                         else:
                             if match_tag.confidence > best_match['table'][1]:
                                 best_match['table'] = (tab_mask_dict[table_name], match_tag.confidence)
-                        # break  # hacky to avoid multiple matches
+                    else:
+                        if isinstance(match_tag.confidence, HighConfidenceMatch):
+                            best_match['table'] = (get_table_mask_sid(mask_dict=tab_mask_dict,
+                                                                      tab_name=table_name),
+                                                   match_tag.confidence)
                 elif isinstance(match_tag, ColumnMatchTag):
                     table_name = sql_schema.original_table_names[match_tag.table_id]
                     column_name = sql_schema.original_column_names[match_tag.column_id]
-                    if table_name in col_mash_dict:
-                        if column_name in col_mash_dict[table_name]:
+                    if table_name in col_mask_dict:
+                        if column_name in col_mask_dict[table_name]:
                             if 'column' not in best_match:
-                                best_match['column'] = (f"{tab_mask_dict[table_name]}.{col_mash_dict[table_name][column_name]}", match_tag.confidence)
+                                best_match['column'] = (
+                                    f"{tab_mask_dict[table_name]}.{col_mask_dict[table_name][column_name]}",
+                                    match_tag.confidence)
                             else:
                                 if match_tag.confidence > best_match['column'][1]:
-                                    best_match['column'] = (f"{tab_mask_dict[table_name]}.{col_mash_dict[table_name][column_name]}", match_tag.confidence)
-                            # break  # hacky to avoid multiple matches
-                elif isinstance(match_tag, ValueMatchTag):
-                    if len(nl_token_list) > 0 and nl_token_list[-1] == "VALUE":
-                        nl_token_list.pop()
-                    best_match['value'] = "VALUE"
-                    break
+                                    best_match['column'] = (
+                                        f"{tab_mask_dict[table_name]}.{col_mask_dict[table_name][column_name]}",
+                                        match_tag.confidence)
+                        else:
+                            if isinstance(match_tag.confidence, HighConfidenceMatch):
+                                best_match['column'] = (
+                                    f"{get_table_mask_sid(mask_dict=tab_mask_dict, tab_name=table_name)}.{get_column_mask_sid(mask_dict=col_mask_dict, tab_name=table_name, col_name=column_name)}",
+                                    match_tag.confidence)
+                elif isinstance(match_tag, ValueMatchTag) and isinstance(match_tag.confidence, HighConfidenceMatch):
+                    match_val = match_tag.value
+                    if match_val in val_mask_dict:
+                        if len(nl_token_list) > 0 and nl_token_list[-1].startswith("VALUE#"):
+                            nl_token_list.pop()
+                        best_match['value'] = val_mask_dict[match_val]
+                    else:
+                        best_match['value'] = f"{question_token.raw_value}"
+
             if len(best_match) == 0:
-                nl_token_list.append(question_token.raw_value)
+                if question_token.raw_value in val_mask_dict:
+                    nl_token_list.append(val_mask_dict[question_token.raw_value])
+                else:
+                    nl_token_list.append(question_token.raw_value)
             else:
                 # Suppose, column > table > value
                 if 'value' in best_match:
                     best_match_str = best_match['value']
+                    if best_match_str in val_mask_dict:
+                        best_match_str = val_mask_dict[best_match_str]
                 if 'table' in best_match:
-                    best_match_str = best_match['table'][0]
+                    if 'value' in best_match and not isinstance(best_match['table'][1], HighConfidenceMatch):
+                        best_match_str = best_match['value']
+                    else:
+                        best_match_str = best_match['table'][0]
                 if 'column' in best_match:
                     best_match_str = best_match['column'][0]
 
@@ -133,9 +171,52 @@ def extract_nl_template(duorat_preprocessor: AbstractPreproc,
                     nl_token_list.pop()
                 nl_token_list.append(best_match_str)
         else:
-            nl_token_list.append(question_token.raw_value)
+            # 5-gram -> 4-gram -> 3-gram -> 2-gram -> 1-gram. Here, we only allow max 5-grams. Inefficient implementation ^_%.
+            def _get_ngram_list(cur_token: str, max_n: int = 5) -> Dict[int, str]:
+                ngrams = {2: None, 3: None, 4: None, 5: None}
+                for i in range(max_n, 1, -1):
+                    if len(nl_token_list) >= i - 1:
+                        ngrams[i] = duorat_preprocessor.tokenizer.detokenize(
+                            xs=f"{' '.join(nl_token_list[-(i - 1):])} {cur_token}".split())
+                return ngrams
+
+            ngrams = _get_ngram_list(cur_token=question_token.raw_value, max_n=max_ngrams)
+            ngrams[1] = question_token.raw_value
+            matched = False
+            for n in range(max_ngrams, 0, -1):
+                if ngrams[n] and ngrams[n] in val_mask_dict:
+                    for j in range(n - 1):
+                        nl_token_list.pop()
+                    nl_token_list.append(val_mask_dict[ngrams[n]])
+                    matched = True
+                    break
+
+            if not matched:  # otherwise, normal token
+                nl_token_list.append(question_token.raw_value)
 
     return duorat_preprocessor.tokenizer.detokenize(xs=nl_token_list)
+
+
+def get_table_mask_sid(mask_dict: Dict[str, str], tab_name: str) -> str:
+    if tab_name in mask_dict:
+        return mask_dict[tab_name]
+    mask_dict[tab_name] = f"TABLE#{len(mask_dict)}"
+    return mask_dict[tab_name]
+
+
+def get_column_mask_sid(mask_dict: Dict[str, Dict], tab_name: str, col_name: str) -> str:
+    if tab_name in mask_dict:
+        if col_name in mask_dict[tab_name]:
+            return mask_dict[tab_name][col_name]
+        else:
+            mask_dict[tab_name][col_name] = f"COLUMN#{len(mask_dict[tab_name])}"
+    else:
+        mask_dict[tab_name] = {}
+        mask_dict[tab_name][col_name] = f"COLUMN#0"
+    return mask_dict[tab_name][col_name]
+
+
+SQL_OP_LIST = ['<', '<=', '>', '>=', '=', '!=', 'LIKE', 'BETWEEN', 'AND']
 
 
 def extract_nl2sql_templates(sql_kw_file: str,
@@ -143,6 +224,56 @@ def extract_nl2sql_templates(sql_kw_file: str,
                              output_file: str,
                              output_in_csv: bool,
                              duorat_preprocessor: AbstractPreproc):
+    def _maybe_correct_val_mask_dict(g_sql: str, p_sql: str, m_dict: bidict):
+        def _get_potential_op_values(sql: str) -> List[str]:
+            op_values = []
+            sql_tokens = sql.split()
+            see_where = False
+            for ind, stok in enumerate(sql_tokens):
+                if stok in ["WHERE", "Where", "where"]:
+                    see_where = True
+
+                if see_where and stok in SQL_OP_LIST:
+                    j = ind + 1
+                    if sql_tokens[j] == '\'' or sql_tokens[j] == '\"' \
+                            or sql_tokens[j].startswith('\'') or sql_tokens[j].startswith('"'):
+                        if sql_tokens[j] == '\'' or sql_tokens[j] == '\"':
+                            j += 1
+
+                        val_list = []
+                        while j < len(sql_tokens):
+                            if sql_tokens[j] == '\'' or sql_tokens[j] == '\"':
+                                break
+
+                            if sql_tokens[j].endswith(')') and len(sql_tokens[j]) > 1:
+                                sql_tokens[j] = sql_tokens[j][:-1]
+
+                            val_list.append(sql_tokens[j])
+
+                            if sql_tokens[j].endswith('\'') or sql_tokens[j].endswith('"'):
+                                break
+
+                            j += 1
+                        val_str = remove_quotes(text=' '.join(val_list))
+                    else:
+                        val_str = remove_quotes(text=sql_tokens[j])
+
+                    op_values.append(val_str)
+            return op_values
+
+        p_op_values = _get_potential_op_values(sql=p_sql)
+        g_op_values = _get_potential_op_values(sql=g_sql)
+        if len(p_op_values) != len(g_op_values):
+            return
+
+        for p_op_val, g_op_val in zip(p_op_values, g_op_values):
+            if p_op_val in m_dict and g_op_val not in m_dict:
+                p_op_val_mask = m_dict[p_op_val]
+                del m_dict[p_op_val]
+                m_dict[g_op_val] = p_op_val_mask
+
+        return
+
     # read SQL keywords
     sql_keyword_set = set()
     with open(sql_kw_file) as f:
@@ -157,59 +288,41 @@ def extract_nl2sql_templates(sql_kw_file: str,
 
     template_collection = {}
     templates_by_hardness = {"easy": {}, "medium": {}, "hard": {}, "extra": {}}
-    for item in tqdm.tqdm(data["per_item"]):
-        gold_sql = item["gold"]
-        predicted_sql = postprocess(item["predicted"])
+    for ind, item in enumerate(tqdm.tqdm(data["per_item"])):
+        gold_sql = postprocess_sql(item["gold"])
+        predicted_sql = postprocess_sql(sql=item["predicted"])
         predicted_parse_error = bool(item["predicted_parse_error"])
         exact = bool(item["exact"])
         db_path = item["db_path"]
         db_name = item["db_name"]
         hardness = item["hardness"]
-        question = item["question"]
+        question = postprocess_question(question=item["question"])
 
-        if db_name != "department_management" and question != "How many heads of the departments are older than 56 ?":
+        if 'Kevin Spacey' not in question:
             continue
 
-        def _get_table_mask_sid(mask_dict: Dict[str, str], tab_name: str) -> str:
-            if tab_name in mask_dict:
-                return mask_dict[tab_name]
-            mask_dict[tab_name] = f"TABLE#{len(mask_dict)}"
-            return mask_dict[tab_name]
-
-        def _get_column_mask_sid(mask_dict: Dict[str, Dict], tab_name: str, col_name: str) -> str:
-            if tab_name in mask_dict:
-                if col_name in mask_dict[tab_name]:
-                    return mask_dict[tab_name][col_name]
-                else:
-                    mask_dict[tab_name][col_name] = f"COLUMN#{len(mask_dict[tab_name])}"
-            else:
-                mask_dict[tab_name] = {}
-                mask_dict[tab_name][col_name] = f"COLUMN#0"
-            return mask_dict[tab_name][col_name]
-
-        # Extract SQL template
+        # *** Extract SQL template
         tab_mask_dict = {}
         col_mask_dict = {}
+        val_mask_dict = bidict({})
         if exact and not predicted_parse_error:
             prev_sql_token = ''
             predicted_sql_tokens = predicted_sql.split()
             template_sql_token_list = []
-            sql_comp_list = ['<', '<=', '>', '>=', '=', '!=', 'LIKE', 'BETWEEN', 'AND']
+            op_counter = 0
+            start_quote = False
             for sql_token in predicted_sql_tokens:
-                if '.' in sql_token:
-                    sp = sql_token.split('.')
-                    if sp[0] == sp[1]:  # hacky :(
-                        sql_token = "table.col"
+                if sql_token in ['\'', '"']:
+                    start_quote = not start_quote
 
+                if '.' in sql_token and len(sql_token.split('.')) == 2 and not start_quote:
                     dot_pos = sql_token.find('.')
                     open_bracket_pos = sql_token.find('(') + 1
-                    if open_bracket_pos == -1:
-                        open_bracket_pos = 0
 
                     table_name = sql_token[open_bracket_pos: dot_pos]
                     sql_token = sql_token.replace(table_name,
-                                                  _get_table_mask_sid(mask_dict=tab_mask_dict,
-                                                                      tab_name=table_name))
+                                                  get_table_mask_sid(mask_dict=tab_mask_dict,
+                                                                     tab_name=table_name))
 
                     dot_pos = sql_token.find('.')
                     if open_bracket_pos == 0:
@@ -223,47 +336,89 @@ def extract_nl2sql_templates(sql_kw_file: str,
                     else:
                         col_name = sql_token[dot_pos + 1: sql_token.find(')')]
 
-                    sql_token = sql_token.replace(col_name, _get_column_mask_sid(mask_dict=col_mask_dict,
-                                                                                 tab_name=table_name,
-                                                                                 col_name=col_name))
-                elif prev_sql_token == 'FROM' or prev_sql_token == 'JOIN':
+                    sql_token = sql_token.replace(col_name, get_column_mask_sid(mask_dict=col_mask_dict,
+                                                                                tab_name=table_name,
+                                                                                col_name=col_name))
+                elif prev_sql_token.upper() == 'FROM' or prev_sql_token.upper() == 'JOIN':
                     if sql_token.find(")") == -1:
-                        sql_token = _get_table_mask_sid(mask_dict=tab_mask_dict, tab_name=sql_token)
+                        sql_token = get_table_mask_sid(mask_dict=tab_mask_dict, tab_name=sql_token)
                     else:
-                        sql_token = f"{_get_table_mask_sid(mask_dict=tab_mask_dict, tab_name=sql_token[:-1])})"
+                        sql_token = f"{get_table_mask_sid(mask_dict=tab_mask_dict, tab_name=sql_token[:-1])})"
+                elif sql_token.upper() in SQL_OP_LIST:
+                    sql_token = f'OP#{op_counter}'
+                    op_counter += 1
+                elif sql_token.upper() in ['ASC', 'DESC']:
+                    sql_token = 'SC'
                 elif not is_sql_keyword(text=sql_token,
-                                        sql_keyword_set=sql_keyword_set) and sql_token not in sql_comp_list:
-                    value_str = "VALUE"
-                    if sql_token[-1] == ')':
-                        value_str = "VALUE)"
+                                        sql_keyword_set=sql_keyword_set) and sql_token.upper() not in SQL_OP_LIST:
+                    if 'OP#' in prev_sql_token:
+                        if sql_token in val_mask_dict:
+                            value_str = val_mask_dict[sql_token]
+                        else:
+                            value_str = f"VALUE#{len(val_mask_dict)}"
 
-                    if prev_sql_token in sql_comp_list:
+                        if sql_token[-1] == ')':
+                            value_str = f"{value_str})"
+
+                        val_mask_dict[sql_token.replace(')', '')] = value_str.replace(')', '')
                         sql_token = value_str
-                    elif prev_sql_token == 'VALUE':
-                        template_sql_token_list.pop()
-                        sql_token = value_str
+                    elif 'VALUE#' in prev_sql_token:
+                        last_sql_token = template_sql_token_list.pop()
+                        last_val_token = val_mask_dict.inverse[last_sql_token]
+                        del val_mask_dict.inverse[last_sql_token]
+
+                        mask_key = remove_quotes(text=f"{last_val_token} {sql_token}").replace(')', '').replace('%',
+                                                                                                                '').replace(
+                            '/', '').strip()
+                        if mask_key not in val_mask_dict:
+                            value_str = f"VALUE#{len(val_mask_dict)}"
+                            if sql_token[-1] == ')':
+                                value_str = f"{value_str})"
+
+                            val_mask_dict.inverse[last_sql_token] = mask_key
+                            sql_token = value_str
+                        else:
+                            value_str = val_mask_dict[mask_key]
+                            if sql_token[-1] == ')':
+                                value_str = f"{value_str})"
+
+                            sql_token = value_str
 
                 prev_sql_token = sql_token
                 template_sql_token_list.append(sql_token)
 
-            sql_template = ' '.join(template_sql_token_list)
+            sql_template = postprocess_sql(sql=' '.join(template_sql_token_list))
             # print(f"Predicted SQL: {predicted_sql}")
             # print(f"SQL Template: {sql_template}")
 
-            # Extract NL template
+            # *** Extract NL template
             # print(tab_mask_dict)
             # print(col_mask_dict)
+            _maybe_correct_val_mask_dict(p_sql=predicted_sql, g_sql=gold_sql, m_dict=val_mask_dict)
             nl_template = extract_nl_template(duorat_preprocessor=duorat_preprocessor,
                                               tab_mask_dict=tab_mask_dict,
-                                              col_mash_dict=col_mask_dict,
+                                              col_mask_dict=col_mask_dict,
+                                              val_mask_dict=val_mask_dict,
                                               question=question,
                                               db_path=db_path)
+
+            def _maybe_postprocess_last(nl_text: str, mask_dict: bidict) -> str:
+                nl_text = nl_text.replace(' . ', '. ')
+                if '@' in nl_text and '.' in nl_text:
+                    nl_text = nl_text.replace('. ', '.').replace(' @ ', '@')
+
+                for k, v in mask_dict.items():
+                    nl_text = nl_text.replace(k, v)
+                return nl_text
+
+            nl_template = _maybe_postprocess_last(nl_text=nl_template, mask_dict=val_mask_dict)
+
             # print(f"NL: {question}")
             # print(f"NL Template: {nl_template}")
             #
             # print("------------------------")
 
-            # unique_template_set.add((question, nl_template, gold_sql, sql_template))
+            # *** Archive it without and with hardness level
             if (nl_template, sql_template) in template_collection:
                 template_collection[(nl_template, sql_template)].append((question, gold_sql, db_name))
             else:
@@ -273,27 +428,30 @@ def extract_nl2sql_templates(sql_kw_file: str,
             else:
                 templates_by_hardness[hardness][(nl_template, sql_template)] = [(question, gold_sql, db_name)]
 
+    # *** Write to files (.txt or .csv)
     print(f"Done! There are {len(template_collection)} NL<->SQL templates.")
-
-    print(f"Writing resulting templates to output file {output_file} (w/ {'raw text format' if not output_in_csv else 'CSV format'})")
+    print(
+        f"Writing resulting templates to output file {output_file} (w/ {'raw text format' if not output_in_csv else 'CSV format'})")
     if not output_in_csv:
-        with open(output_file, "w") as fout:
-            for template, examples in template_collection.items():
+        with open(f"{output_file}.txt", "w") as fout:
+            for template, examples in sorted(template_collection.items(), key=lambda item: len(item[1]), reverse=True):
                 for example in examples:
                     fout.write(f"{template[0]}\t{template[1]}\t{example[0]}\t{example[1]}\t{example[2]}\n")
+                fout.write("-----------------------------\n")
 
         for hardness, hardness_template_collection in templates_by_hardness.items():
-            with open(f"{output_file}.{hardness}", "w") as fout:
+            with open(f"{output_file}.{hardness}.txt", "w") as fout:
                 fout.write(f"{len(hardness_template_collection)}\n")
-                for template, examples in hardness_template_collection.items():
+                for template, examples in sorted(hardness_template_collection.items(), key=lambda item: len(item[1]), reverse=True):
                     for example in examples:
                         fout.write(f"{template[0]}\t{template[1]}\t{example[0]}\t{example[1]}\t{example[2]}\n")
+                    fout.write("-----------------------------\n")
     else:
         fieldnames = ['nl_template', 'sql_template', 'examples']
-        with open(output_file, 'w', newline='') as fcsvfile:
+        with open(f"{output_file}.csv", 'w', newline='') as fcsvfile:
             writer = csv.DictWriter(fcsvfile, fieldnames=fieldnames)
             writer.writeheader()
-            for template, examples in template_collection.items():
+            for template, examples in sorted(template_collection.items(), key=lambda item: len(item[1]), reverse=True):
                 writer.writerow({'nl_template': template[0],
                                  'sql_template': template[1],
                                  'examples': str(examples)
@@ -301,10 +459,10 @@ def extract_nl2sql_templates(sql_kw_file: str,
                                 )
 
         for hardness, hardness_template_collection in templates_by_hardness.items():
-            with open(f"{output_file}.{hardness}", "w", newline='') as fcsvfile:
+            with open(f"{output_file}.{hardness}.csv", "w", newline='') as fcsvfile:
                 hardness_writer = csv.DictWriter(fcsvfile, fieldnames=fieldnames)
                 hardness_writer.writeheader()
-                for template, examples in hardness_template_collection.items():
+                for template, examples in sorted(hardness_template_collection.items(), key=lambda item: len(item[1]), reverse=True):
                     hardness_writer.writerow({'nl_template': template[0],
                                               'sql_template': template[1],
                                               'examples': str(examples)

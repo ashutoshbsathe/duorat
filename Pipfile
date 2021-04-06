@@ -31,6 +31,7 @@ fastapi = "==0.61.1"
 matplotlib = "==3.3.4"
 scipy = "==1.6.1"
 pandas = "==1.2.3"
+bidict = "==0.21.2"
 
 [requires]
 python_version = "3.7"

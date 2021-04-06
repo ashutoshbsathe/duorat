@@ -69,6 +69,8 @@ class DuoRATPreproc(abstract_preproc.AbstractPreproc):
 
         self.preproc_items: Dict[str, List[RATPreprocItem]] = {}
 
+        self.interaction_type: str = kwargs.get("interaction_type", "source")
+
     def input_a_str_to_id(self, s: str) -> int:
         raise NotImplementedError
 
@@ -479,8 +481,16 @@ class BertDuoRATPreproc(DuoRATPreproc):
             # interaction history
             interaction: List[Tuple[PreprocQuestionToken, ...]] = []
             for utter in item.interaction:
+                if self.interaction_type == "source":
+                    prev_question = utter.question
+                elif self.interaction_type == "target":
+                    prev_question = utter.query
+                else:
+                    raise ValueError(f"Unknown preproc.interaction_type. Expected: 'source' or 'target'. Got {self.interaction_type}")
+
                 slml_question: str = self.schema_linker.question_to_slml(
-                    question=utter.question, sql_schema=sql_schema,
+                    question=prev_question,
+                    sql_schema=sql_schema,
                 ) if utter.slml_question is None else utter.slml_question
                 utter.slml_question = slml_question
 

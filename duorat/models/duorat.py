@@ -596,7 +596,7 @@ class DuoRATModel(torch.nn.Module):
             schema_input_token_ordering=self.schema_input_token_ordering,
             schema_source_token_ordering=self.schema_source_token_ordering,
             device=device,
-            interaction_size=self.interaction_size
+            interaction_size=self.interaction_size,
         )
 
     def _get_decoder_item(

@@ -21,7 +21,7 @@
                 whole_entry_db_content_confidence: 'high',
                 partial_entry_db_content_confidence: 'low'
             },
-            interaction_type: 'source',
+            interaction_type: 'target',
         }
     },
 

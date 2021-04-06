@@ -22,7 +22,8 @@
             schema_linker+: {
                 whole_entry_db_content_confidence: 'high',
                 partial_entry_db_content_confidence: 'low'
-            }
+            },
+            interaction_type: 'source',
         }
     },
 
