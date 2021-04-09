@@ -132,12 +132,12 @@ python scripts/get_testsuite_preds.py ./logdir/duorat-sparc-new-db-content/val-d
 
 # serve
 # sparc
-CUDA_VISIBLE_DEVICES=3 python scripts/serve.py --logdir ./logdir/duorat-sparc-new-db-content --config configs/duorat/duorat-sparc-new-db-content.jsonnet --db-path ./data/sparc/database --server-port 8200 --do-logging --log-append --do-sql-post-processing --log-file-name serve_followup.log &>./logdir/duorat-sparc-new-db-content/server_followup_conn.log &
+CUDA_VISIBLE_DEVICES=2 python scripts/serve.py --logdir ./logdir/duorat-sparc-new-db-content --config configs/duorat/duorat-sparc-new-db-content.jsonnet --db-path ./data/sparc/database --server-port 8200 --do-logging --log-append --do-sql-post-processing --log-file-name serve_followup.log &>./logdir/duorat-sparc-new-db-content/server_followup_conn.log &
 cd text2sql-poc-ui-demo-jet9
 node ./node_modules/@oracle/ojet-cli/ojet.js serve --server-port=8300 --livereload-port 36729
 
 # spider+sparc+cosql
-CUDA_VISIBLE_DEVICES=3 python scripts/serve.py --logdir ./logdir/duorat-spider-sparc-cosql-new-db-content --config configs/duorat/duorat-spider-sparc-cosql-new-db-content.jsonnet --db-path ./data/cosql/database --server-port 8200 --do-logging --log-append --do-sql-post-processing --log-file-name serve_followup.log &>./logdir/duorat-spider-sparc-cosql-new-db-content/server_followup_conn.log &
+CUDA_VISIBLE_DEVICES=2 python scripts/serve.py --logdir ./logdir/duorat-spider-sparc-cosql-new-db-content --config configs/duorat/duorat-spider-sparc-cosql-new-db-content.jsonnet --db-path ./data/cosql/database --server-port 8200 --do-logging --log-append --do-sql-post-processing --log-file-name serve_followup.log &>./logdir/duorat-spider-sparc-cosql-new-db-content/server_followup_conn.log &
 
 # testsuite eval
 # quick test
@@ -162,6 +162,8 @@ CUDA_VISIBLE_DEVICES=2 python scripts/train.py --config configs/duorat/duorat-sp
 CUDA_VISIBLE_DEVICES=2 python scripts/train.py --config configs/duorat/duorat-sparc-new-db-content-int2.jsonnet --logdir ./logdir/duorat-sparc-new-db-content-int2 &> logdir/train-duorat-sparc-new-db-content-int2.log1 &
 
 # interaction history (target, 1) in the inputs
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-sparc-dev-target-interaction.jsonnet --logdir ./logdir/duorat-sparc-dev-target-interaction --force-preprocess --force-train
+
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-sparc-new-db-content-target-interaction.jsonnet --logdir ./logdir/duorat-sparc-new-db-content-target-interaction --force-preprocess --force-train &> logdir/train-duorat-sparc-new-db-content-target-interaction.log &
 
 # *** CoSQL
