@@ -485,6 +485,8 @@ class BertDuoRATPreproc(DuoRATPreproc):
                     prev_question = utter.question
                 elif self.interaction_type == "target":
                     prev_question = utter.query.replace('*', '')
+                elif self.interaction_type == "source&target":
+                    prev_question = f"{utter.question} {utter.query.replace('*', '')}"
                 else:
                     raise ValueError(f"Unknown preproc.interaction_type. Expected: 'source' or 'target'. Got {self.interaction_type}")
 
