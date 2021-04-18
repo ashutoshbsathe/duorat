@@ -223,7 +223,9 @@ def extract_nl2sql_templates(sql_kw_file: str,
                              input_file: str,
                              output_file: str,
                              output_in_csv: bool,
-                             duorat_preprocessor: AbstractPreproc):
+                             duorat_preprocessor: AbstractPreproc,
+                             with_op_denotation: bool = True,
+                             with_sc_denotation: bool = True):
     def _maybe_correct_val_mask_dict(g_sql: str, p_sql: str, m_dict: bidict):
         def _get_potential_op_values(sql: str) -> List[str]:
             op_values = []
@@ -344,10 +346,10 @@ def extract_nl2sql_templates(sql_kw_file: str,
                         sql_token = get_table_mask_sid(mask_dict=tab_mask_dict, tab_name=sql_token)
                     else:
                         sql_token = f"{get_table_mask_sid(mask_dict=tab_mask_dict, tab_name=sql_token[:-1])})"
-                elif sql_token.upper() in SQL_OP_LIST:
+                elif sql_token.upper() in SQL_OP_LIST and with_op_denotation:
                     sql_token = f'OP#{op_counter}'
                     op_counter += 1
-                elif sql_token.upper() in ['ASC', 'DESC']:
+                elif sql_token.upper() in ['ASC', 'DESC'] and with_sc_denotation:
                     sql_token = 'SC'
                 elif not is_sql_keyword(text=sql_token,
                                         sql_keyword_set=sql_keyword_set) and sql_token.upper() not in SQL_OP_LIST:
@@ -495,6 +497,18 @@ if __name__ == '__main__':
         action="store_true",
         help="If True, do stemming with schema linker",
     )
+    parser.add_argument(
+        "--with-op-denotation",
+        default=False,
+        action="store_true",
+        help="If True, do denotation for OP, e.g., >= < = ...",
+    )
+    parser.add_argument(
+        "--with-sc-denotation",
+        default=False,
+        action="store_true",
+        help="If True, do denotation for SC, e.g., ASC, DESC",
+    )
     args, _ = parser.parse_known_args()
 
     # Initialize
@@ -521,4 +535,6 @@ if __name__ == '__main__':
                              input_file=input_file,
                              output_file=output_file,
                              output_in_csv=args.output_in_csv,
-                             duorat_preprocessor=duorat_preprocessor)
+                             duorat_preprocessor=duorat_preprocessor,
+                             with_op_denotation=args.with_op_denotation,
+                             with_sc_denotation=args.with_sc_denotation)
