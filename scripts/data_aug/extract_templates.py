@@ -300,9 +300,6 @@ def extract_nl2sql_templates(sql_kw_file: str,
         hardness = item["hardness"]
         question = postprocess_question(question=item["question"])
 
-        if 'Kevin Spacey' not in question:
-            continue
-
         # *** Extract SQL template
         tab_mask_dict = {}
         col_mask_dict = {}
