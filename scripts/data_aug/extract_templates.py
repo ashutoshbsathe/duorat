@@ -291,7 +291,7 @@ def extract_nl2sql_templates(sql_kw_file: str,
     template_collection = {}
     templates_by_hardness = {"easy": {}, "medium": {}, "hard": {}, "extra": {}}
     for ind, item in enumerate(tqdm.tqdm(data["per_item"])):
-        gold_sql = postprocess_sql(item["gold"])
+        gold_sql = postprocess_sql(sql=item["gold"])
         predicted_sql = postprocess_sql(sql=item["predicted"])
         predicted_parse_error = bool(item["predicted_parse_error"])
         exact = bool(item["exact"])
@@ -352,8 +352,9 @@ def extract_nl2sql_templates(sql_kw_file: str,
                 elif sql_token.upper() in ['ASC', 'DESC'] and with_sc_denotation:
                     sql_token = 'SC'
                 elif not is_sql_keyword(text=sql_token,
-                                        sql_keyword_set=sql_keyword_set) and sql_token.upper() not in SQL_OP_LIST:
-                    if 'OP#' in prev_sql_token:
+                                        sql_keyword_set=sql_keyword_set) \
+                        and sql_token.upper() not in SQL_OP_LIST and sql_token not in ['\'', '"']:
+                    if 'OP#' in prev_sql_token or prev_sql_token in ['\'', '"']:
                         if sql_token in val_mask_dict:
                             value_str = val_mask_dict[sql_token]
                         else:
