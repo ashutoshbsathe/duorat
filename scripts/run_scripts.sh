@@ -299,7 +299,11 @@ CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-wi
 # Spider
 
 # w/o OP & SC denotations
-python scripts/data_aug/extract_templates.py --sql-keyword-list-file ./scripts/data_aug/sql_keywords.txt --duorat-prediction-file ./logdir/duorat-new-db-content-bs4-ac7/train-duorat-new-db-content-bs4-ac7.eval --duorat-config-file ./configs/duorat/duorat-new-db-content.jsonnet --logdir ./logdir/duorat-new-db-content-bs4-ac7 --template-output-file ./logdir/duorat-new-db-content-bs4-ac7/train_spider.nl2sql_templates_no_sc_op --output-in-csv --with-stemming
+CUDA_VISIBLE_DEVICES=0 python scripts/data_aug/extract_templates.py --sql-keyword-list-file ./scripts/data_aug/sql_keywords.txt --duorat-prediction-file ./logdir/duorat-new-db-content-bs4-ac7/train-duorat-new-db-content-bs4-ac7.eval --duorat-config-file ./configs/duorat/duorat-new-db-content.jsonnet --logdir ./logdir/duorat-new-db-content-bs4-ac7 --template-output-file ./logdir/duorat-new-db-content-bs4-ac7/train_spider.nl2sql_templates_no_sc_op --output-in-csv --with-stemming
 
 # w/ OP & SC denotations
 python scripts/data_aug/extract_templates.py --sql-keyword-list-file ./scripts/data_aug/sql_keywords.txt --duorat-prediction-file ./logdir/duorat-new-db-content-bs4-ac7/train-duorat-new-db-content-bs4-ac7.eval --duorat-config-file ./configs/duorat/duorat-new-db-content.jsonnet --logdir ./logdir/duorat-new-db-content-bs4-ac7 --template-output-file ./logdir/duorat-new-db-content-bs4-ac7/train_spider.nl2sql_templates --output-in-csv --with-stemming --with-op-denotation --with-sc-denotation
+
+
+# *** Spider w/ extra schema descriptions
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-extra-schema-descriptions.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-extra-schema-descriptions --force-preprocess --force-train &> logdir/train-duorat-spider-new-db-content-with-extra-schema-descriptions.log &

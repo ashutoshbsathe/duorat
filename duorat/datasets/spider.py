@@ -105,7 +105,7 @@ def schema_dict_to_spider_schema(schema_dict):
         )
         for i, ((table_id, col_name), (_, orig_col_name), col_type,) in enumerate(
             zip(
-                schema_dict["column_names"],
+                schema_dict["extended_column_names"] if "extended_column_names" in schema_dict else schema_dict["column_names"] ,
                 schema_dict["column_names_original"],
                 schema_dict["column_types"],
             )
@@ -174,7 +174,7 @@ class SpiderDataset(Dataset):
         self.db_path = db_path
         self.examples = []
 
-        self.schemas, self.eval_foreign_key_maps = load_tables(tables_paths)
+        self.schemas, _ = load_tables(tables_paths)
         self.original_schemas = load_original_schemas(tables_paths)
 
         count_incorrect = 0

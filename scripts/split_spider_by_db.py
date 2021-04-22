@@ -6,10 +6,10 @@ from collections import defaultdict
 from typing import List, Dict
 
 
-def main(spider_path, duorat_path, aug_data="", aug_suffix="") -> None:
-    tables_json_path = "tables.json"
+def main(spider_path, duorat_path, tables_path="tables.json", aug_data="", aug_suffix="") -> None:
+    tables_json_path = tables_path  # "tables.json"
     examples_paths = ["train_spider.json", "train_others.json", "dev.json"]
-    table_file_name = "tables.json"
+    table_file_name = tables_path  # "tables.json"
     example_file_name = "examples.json"
     if aug_data:
         examples_paths.extend(aug_data.split(','))
@@ -50,8 +50,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--spider-path", type=str, default='data/spider')
     parser.add_argument("--duorat-path", type=str, default='data/database')
+    parser.add_argument("--tables-path", type=str, default='tables.json')
     parser.add_argument("--aug-data", type=str, default='')
     parser.add_argument("--aug-suffix", type=str, default='')
     args = parser.parse_args()
 
-    main(args.spider_path, args.duorat_path, args.aug_data, args.aug_suffix)
+    main(args.spider_path, args.duorat_path, args.tables_path, args.aug_data, args.aug_suffix)
