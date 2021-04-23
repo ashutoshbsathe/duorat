@@ -306,4 +306,10 @@ python scripts/data_aug/extract_templates.py --sql-keyword-list-file ./scripts/d
 
 
 # *** Spider w/ extra schema descriptions
+python3 scripts/split_spider_by_db.py --tables-path tables_descriptions.json
+
+# train & test w/ additional schema descriptions
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-extra-schema-descriptions.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-extra-schema-descriptions --force-preprocess --force-train &> logdir/train-duorat-spider-new-db-content-with-extra-schema-descriptions.log &
+
+# test only w/ additional schema descriptions
+CUDA_VISIBLE_DEVICES=3 python scripts/infer.py --config configs/duorat/duorat-spider-new-db-content-with-extra-schema-descriptions.jsonnet --logdir ./logdir/duorat-new-db-content-bs4-ac7-with-extra-schema-descriptions/ --section val --output ./logdir/duorat-new-db-content-bs4-ac7-with-extra-schema-descriptions/val-duorat-new-db-content-bs4-ac7-with-extra-schema-descriptions.output --force
