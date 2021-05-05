@@ -37,40 +37,42 @@ if __name__ == "__main__":
     duorat_api = DuoratAPI(args.logdir, config_path)
     load_time = time.perf_counter() - load_time
 
-    eval_data = json.load(args.eval_file)
-    for data_example in eval_data:
-        db_path = f"{os.path.join(args.db_folder_path, data_example['db_id'])}" + f"/{data_example['db_id'].sqlite}"
-        schema_path = f"{os.path.join(args.db_folder_path, data_example['db_id'], 'tables.json')}"
-        if os.path.exists(db_path) or os.path.exists(schema_path):
-            infer_time = time.perf_counter()
-            duorat_on_db = DuoratOnDatabase(duorat_api,
-                                            db_path,
-                                            schema_path)
-            question = data_example['question']
-            results = duorat_on_db.infer_query(question)
-            infer_time = time.perf_counter() - infer_time
-            total_infer_time += infer_time
+    with open(args.eval_file) as f:
+        eval_data = json.load(f)
+        for data_example in eval_data:
+            db_path = f"{os.path.join(args.db_folder_path, data_example['db_id'])}" + f"/{data_example['db_id'].sqlite}"
+            schema_path = f"{os.path.join(args.db_folder_path, data_example['db_id'], 'tables.json')}"
+            if os.path.exists(db_path) or os.path.exists(schema_path):
+                infer_time = time.perf_counter()
+                duorat_on_db = DuoratOnDatabase(duorat_api,
+                                                db_path,
+                                                schema_path)
+                question = data_example['question']
+                results = duorat_on_db.infer_query(question)
+                infer_time = time.perf_counter() - infer_time
+                total_infer_time += infer_time
 
-            print(pretty_format_slml(results['slml_question']))
-            print(f'{results["query"]}  ({results["score"]})')
+                print(pretty_format_slml(results['slml_question']))
+                print(f'{results["query"]}  ({results["score"]})')
 
-            if args.do_execute:
-                try:
-                    exe_time = time.perf_counter()
-                    results = duorat_on_db.execute(results['query'])
-                    exe_time = time.perf_counter() - exe_time
-                    total_exe_time += exe_time
+                if args.do_execute:
+                    try:
+                        exe_time = time.perf_counter()
+                        results = duorat_on_db.execute(results['query'])
+                        exe_time = time.perf_counter() - exe_time
+                        total_exe_time += exe_time
 
-                    print(results)
-                except Exception as e:
-                    print(str(e))
+                        print(results)
+                    except Exception as e:
+                        print(str(e))
 
-            # release memory if required
-            del duorat_on_db
+                # release memory if required
+                del duorat_on_db
 
-    num_examples = len(eval_data)
-    print(f"Loading time: {load_time} secs")
-    print(f"Inferring time: {total_infer_time} secs")
-    if total_exe_time > 0:
-        print(f"Execution time: {total_exe_time} secs")
-    print(f"Total: {load_time + total_infer_time + total_exe_time}")
+        num_examples = len(eval_data)
+        print(f"Loading time: {load_time} secs")
+        print(f"Inferring time: {total_infer_time} secs")
+        if total_exe_time > 0:
+            print(f"Execution time: {total_exe_time} secs")
+        print(f"Total: {load_time + total_infer_time + total_exe_time}")
+        print(f"Average: {(load_time + total_infer_time + total_exe_time) / num_examples}")
