@@ -340,7 +340,7 @@ CUDA_VISIBLE_DEVICES=3 python scripts/infer.py --config configs/duorat/duorat-sp
 CUDA_VISIBLE_DEVICES=0 python scripts/infer_one.py --config configs/duorat/duorat-new-db-content.jsonnet --logdir ./logdir/duorat-new-db-content-bs4-ac7 --db-folder-path ./data/database/ --eval-file ./data/spider/dev.json
 
 # Sparc
-CUDA_VISIBLE_DEVICES=0 python scripts/infer_one.py --config configs/duorat/duorat-sparc-new-db-content.jsonnet --logdir ./logdir/duorat-sparc-new-db-content --db-folder-path ./data/sparc/database/ --eval-file ./data/sparc/dev.json
+CUDA_VISIBLE_DEVICES=0 python scripts/infer_one.py --config configs/duorat/duorat-sparc-new-db-content.jsonnet --logdir ./logdir/duorat-sparc-new-db-content --data_type Sparc --db-folder-path ./data/sparc/database/ --eval-file ./data/sparc/dev.json
 
 # CoSQL
-CUDA_VISIBLE_DEVICES=0 python scripts/infer_one.py --config configs/duorat/duorat-cosql-new-db-content.jsonnet --logdir ./logdir/duorat-cosql-new-db-content --db-folder-path ./data/sparc/database/ --eval-file ./data/sparc/dev.json
+CUDA_VISIBLE_DEVICES=3 python scripts/infer_one.py --config configs/duorat/duorat-cosql-new-db-content.jsonnet --logdir ./logdir/duorat-cosql-new-db-content --data_type CoSQL --db-folder-path ./data/cosql/database/ --eval-file ./data/cosql/sql_state_tracking/cosql_dev.json
