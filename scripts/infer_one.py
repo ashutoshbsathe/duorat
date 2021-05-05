@@ -91,8 +91,8 @@ if __name__ == "__main__":
                         except Exception as e:
                             print(str(e))
 
-                    # release memory if required
-                    del duorat_on_db
+                # release memory if required
+                del duorat_on_db
 
         num_examples = len(eval_data)
         print(f"Loading time: {load_time} secs")
