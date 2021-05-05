@@ -23,7 +23,7 @@ if __name__ == "__main__":
         help="The path to the evaluation file in JSON"
     )
     parser.add_argument(
-        "--do-execute", required=True, type=bool, default=False,
+        "--do-execute", required=False, type=bool, default=False,
         help="Whether to do execution"
     )
     args = parser.parse_args()

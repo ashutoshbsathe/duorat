@@ -333,3 +333,12 @@ CUDA_VISIBLE_DEVICES=3 python scripts/train.py --config configs/duorat/duorat-sp
 
 # test only w/ additional schema descriptions
 CUDA_VISIBLE_DEVICES=3 python scripts/infer.py --config configs/duorat/duorat-spider-new-db-content-with-extra-schema-descriptions.jsonnet --logdir ./logdir/duorat-new-db-content-bs4-ac7-with-extra-schema-descriptions/ --section val --output ./logdir/duorat-new-db-content-bs4-ac7-with-extra-schema-descriptions/val-duorat-new-db-content-bs4-ac7-with-extra-schema-descriptions.output --force
+
+# *** Inference latency
+
+# Spider
+CUDA_VISIBLE_DEVICES=0 python scripts/infer_one.py --config configs/duorat/duorat-new-db-content.jsonnet --logdir ./logdir/duorat-new-db-content-bs4-ac7 --db-folder-path ./data/database/ --eval-file ./data/spider/dev.json
+
+# Sparc
+
+# CoSQL
