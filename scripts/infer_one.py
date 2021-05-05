@@ -40,7 +40,7 @@ if __name__ == "__main__":
     with open(args.eval_file) as f:
         eval_data = json.load(f)
         for data_example in eval_data:
-            db_path = f"{os.path.join(args.db_folder_path, data_example['db_id'])}" + f"/{data_example['db_id'].sqlite}"
+            db_path = f"{os.path.join(args.db_folder_path, data_example['db_id'])}" + f"/{data_example['db_id']}.sqlite"
             schema_path = f"{os.path.join(args.db_folder_path, data_example['db_id'], 'tables.json')}"
             if os.path.exists(db_path) or os.path.exists(schema_path):
                 infer_time = time.perf_counter()
