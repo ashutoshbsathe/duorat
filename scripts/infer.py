@@ -28,6 +28,7 @@ import os
 import sys
 import traceback
 from typing import List
+import time
 
 import _jsonnet
 import torch
@@ -336,8 +337,18 @@ def main(args=None, logdir_suffix: List[str] = None):
         print("Forcing re-inferring...")
 
     inferer = Inferer(config, from_heuristic=args.from_heuristic)
+
+    # load the trained model
+    loading_time = time.perf_counter()
     model = inferer.load_model(args.logdir, args.step)
+    loading_time = time.perf_counter() - loading_time
+    print(f"Loading time for trained model: {loading_time}")
+
+    # infer given test set
+    inferring_time = time.perf_counter()
     inferer.infer(model, output_path, args)
+    inferring_time = time.perf_counter() - inferring_time
+    print(f"Inferring time for trained model: {inferring_time}")
 
 
 if __name__ == "__main__":
