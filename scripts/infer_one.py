@@ -52,8 +52,10 @@ if __name__ == "__main__":
                 infer_time = time.perf_counter() - infer_time
                 total_infer_time += infer_time
 
+                print("-" * 20)
                 print(pretty_format_slml(results['slml_question']))
                 print(f'{results["query"]}  ({results["score"]})')
+                print("-" * 20)
 
                 if args.do_execute:
                     try:
