@@ -44,8 +44,6 @@ if __name__ == "__main__":
     duorat_api = DuoratAPI(args.logdir, config_path)
     load_time = time.perf_counter() - load_time
 
-    ignored_patterns = args.ignored_patterns.split('|')
-
     with open(args.eval_file) as f:
         eval_data = json.load(f)
         for data_example in eval_data:
@@ -66,7 +64,7 @@ if __name__ == "__main__":
                 interactions = []
                 if 'interaction' in data_example:
                     for interaction in data_example['interaction']:
-                        if args.data_type == 'CoSQL' and re.search(ignored_patterns, interaction["utterance"]):
+                        if args.data_type == 'CoSQL' and re.search(args.ignored_patterns, interaction["utterance"]):
                             continue
 
                         interactions.append((interaction['utterance'], interaction['query']))
