@@ -55,7 +55,7 @@ if __name__ == "__main__":
 
     with open(args.eval_file) as f:
         eval_data = json.load(f)
-        for data_example in eval_data:
+        for ex_index, data_example in enumerate(eval_data):
             db_id = 'db_id' if args.data_type == 'Spider' else 'database_id'
             db_path = f"{os.path.join(args.db_folder_path, data_example[db_id])}" + f"/{data_example[db_id]}.sqlite"
             schema_path = f"{os.path.join(args.db_folder_path, data_example[db_id], 'tables.json')}"
@@ -121,7 +121,6 @@ if __name__ == "__main__":
 
                         decoded.append(
                             {
-                                # "question": orig_item.question,
                                 "model_output": asdl_ast.pretty(),
                                 "inferred_code": inferred_code,
                                 "inferred_code_readable": inferred_code_readable,
@@ -130,7 +129,7 @@ if __name__ == "__main__":
                         )
 
                     decoded_result = {
-                        "index": index,
+                        "index": ex_index,
                         "beams": decoded,
                     }
 
