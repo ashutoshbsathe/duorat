@@ -28,6 +28,10 @@ if __name__ == "__main__":
         "--do-execute", required=False, type=bool, default=False,
         help="Whether to do execution"
     )
+    parser.add_argument(
+        "--ignored-patterns", required=False, type=str, default="I have left the chat",
+        help="Ignore text patterns in question"
+    )
     args = parser.parse_args()
 
     config_path = find_any_config(args.logdir) if args.config is None else args.config
@@ -38,6 +42,8 @@ if __name__ == "__main__":
     load_time = time.perf_counter()
     duorat_api = DuoratAPI(args.logdir, config_path)
     load_time = time.perf_counter() - load_time
+
+    ignored_patterns = args.ignored_patterns.split('|')
 
     with open(args.eval_file) as f:
         eval_data = json.load(f)
@@ -59,7 +65,8 @@ if __name__ == "__main__":
                 interactions = []
                 if 'interaction' in data_example:
                     for interaction in data_example['interaction']:
-                        interactions.append((interaction['utterance'], interaction['query']))
+                        if args.data_type == 'CoSQL' and not interaction['utterance'] in ignored_patterns:
+                            interactions.append((interaction['utterance'], interaction['query']))
                 else:
                     interactions.append((data_example['question'], ''))
 
