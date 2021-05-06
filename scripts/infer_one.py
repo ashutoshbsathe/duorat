@@ -79,13 +79,14 @@ if __name__ == "__main__":
                             history = [interactions[index - 1][1]]
 
                     question = interaction[0]
+                    print("-" * 20)
+                    print(f"{question}")
 
                     infer_time = time.perf_counter()
                     results = duorat_on_db.infer_query(question, history=history)
                     infer_time = time.perf_counter() - infer_time
                     total_infer_time += infer_time
 
-                    print("-" * 20)
                     print(pretty_format_slml(results['slml_question']))
                     print(f'{results["query"]}  ({results["score"]})')
                     print("-" * 20)

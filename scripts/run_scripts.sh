@@ -343,4 +343,4 @@ CUDA_VISIBLE_DEVICES=0 python scripts/infer_one.py --config configs/duorat/duora
 CUDA_VISIBLE_DEVICES=0 python scripts/infer_one.py --config configs/duorat/duorat-sparc-new-db-content.jsonnet --logdir ./logdir/duorat-sparc-new-db-content --data-type Sparc --db-folder-path ./data/sparc/database/ --eval-file ./data/sparc/dev.json &> ./logdir/duorat-sparc-new-db-content/gpu_latency.log
 
 # CoSQL
-CUDA_VISIBLE_DEVICES=3 python scripts/infer_one.py --config configs/duorat/duorat-cosql-new-db-content.jsonnet --logdir ./logdir/duorat-cosql-new-db-content --data-type CoSQL --db-folder-path ./data/cosql/database/ --eval-file ./data/cosql/sql_state_tracking/cosql_dev.json
+CUDA_VISIBLE_DEVICES=3 python scripts/infer_one.py --config configs/duorat/duorat-cosql-new-db-content.jsonnet --logdir ./logdir/duorat-cosql-new-db-content --data-type CoSQL --db-folder-path ./data/cosql/database/ --eval-file ./data/cosql/sql_state_tracking/cosql_dev.json --ignored-patterns "I have left the chat"
