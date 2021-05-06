@@ -80,6 +80,7 @@ class DuoratAPI(object):
                     spider_schema: SpiderSchema,
                     preprocessed_schema: SQLSchema,
                     history: List[str] = None,
+                    beam_size=1
                     ):
         # TODO: we should only need the preprocessed schema here
         if history is not None:
@@ -116,7 +117,7 @@ class DuoratAPI(object):
             AbstractSyntaxTree(production=None, fields=(), created_time=None),
         )
         finished_beams = self.model.parse(
-            [preproc_item], decode_max_time_step=500, beam_size=1
+            [preproc_item], decode_max_time_step=500, beam_size=beam_size
         )
         if not finished_beams:
             return {
@@ -125,7 +126,7 @@ class DuoratAPI(object):
                 "score": -1,
             }
         parsed_query = self.model.preproc.transition_system.ast_to_surface_code(
-            asdl_ast=finished_beams[0].ast
+            asdl_ast=finished_beams[0].ast  # best on beams
         )
         parsed_query = self.model.preproc.transition_system.spider_grammar.unparse(
             parsed_query, spider_schema=spider_schema
@@ -134,6 +135,7 @@ class DuoratAPI(object):
             "slml_question": input_item.slml_question,
             "query": fix_detokenization(parsed_query),
             "score": finished_beams[0].score,
+            "beams": finished_beams
         }
 
 
@@ -169,8 +171,12 @@ class DuoratOnDatabase(object):
             tokenize=self.duorat.preproc._schema_tokenize,
         )
 
-    def infer_query(self, question, history=None):
-        return self.duorat.infer_query(question, self.schema, self.preprocessed_schema, history=history)
+    def infer_query(self, question, history=None, beam_size=1):
+        return self.duorat.infer_query(question,
+                                       self.schema,
+                                       self.preprocessed_schema,
+                                       history=history,
+                                       beam_size=beam_size)
 
     def execute(self, query):
         return execute(query=query, db_path=self.db_path)

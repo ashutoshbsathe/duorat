@@ -10,6 +10,7 @@ import re
 from duorat.api import DuoratAPI, DuoratOnDatabase
 from duorat.preproc.slml import pretty_format_slml
 from duorat.utils.evaluation import find_any_config
+from duorat.asdl.lang.spider.spider_transition_system import SpiderTransitionSystem
 
 
 if __name__ == "__main__":
@@ -21,9 +22,15 @@ if __name__ == "__main__":
                         help="The folder path to DB folder")
     parser.add_argument("--data-type", type=str, default='Spider', required=False,
                         help="The data type, e.g., Spider, Sparc, CoSQL")
+    parser.add_argument("--beam-size", type=int, default=1, required=False,
+                        help="The beam size of beam search decoding")
     parser.add_argument(
         "--eval-file", required=True,
         help="The path to the evaluation file in JSON"
+    )
+    parser.add_argument(
+        "--output-eval-file", required=True,
+        help="The path to the output evaluation file in JSON"
     )
     parser.add_argument(
         "--do-execute", required=False, type=bool, default=False,
@@ -43,6 +50,8 @@ if __name__ == "__main__":
     load_time = time.perf_counter()
     duorat_api = DuoratAPI(args.logdir, config_path)
     load_time = time.perf_counter() - load_time
+
+    fout_output_eval_file = open(args.output_eval_file, "w")
 
     with open(args.eval_file) as f:
         eval_data = json.load(f)
@@ -84,13 +93,49 @@ if __name__ == "__main__":
                     print(f"{question}")
 
                     infer_time = time.perf_counter()
-                    results = duorat_on_db.infer_query(question, history=history)
+                    results = duorat_on_db.infer_query(question,
+                                                       history=history,
+                                                       beam_size=args.beam_size)
+                    if duorat_api.config['model']['preproc']['interaction_type'] == 'target':
+                        interactions[index][1] = results["query"]
                     infer_time = time.perf_counter() - infer_time
                     total_infer_time += infer_time
 
                     print(pretty_format_slml(results['slml_question']))
                     print(f'{results["query"]}  ({results["score"]})')
                     print("-" * 20)
+
+                    decoded = []
+                    for beam in results['beams']:
+                        asdl_ast = beam.ast
+                        if isinstance(duorat_on_db.duorat.preproc.transition_system, SpiderTransitionSystem):
+                            tree = duorat_on_db.duorat.preproc.transition_system.ast_to_surface_code(
+                                asdl_ast=asdl_ast
+                            )
+                            inferred_code = duorat_on_db.duorat.preproc.transition_system.spider_grammar.unparse(
+                                tree=tree, spider_schema=duorat_on_db.schema
+                            )
+                            inferred_code_readable = ""
+                        else:
+                            raise NotImplementedError
+
+                        decoded.append(
+                            {
+                                # "question": orig_item.question,
+                                "model_output": asdl_ast.pretty(),
+                                "inferred_code": inferred_code,
+                                "inferred_code_readable": inferred_code_readable,
+                                "score": beam.score,
+                            }
+                        )
+
+                    decoded_result = {
+                        "index": index,
+                        "beams": decoded,
+                    }
+
+                    fout_output_eval_file.write(json.dumps(decoded_result) + "\n")
+                    fout_output_eval_file.flush()
 
                     if args.do_execute:
                         try:
@@ -113,3 +158,6 @@ if __name__ == "__main__":
             print(f"Execution time: {total_exe_time} secs")
         print(f"Total: {load_time + total_infer_time + total_exe_time}")
         print(f"Average: {(load_time + total_infer_time + total_exe_time) / num_examples}")
+
+    fout_output_eval_file.flush()
+    fout_output_eval_file.close()
