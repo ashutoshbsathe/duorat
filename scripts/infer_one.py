@@ -49,10 +49,12 @@ if __name__ == "__main__":
                 schema_path = ''
 
             if os.path.exists(db_path) or os.path.exists(schema_path):
-                infer_time = time.perf_counter()
+                preproc_time = time.perf_counter()
                 duorat_on_db = DuoratOnDatabase(duorat_api,
                                                 db_path,
                                                 schema_path)
+                preproc_time = time.perf_counter() - preproc_time
+                total_infer_time += preproc_time
 
                 interactions = []
                 if 'interaction' in data_example:
@@ -71,6 +73,7 @@ if __name__ == "__main__":
 
                     question = interaction[0]
 
+                    infer_time = time.perf_counter()
                     results = duorat_on_db.infer_query(question, history=history)
                     infer_time = time.perf_counter() - infer_time
                     total_infer_time += infer_time
