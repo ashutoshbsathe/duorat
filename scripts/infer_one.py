@@ -97,7 +97,7 @@ if __name__ == "__main__":
                                                        history=history,
                                                        beam_size=args.beam_size)
                     if duorat_api.config['model']['preproc']['interaction_type'] == 'target':
-                        interactions[index][1] = results["query"]
+                        interactions[index] = (interaction[0], results["query"])
                     infer_time = time.perf_counter() - infer_time
                     total_infer_time += infer_time
 
