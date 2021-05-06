@@ -5,6 +5,7 @@ import argparse
 import json
 import os
 import time
+import re
 
 from duorat.api import DuoratAPI, DuoratOnDatabase
 from duorat.preproc.slml import pretty_format_slml
@@ -65,8 +66,10 @@ if __name__ == "__main__":
                 interactions = []
                 if 'interaction' in data_example:
                     for interaction in data_example['interaction']:
-                        if args.data_type == 'CoSQL' and not interaction['utterance'] in ignored_patterns:
-                            interactions.append((interaction['utterance'], interaction['query']))
+                        if args.data_type == 'CoSQL' and re.search(ignored_patterns, interaction["utterance"]):
+                            continue
+
+                        interactions.append((interaction['utterance'], interaction['query']))
                 else:
                     interactions.append((data_example['question'], ''))
 
@@ -78,7 +81,7 @@ if __name__ == "__main__":
                         elif duorat_api.config['model']['preproc']['interaction_type'] == 'target':
                             history = [interactions[index - 1][1]]
 
-                    question = interaction[0]
+                    question = interaction[0].replace('*', '')
                     print("-" * 20)
                     print(f"{question}")
 
