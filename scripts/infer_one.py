@@ -93,7 +93,7 @@ if __name__ == "__main__":
                         elif duorat_api.config['model']['preproc']['interaction_type'] == 'source&target':
                             history = [(interactions[index - 1][0], interactions[index - 1][1])]
 
-                    question = interaction[0].replace('*', '')
+                    question = interaction[0]
                     print("-" * 20)
                     print(f"{question}")
 
@@ -103,7 +103,9 @@ if __name__ == "__main__":
                                                        beam_size=args.beam_size,
                                                        decode_max_time_step=args.decode_max_time_step)
                     if 'target' in duorat_api.config['model']['preproc']['interaction_type']:
-                        interactions[index] = (interaction[0], results["tokenized_query"].replace('*', ''))
+                        interactions[index] = (interaction[0], re.sub("[\w]+\.",
+                                                                      '',
+                                                                      results["tokenized_query"].replace('*', '')))
                     infer_time = time.perf_counter() - infer_time
                     total_infer_time += infer_time
 
