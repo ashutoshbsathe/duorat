@@ -96,6 +96,7 @@ if __name__ == "__main__":
                     question = interaction[0]
                     print("-" * 20)
                     print(f"{question}")
+                    print(f"Gold SQL: {interaction[1]}")
 
                     infer_time = time.perf_counter()
                     results = duorat_on_db.infer_query(question,
@@ -110,8 +111,7 @@ if __name__ == "__main__":
                     total_infer_time += infer_time
 
                     print(pretty_format_slml(results['slml_question']))
-                    print(f'{results["tokenized_query"]}')
-                    print(f'{results["query"]}  ({results["score"]})')
+                    print(f'Inferred SQL: {results["query"]}  ({results["score"]})')
                     print("-" * 20)
 
                     decoded = []
