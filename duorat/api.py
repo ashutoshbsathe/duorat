@@ -3,7 +3,7 @@
 # Copyright (c) 2020 Element AI Inc. All rights reserved.
 import json
 import os
-from typing import Optional, List
+from typing import Optional, List, Union, Tuple
 
 import _jsonnet
 import torch
@@ -79,14 +79,14 @@ class DuoratAPI(object):
                     question: str,
                     spider_schema: SpiderSchema,
                     preprocessed_schema: SQLSchema,
-                    history: List[str] = None,
-                    beam_size=1
+                    history: Optional[Union[List[str], List[Tuple[str, str]]]] = None,
+                    beam_size: Optional[int] = 1
                     ):
         # TODO: we should only need the preprocessed schema here
         if history is not None:
-            interaction = [SpiderItem(question=prev_question,
+            interaction = [SpiderItem(question=prev_question[0] if isinstance(prev_question, tuple) else prev_question,
                                       slml_question=None,
-                                      query="",
+                                      query=prev_question[1] if isinstance(prev_question, tuple) else "",
                                       spider_sql={},
                                       spider_schema=spider_schema,
                                       db_path="",

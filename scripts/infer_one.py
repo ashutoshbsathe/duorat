@@ -85,9 +85,11 @@ if __name__ == "__main__":
                     history = None
                     if index > 0:
                         if duorat_api.config['model']['preproc']['interaction_type'] == 'source':
-                            history = [interactions[index - 1][0]]
+                            history = [tuple(interactions[index - 1][0], '')]
                         elif duorat_api.config['model']['preproc']['interaction_type'] == 'target':
-                            history = [interactions[index - 1][1]]
+                            history = [tuple('', interactions[index - 1][1])]
+                        elif duorat_api.config['model']['preproc']['interaction_type'] == 'source&target':
+                            history = [tuple(interactions[index - 1][0], interactions[index - 1][1])]
 
                     question = interaction[0].replace('*', '')
                     print("-" * 20)
@@ -97,8 +99,8 @@ if __name__ == "__main__":
                     results = duorat_on_db.infer_query(question,
                                                        history=history,
                                                        beam_size=args.beam_size)
-                    if duorat_api.config['model']['preproc']['interaction_type'] == 'target':
-                        interactions[index] = (interaction[0], results["query"])
+                    if 'target' in duorat_api.config['model']['preproc']['interaction_type']:
+                        interactions[index] = tuple(interaction[0], results["query"])
                     infer_time = time.perf_counter() - infer_time
                     total_infer_time += infer_time
 
