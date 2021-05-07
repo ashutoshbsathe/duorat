@@ -12,7 +12,6 @@ from duorat.preproc.slml import pretty_format_slml
 from duorat.utils.evaluation import find_any_config
 from duorat.asdl.lang.spider.spider_transition_system import SpiderTransitionSystem
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--logdir", required=True)
@@ -24,6 +23,9 @@ if __name__ == "__main__":
                         help="The data type, e.g., Spider, Sparc, CoSQL")
     parser.add_argument("--beam-size", type=int, default=1, required=False,
                         help="The beam size of beam search decoding")
+    parser.add_argument("--decode-max-time-step", type=int, default=500, required=False,
+                        help="The beam size of beam search decoding")
+
     parser.add_argument(
         "--eval-file", required=True,
         help="The path to the evaluation file in JSON"
@@ -98,7 +100,8 @@ if __name__ == "__main__":
                     infer_time = time.perf_counter()
                     results = duorat_on_db.infer_query(question,
                                                        history=history,
-                                                       beam_size=args.beam_size)
+                                                       beam_size=args.beam_size,
+                                                       decode_max_time_step=args.decode_max_time_step)
                     if 'target' in duorat_api.config['model']['preproc']['interaction_type']:
                         interactions[index] = (interaction[0], results["query"])
                     infer_time = time.perf_counter() - infer_time

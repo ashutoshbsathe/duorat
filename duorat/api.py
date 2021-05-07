@@ -80,7 +80,8 @@ class DuoratAPI(object):
                     spider_schema: SpiderSchema,
                     preprocessed_schema: SQLSchema,
                     history: Optional[Union[List[str], List[Tuple[str, str]]]] = None,
-                    beam_size: Optional[int] = 1
+                    beam_size: Optional[int] = 1,
+                    decode_max_time_step: Optional[int] = 500
                     ):
         # TODO: we should only need the preprocessed schema here
         if history is not None:
@@ -117,14 +118,19 @@ class DuoratAPI(object):
             AbstractSyntaxTree(production=None, fields=(), created_time=None),
         )
         finished_beams = self.model.parse(
-            [preproc_item], decode_max_time_step=500, beam_size=beam_size
+            [preproc_item],
+            decode_max_time_step=decode_max_time_step,
+            beam_size=beam_size
         )
+
         if not finished_beams:
             return {
                 "slml_question": input_item.slml_question,
                 "query": "",
                 "score": -1,
+                "beams": [],
             }
+
         parsed_query = self.model.preproc.transition_system.ast_to_surface_code(
             asdl_ast=finished_beams[0].ast  # best on beams
         )
@@ -171,12 +177,13 @@ class DuoratOnDatabase(object):
             tokenize=self.duorat.preproc._schema_tokenize,
         )
 
-    def infer_query(self, question, history=None, beam_size=1):
+    def infer_query(self, question, history=None, beam_size=1, decode_max_time_step=500):
         return self.duorat.infer_query(question,
                                        self.schema,
                                        self.preprocessed_schema,
                                        history=history,
-                                       beam_size=beam_size)
+                                       beam_size=beam_size,
+                                       decode_max_time_step=decode_max_time_step)
 
     def execute(self, query):
         return execute(query=query, db_path=self.db_path)
