@@ -103,11 +103,12 @@ if __name__ == "__main__":
                                                        beam_size=args.beam_size,
                                                        decode_max_time_step=args.decode_max_time_step)
                     if 'target' in duorat_api.config['model']['preproc']['interaction_type']:
-                        interactions[index] = (interaction[0], results["query"])
+                        interactions[index] = (interaction[0], results["tokenized_query"].replace('*', ''))
                     infer_time = time.perf_counter() - infer_time
                     total_infer_time += infer_time
 
                     print(pretty_format_slml(results['slml_question']))
+                    print(f'{results["tokenized_query"]}')
                     print(f'{results["query"]}  ({results["score"]})')
                     print("-" * 20)
 

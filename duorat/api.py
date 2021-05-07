@@ -127,6 +127,7 @@ class DuoratAPI(object):
             return {
                 "slml_question": input_item.slml_question,
                 "query": "",
+                "tokenized_query": "",
                 "score": -1,
                 "beams": [],
             }
@@ -140,6 +141,7 @@ class DuoratAPI(object):
         return {
             "slml_question": input_item.slml_question,
             "query": fix_detokenization(parsed_query),
+            "tokenized_query": parsed_query,
             "score": finished_beams[0].score,
             "beams": finished_beams
         }
