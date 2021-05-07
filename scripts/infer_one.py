@@ -55,7 +55,8 @@ if __name__ == "__main__":
 
     with open(args.eval_file) as f:
         eval_data = json.load(f)
-        for ex_index, data_example in enumerate(eval_data):
+        instance_index = 0
+        for data_example in eval_data:
             db_id = 'db_id' if args.data_type == 'Spider' else 'database_id'
             db_path = f"{os.path.join(args.db_folder_path, data_example[db_id])}" + f"/{data_example[db_id]}.sqlite"
             schema_path = f"{os.path.join(args.db_folder_path, data_example[db_id], 'tables.json')}"
@@ -129,9 +130,10 @@ if __name__ == "__main__":
                         )
 
                     decoded_result = {
-                        "index": ex_index,
+                        "index": instance_index,
                         "beams": decoded,
                     }
+                    instance_index += 1
 
                     fout_output_eval_file.write(json.dumps(decoded_result) + "\n")
                     fout_output_eval_file.flush()
