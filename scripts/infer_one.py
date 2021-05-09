@@ -111,7 +111,7 @@ if __name__ == "__main__":
                             'target' in duorat_api.config['model']['preproc']['interaction_type']:
                         interactions[index] = (interaction[0], re.sub("[\w]+\.",
                                                                       '',
-                                                                      results["tokenized_query"].replace('*', '').replace(',', '')))
+                                                                      results["tokenized_query"]))
                     infer_time = time.perf_counter() - infer_time
                     total_infer_time += infer_time
 
