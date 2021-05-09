@@ -35,6 +35,10 @@ if __name__ == "__main__":
         help="The path to the output evaluation file in JSON"
     )
     parser.add_argument(
+        "--use-groundtruths", type=bool, default=True, required=False,
+        help="Use groundtruths for interaction_type = target|source&target"
+    )
+    parser.add_argument(
         "--do-execute", required=False, type=bool, default=False,
         help="Whether to do execution"
     )
@@ -103,7 +107,8 @@ if __name__ == "__main__":
                                                        history=history,
                                                        beam_size=args.beam_size,
                                                        decode_max_time_step=args.decode_max_time_step)
-                    if 'target' in duorat_api.config['model']['preproc']['interaction_type']:
+                    if not args.use_groundtruths and \
+                            'target' in duorat_api.config['model']['preproc']['interaction_type']:
                         interactions[index] = (interaction[0], re.sub("[\w]+\.",
                                                                       '',
                                                                       results["tokenized_query"].replace('*', '').replace(',', '')))
