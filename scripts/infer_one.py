@@ -35,12 +35,16 @@ if __name__ == "__main__":
         help="The path to the output evaluation file in JSON"
     )
     parser.add_argument(
-        "--use-groundtruths", type=bool, default=True, required=False,
-        help="Use groundtruths for interaction_type = target|source&target"
+        "--use-groundtruths",
+        default=False,
+        action="store_true",
+        help="If True, use groundtruths for interaction_type = target|source&target.",
     )
     parser.add_argument(
-        "--do-execute", required=False, type=bool, default=False,
-        help="Whether to do execution"
+        "--do-execute",
+        default=False,
+        action="store_true",
+        help="If True, do execution.",
     )
     parser.add_argument(
         "--ignored-patterns", required=False, type=str, default="I have left the chat",

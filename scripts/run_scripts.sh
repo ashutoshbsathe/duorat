@@ -366,7 +366,7 @@ python3 evaluation.py --gold /mnt/shared/vchoang/works/projects/oda/text2sql/cod
 python2 ./third_party/sparc/evaluation.py --gold ./data/sparc/dev_gold.txt --pred ./logdir/duorat-sparc-new-db-content-target-interaction/val-duorat-sparc-new-db-content-target-interaction-eval-testsuite.output --etype match --db ./data/sparc/database/ --table ./data/sparc/tables.json
 
 # Sparc w/ target interaction (groundtruth)
-CUDA_VISIBLE_DEVICES=0 python scripts/infer_one.py --config configs/duorat/duorat-sparc-new-db-content-target-interaction.jsonnet --logdir ./logdir/duorat-sparc-new-db-content-target-interaction --data-type Sparc --db-folder-path ./data/sparc/database/ --eval-file ./data/sparc/dev.json --output-eval-file ./logdir/duorat-sparc-new-db-content-target-interaction/val-duorat-sparc-new-db-content-target-interaction-groundtruth-io.output --use-groundtruths True
+CUDA_VISIBLE_DEVICES=0 python scripts/infer_one.py --config configs/duorat/duorat-sparc-new-db-content-target-interaction.jsonnet --logdir ./logdir/duorat-sparc-new-db-content-target-interaction --data-type Sparc --db-folder-path ./data/sparc/database/ --eval-file ./data/sparc/dev.json --output-eval-file ./logdir/duorat-sparc-new-db-content-target-interaction/val-duorat-sparc-new-db-content-target-interaction-groundtruth-io.output --use-groundtruths
 
 python scripts/get_testsuite_preds.py ./logdir/duorat-sparc-new-db-content-target-interaction/val-duorat-sparc-new-db-content-target-interaction-groundtruth-io.output ./data/sparc/dev.json ./data/sparc/dev_gold.txt /tmp/dump_file.txt ./logdir/duorat-sparc-new-db-content-target-interaction/val-duorat-sparc-new-db-content-target-interaction-groundtruth-io-eval-testsuite.output
 
