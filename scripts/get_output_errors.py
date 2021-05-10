@@ -13,7 +13,7 @@ with open(input_file) as inpf:
     entries = data["per_item"]
     for entry in entries:
         db_name = entry["db_name"]
-        if db_name != expected_db_name:
+        if expected_db_name != '' and db_name != expected_db_name:
             continue
 
         db_path = entry["db_path"]

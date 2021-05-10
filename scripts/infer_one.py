@@ -25,6 +25,8 @@ if __name__ == "__main__":
                         help="The beam size of beam search decoding")
     parser.add_argument("--decode-max-time-step", type=int, default=500, required=False,
                         help="The beam size of beam search decoding")
+    parser.add_argument("--forced-db-name", type=str, default='', required=False,
+                        help="Force only to infer for --force-db-name")
 
     parser.add_argument(
         "--eval-file", required=True,
@@ -68,6 +70,10 @@ if __name__ == "__main__":
         instance_index = 0
         for data_example in eval_data:
             db_id = 'db_id' if args.data_type == 'Spider' else 'database_id'
+
+            if args.forced_db_name != '' and data_example[db_id] != args.forced_db_name:
+                continue
+
             db_path = f"{os.path.join(args.db_folder_path, data_example[db_id])}" + f"/{data_example[db_id]}.sqlite"
             schema_path = f"{os.path.join(args.db_folder_path, data_example[db_id], 'tables.json')}"
             if not os.path.exists(schema_path):
