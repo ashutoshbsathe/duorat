@@ -3,6 +3,9 @@ import json
 
 input_file = sys.argv[1]
 output_file = sys.argv[2]
+expected_db_name = ''
+if len(sys.argv) > 3:
+    expected_db_name = sys.argv[3]
 
 incorrect_entries = []
 with open(input_file) as inpf:
@@ -10,6 +13,9 @@ with open(input_file) as inpf:
     entries = data["per_item"]
     for entry in entries:
         db_name = entry["db_name"]
+        if db_name != expected_db_name:
+            continue
+
         db_path = entry["db_path"]
         question = entry["question"]
         gold_sql = entry["gold"]

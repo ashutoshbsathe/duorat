@@ -356,7 +356,7 @@ CUDA_VISIBLE_DEVICES=0 python scripts/infer_one.py --config configs/duorat/duora
 # Sparc
 CUDA_VISIBLE_DEVICES=0 python scripts/infer_one.py --config configs/duorat/duorat-sparc-new-db-content.jsonnet --logdir ./logdir/duorat-sparc-new-db-content --data-type Sparc --db-folder-path ./data/sparc/database/ --eval-file ./data/sparc/dev.json --output-eval-file ./logdir/duorat-sparc-new-db-content/val-duorat-sparc-new-db-content.output &> ./logdir/duorat-sparc-new-db-content/gpu_latency.log
 
-# Sparc w/ target interaction
+# Sparc w/ target interaction (prediction)
 CUDA_VISIBLE_DEVICES=0 python scripts/infer_one.py --config configs/duorat/duorat-sparc-new-db-content-target-interaction.jsonnet --logdir ./logdir/duorat-sparc-new-db-content-target-interaction --data-type Sparc --db-folder-path ./data/sparc/database/ --eval-file ./data/sparc/dev.json --output-eval-file ./logdir/duorat-sparc-new-db-content-target-interaction/val-duorat-sparc-new-db-content-target-interaction.output &> ./logdir/duorat-sparc-new-db-content-target-interaction/gpu_latency.log
 
 python scripts/get_testsuite_preds.py ./logdir/duorat-sparc-new-db-content-target-interaction/val-duorat-sparc-new-db-content-target-interaction.output ./data/sparc/dev.json ./data/sparc/dev_gold.txt /tmp/dump_file.txt ./logdir/duorat-sparc-new-db-content-target-interaction/val-duorat-sparc-new-db-content-target-interaction-eval-testsuite.output
@@ -370,14 +370,102 @@ CUDA_VISIBLE_DEVICES=0 python scripts/infer_one.py --config configs/duorat/duora
 
 python scripts/get_testsuite_preds.py ./logdir/duorat-sparc-new-db-content-target-interaction/val-duorat-sparc-new-db-content-target-interaction-groundtruth-io.output ./data/sparc/dev.json ./data/sparc/dev_gold.txt /tmp/dump_file.txt ./logdir/duorat-sparc-new-db-content-target-interaction/val-duorat-sparc-new-db-content-target-interaction-groundtruth-io-eval-testsuite.output
 
+python3 evaluation.py --gold /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/sparc/dev_gold_fixed.txt --pred /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/logdir/duorat-sparc-new-db-content-target-interaction/val-duorat-sparc-new-db-content-target-interaction-groundtruth-io-eval-testsuite.output --db ./database --etype all --table /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/sparc/tables.json --plug_value --progress_bar_for_each_datapoint
+
 python2 ./third_party/sparc/evaluation.py --gold ./data/sparc/dev_gold.txt --pred ./logdir/duorat-sparc-new-db-content-target-interaction/val-duorat-sparc-new-db-content-target-interaction-groundtruth-io-eval-testsuite.output --etype match --db ./data/sparc/database/ --table ./data/sparc/tables.json
+
+# Sparc w/ source&target interaction (groundtruth)
+CUDA_VISIBLE_DEVICES=0 python scripts/infer_one.py --config configs/duorat/duorat-sparc-new-db-content-source-target-interaction.jsonnet --logdir ./logdir/duorat-sparc-new-db-content-source-target-interaction --data-type Sparc --db-folder-path ./data/sparc/database/ --eval-file ./data/sparc/dev.json --output-eval-file ./logdir/duorat-sparc-new-db-content-source-target-interaction/val-duorat-sparc-new-db-content-source-target-interaction-groundtruth.output --use-groundtruths
+
+python scripts/get_testsuite_preds.py ./logdir/duorat-sparc-new-db-content-source-target-interaction/val-duorat-sparc-new-db-content-source-target-interaction-groundtruth.output ./data/sparc/dev.json ./data/sparc/dev_gold.txt /tmp/dump_file.txt ./logdir/duorat-sparc-new-db-content-source-target-interaction/val-duorat-sparc-new-db-content-source-target-interaction-groundtruth-eval-testsuite.output
+
+python2 ./third_party/sparc/evaluation.py --gold ./data/sparc/dev_gold.txt --pred ./logdir/duorat-sparc-new-db-content-source-target-interaction/val-duorat-sparc-new-db-content-source-target-interaction-groundtruth-eval-testsuite.output --etype match --db ./data/sparc/database/ --table ./data/sparc/tables.json
+
+# Sparc w/ source&target interaction (prediction)
+CUDA_VISIBLE_DEVICES=3 python scripts/infer_one.py --config configs/duorat/duorat-sparc-new-db-content-source-target-interaction.jsonnet --logdir ./logdir/duorat-sparc-new-db-content-source-target-interaction --data-type Sparc --db-folder-path ./data/sparc/database/ --eval-file ./data/sparc/dev.json --output-eval-file ./logdir/duorat-sparc-new-db-content-source-target-interaction/val-duorat-sparc-new-db-content-source-target-interaction.output
+
+python scripts/get_testsuite_preds.py ./logdir/duorat-sparc-new-db-content-source-target-interaction/val-duorat-sparc-new-db-content-source-target-interaction.output ./data/sparc/dev.json ./data/sparc/dev_gold.txt /tmp/dump_file.txt ./logdir/duorat-sparc-new-db-content-source-target-interaction/val-duorat-sparc-new-db-content-source-target-interaction-eval-testsuite.output
+
+python2 ./third_party/sparc/evaluation.py --gold ./data/sparc/dev_gold.txt --pred ./logdir/duorat-sparc-new-db-content-source-target-interaction/val-duorat-sparc-new-db-content-source-target-interaction-eval-testsuite.output --etype match --db ./data/sparc/database/ --table ./data/sparc/tables.json
 
 # CoSQL
 CUDA_VISIBLE_DEVICES=3 python scripts/infer_one.py --config configs/duorat/duorat-cosql-new-db-content.jsonnet --logdir ./logdir/duorat-cosql-new-db-content --data-type CoSQL --db-folder-path ./data/cosql/database/ --eval-file ./data/cosql/sql_state_tracking/cosql_dev.json --output-eval-file ./logdir/duorat-cosql-new-db-content/val-duorat-cosql-new-db-content.output --ignored-patterns "I have left the chat" &> ./logdir/duorat-cosql-new-db-content/gpu_latency.log
 
-# CoSQL w/ target interaction
+python2 ./third_party/sparc/evaluation.py --gold ./data/cosql/sql_state_tracking/dev_gold_fixed.txt --pred ./logdir/duorat-cosql-new-db-content/val-duorat-cosql-new-db-content-eval-testsuite.output --etype match --db ./data/cosql/database/ --table ./data/cosql/tables.json
+
+# CoSQL w/ target interaction (groundtruth)
+CUDA_VISIBLE_DEVICES=3 python scripts/infer_one.py --config configs/duorat/duorat-cosql-new-db-content-target-interaction.jsonnet --logdir ./logdir/duorat-cosql-new-db-content-target-interaction --data-type CoSQL --db-folder-path ./data/cosql/database/ --eval-file ./data/cosql/sql_state_tracking/cosql_dev.json --output-eval-file ./logdir/duorat-cosql-new-db-content-target-interaction/val-duorat-cosql-new-db-content-target-interaction-groundtruth.output --ignored-patterns "I have left the chat" --use-groundtruths &> ./logdir/duorat-cosql-new-db-content-target-interaction/gpu_latency.log
+
+python scripts/get_testsuite_preds.py ./logdir/duorat-cosql-new-db-content-target-interaction/val-duorat-cosql-new-db-content-target-interaction-groundtruth.output ./data/cosql/sql_state_tracking/cosql_dev_fixed.json ./data/cosql/sql_state_tracking/dev_gold_fixed.txt ./data/cosql/sql_state_tracking/dev_gold_fixed_filtered.txt  ./logdir/duorat-cosql-new-db-content-target-interaction/val-duorat-cosql-new-db-content-target-interaction-groundtruth-eval-testsuite.output "I have left the chat"
+
+python3 evaluation.py --gold /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/cosql/sql_state_tracking/dev_gold_fixed_filtered.txt --pred /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/logdir/duorat-cosql-new-db-content-target-interaction/val-duorat-cosql-new-db-content-target-interaction-groundtruth-eval-testsuite.output --db ./database --etype all --table /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/cosql/tables_fixed.json --plug_value --progress_bar_for_each_datapoint
+
+python2 ./third_party/sparc/evaluation.py --gold ./data/cosql/sql_state_tracking/dev_gold_fixed.txt --pred ./logdir/duorat-cosql-new-db-content-target-interaction/val-duorat-cosql-new-db-content-target-interaction-groundtruth-eval-testsuite.output --etype match --db ./data/cosql/database/ --table ./data/cosql/tables.json
+
+# CoSQL w/ target interaction (prediction)
 CUDA_VISIBLE_DEVICES=3 python scripts/infer_one.py --config configs/duorat/duorat-cosql-new-db-content-target-interaction.jsonnet --logdir ./logdir/duorat-cosql-new-db-content-target-interaction --data-type CoSQL --db-folder-path ./data/cosql/database/ --eval-file ./data/cosql/sql_state_tracking/cosql_dev.json --output-eval-file ./logdir/duorat-cosql-new-db-content-target-interaction/val-duorat-cosql-new-db-content-target-interaction.output --ignored-patterns "I have left the chat" &> ./logdir/duorat-cosql-new-db-content-target-interaction/gpu_latency.log
 
 python scripts/get_testsuite_preds.py ./logdir/duorat-cosql-new-db-content-target-interaction/val-duorat-cosql-new-db-content-target-interaction.output ./data/cosql/sql_state_tracking/cosql_dev_fixed.json ./data/cosql/sql_state_tracking/dev_gold_fixed.txt ./data/cosql/sql_state_tracking/dev_gold_fixed_filtered.txt  ./logdir/duorat-cosql-new-db-content-target-interaction/val-duorat-cosql-new-db-content-target-interaction-eval-testsuite.output "I have left the chat"
 
 python3 evaluation.py --gold /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/cosql/sql_state_tracking/dev_gold_fixed_filtered.txt --pred /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/logdir/duorat-cosql-new-db-content-target-interaction/val-duorat-cosql-new-db-content-target-interaction-eval-testsuite.output --db ./database --etype all --table /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/cosql/tables_fixed.json --plug_value --progress_bar_for_each_datapoint
+
+python2 ./third_party/sparc/evaluation.py --gold ./data/cosql/sql_state_tracking/dev_gold_fixed.txt --pred ./logdir/duorat-cosql-new-db-content-target-interaction/val-duorat-cosql-new-db-content-target-interaction-eval-testsuite.output --etype match --db ./data/cosql/database/ --table ./data/cosql/tables.json
+
+# CoSQL w/ source&target interaction (groundtruth)
+CUDA_VISIBLE_DEVICES=0 python scripts/infer_one.py --config configs/duorat/duorat-cosql-new-db-content-source-target-interaction.jsonnet --logdir ./logdir/duorat-cosql-new-db-content-source-target-interaction --data-type CoSQL --db-folder-path ./data/cosql/database/ --eval-file ./data/cosql/sql_state_tracking/cosql_dev.json --output-eval-file ./logdir/duorat-cosql-new-db-content-source-target-interaction/val-duorat-cosql-new-db-content-source-target-interaction-groundtruth.output --ignored-patterns "I have left the chat" --use-groundtruths &> ./logdir/duorat-cosql-new-db-content-source-target-interaction/gpu_latency.log
+
+python scripts/get_testsuite_preds.py ./logdir/duorat-cosql-new-db-content-source-target-interaction/val-duorat-cosql-new-db-content-source-target-interaction-groundtruth.output ./data/cosql/sql_state_tracking/cosql_dev_fixed.json ./data/cosql/sql_state_tracking/dev_gold_fixed.txt ./data/cosql/sql_state_tracking/dev_gold_fixed_filtered.txt  ./logdir/duorat-cosql-new-db-content-source-target-interaction/val-duorat-cosql-new-db-content-source-target-interaction-groundtruth-eval-testsuite.output "I have left the chat"
+
+python3 evaluation.py --gold /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/cosql/sql_state_tracking/dev_gold_fixed_filtered.txt --pred /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/logdir/duorat-cosql-new-db-content-source-target-interaction/val-duorat-cosql-new-db-content-source-target-interaction-groundtruth-eval-testsuite.output --db ./database --etype all --table /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/cosql/tables_fixed.json --plug_value --progress_bar_for_each_datapoint
+
+python2 ./third_party/sparc/evaluation.py --gold ./data/cosql/sql_state_tracking/dev_gold_fixed.txt --pred ./logdir/duorat-cosql-new-db-content-source-target-interaction/val-duorat-cosql-new-db-content-source-target-interaction-groundtruth-eval-testsuite.output --etype match --db ./data/cosql/database/ --table ./data/cosql/tables.json
+
+# CoSQL w/ source&target interaction (prediction)
+CUDA_VISIBLE_DEVICES=3 python scripts/infer_one.py --config configs/duorat/duorat-cosql-new-db-content-source-target-interaction.jsonnet --logdir ./logdir/duorat-cosql-new-db-content-source-target-interaction --data-type CoSQL --db-folder-path ./data/cosql/database/ --eval-file ./data/cosql/sql_state_tracking/cosql_dev.json --output-eval-file ./logdir/duorat-cosql-new-db-content-source-target-interaction/val-duorat-cosql-new-db-content-source-target-interaction.output --ignored-patterns "I have left the chat" &> ./logdir/duorat-cosql-new-db-content-source-target-interaction/gpu_latency.log
+
+python scripts/get_testsuite_preds.py ./logdir/duorat-cosql-new-db-content-source-target-interaction/val-duorat-cosql-new-db-content-source-target-interaction.output ./data/cosql/sql_state_tracking/cosql_dev_fixed.json ./data/cosql/sql_state_tracking/dev_gold_fixed.txt ./data/cosql/sql_state_tracking/dev_gold_fixed_filtered.txt  ./logdir/duorat-cosql-new-db-content-source-target-interaction/val-duorat-cosql-new-db-content-source-target-interaction-eval-testsuite.output "I have left the chat"
+
+python3 evaluation.py --gold /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/cosql/sql_state_tracking/dev_gold_fixed_filtered.txt --pred /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/logdir/duorat-cosql-new-db-content-source-target-interaction/val-duorat-cosql-new-db-content-source-target-interaction-eval-testsuite.output --db ./database --etype all --table /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/cosql/tables_fixed.json --plug_value --progress_bar_for_each_datapoint
+
+python2 ./third_party/sparc/evaluation.py --gold ./data/cosql/sql_state_tracking/dev_gold_fixed.txt --pred ./logdir/duorat-cosql-new-db-content-source-target-interaction/val-duorat-cosql-new-db-content-source-target-interaction-eval-testsuite.output --etype match --db ./data/cosql/database/ --table ./data/cosql/tables.json
+
+# Spider + Sparc + CoSQL w/ target interaction (prediction)
+
+# Sparc
+CUDA_VISIBLE_DEVICES=0 python scripts/infer_one.py --config configs/duorat/duorat-spider-sparc-cosql-new-db-content-target-interaction.jsonnet --logdir ./logdir/duorat-spider-sparc-cosql-new-db-content-target-interaction --data-type Sparc --db-folder-path ./data/sparc/database/ --eval-file ./data/sparc/dev.json --output-eval-file ./logdir/duorat-spider-sparc-cosql-new-db-content-target-interaction/val-duorat-spider-sparc-cosql-new-db-content-target-interaction.output.sparc &> ./logdir/duorat-spider-sparc-cosql-new-db-content-target-interaction/gpu_latency.log
+
+python scripts/get_testsuite_preds.py ./logdir/duorat-spider-sparc-cosql-new-db-content-target-interaction/val-duorat-spider-sparc-cosql-new-db-content-target-interaction.output.sparc ./data/sparc/dev.json ./data/sparc/dev_gold.txt /tmp/dump_file.txt ./logdir/duorat-spider-sparc-cosql-new-db-content-target-interaction/val-duorat-spider-sparc-cosql-new-db-content-target-interaction-eval-testsuite.output.sparc
+
+python3 evaluation.py --gold /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/sparc/dev_gold_fixed.txt --pred /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/logdir/duorat-spider-sparc-cosql-new-db-content-target-interaction/val-duorat-spider-sparc-cosql-new-db-content-target-interaction-eval-testsuite.output.sparc --db ./database --etype all --table /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/sparc/tables.json --plug_value --progress_bar_for_each_datapoint
+
+python2 ./third_party/sparc/evaluation.py --gold ./data/sparc/dev_gold.txt --pred ./logdir/duorat-spider-sparc-cosql-new-db-content-target-interaction/val-duorat-spider-sparc-cosql-new-db-content-target-interaction-eval-testsuite.output.sparc --etype match --db ./data/sparc/database/ --table ./data/sparc/tables.json
+
+# CoSQL
+CUDA_VISIBLE_DEVICES=3 python scripts/infer_one.py --config configs/duorat/duorat-spider-sparc-cosql-new-db-content-target-interaction.jsonnet --logdir ./logdir/duorat-spider-sparc-cosql-new-db-content-target-interaction --data-type CoSQL --db-folder-path ./data/cosql/database/ --eval-file ./data/cosql/sql_state_tracking/cosql_dev.json --output-eval-file ./logdir/duorat-spider-sparc-cosql-new-db-content-target-interaction/val-duorat-spider-sparc-cosql-new-db-content-target-interaction.output.cosql --ignored-patterns "I have left the chat" &> ./logdir/duorat-spider-sparc-cosql-new-db-content-target-interaction/gpu_latency.log
+
+python scripts/get_testsuite_preds.py ./logdir/duorat-spider-sparc-cosql-new-db-content-target-interaction/val-duorat-spider-sparc-cosql-new-db-content-target-interaction.output.cosql ./data/cosql/sql_state_tracking/cosql_dev_fixed.json ./data/cosql/sql_state_tracking/dev_gold_fixed.txt ./data/cosql/sql_state_tracking/dev_gold_fixed_filtered.txt  ./logdir/duorat-spider-sparc-cosql-new-db-content-target-interaction/val-duorat-spider-sparc-cosql-new-db-content-target-interaction-eval-testsuite.output.cosql "I have left the chat"
+
+python3 evaluation.py --gold /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/cosql/sql_state_tracking/dev_gold_fixed_filtered.txt --pred /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/logdir/duorat-spider-sparc-spider-sparc-cosql-new-db-content-target-interaction/val-duorat-spider-sparc-cosql-new-db-content-target-interaction-eval-testsuite.output.cosql --db ./database --etype all --table /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/cosql/tables_fixed.json --plug_value --progress_bar_for_each_datapoint
+
+python2 ./third_party/sparc/evaluation.py --gold ./data/cosql/sql_state_tracking/dev_gold_fixed.txt --pred ./logdir/duorat-spider-sparc-cosql-new-db-content-target-interaction/val-duorat-spider-sparc-cosql-new-db-content-target-interaction-eval-testsuite.output.cosql --etype match --db ./data/cosql/database/ --table ./data/cosql/tables.json
+
+# Spider + Sparc + CoSQL w/ source&target interaction (prediction)
+
+# Sparc
+CUDA_VISIBLE_DEVICES=0 python scripts/infer_one.py --config configs/duorat/duorat-spider-sparc-cosql-new-db-content-source-target-interaction.jsonnet --logdir ./logdir/duorat-spider-sparc-cosql-new-db-content-source-target-interaction --data-type Sparc --db-folder-path ./data/sparc/database/ --eval-file ./data/sparc/dev.json --output-eval-file ./logdir/duorat-spider-sparc-cosql-new-db-content-source-target-interaction/val-duorat-spider-sparc-cosql-new-db-content-source-target-interaction.output.sparc &> ./logdir/duorat-spider-sparc-cosql-new-db-content-source-target-interaction/gpu_latency.log
+
+python scripts/get_testsuite_preds.py ./logdir/duorat-spider-sparc-cosql-new-db-content-source-target-interaction/val-duorat-spider-sparc-cosql-new-db-content-source-target-interaction.output ./data/sparc/dev.json ./data/sparc/dev_gold.txt /tmp/dump_file.txt ./logdir/duorat-spider-sparc-cosql-new-db-content-source-target-interaction/val-duorat-sparc-new-db-content-source-target-interaction-eval-testsuite.output.sparc
+
+python3 evaluation.py --gold /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/sparc/dev_gold_fixed.txt --pred /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/logdir/duorat-spider-sparc-cosql-new-db-content-source-target-interaction/val-duorat-spider-sparc-cosql-new-db-content-source-target-interaction-eval-testsuite.output.sparc --db ./database --etype all --table /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/sparc/tables.json --plug_value --progress_bar_for_each_datapoint
+
+python2 ./third_party/sparc/evaluation.py --gold ./data/sparc/dev_gold.txt --pred ./logdir/duorat-spider-sparc-cosql-new-db-content-source-target-interaction/val-duorat-spider-sparc-cosql-new-db-content-source-target-interaction-eval-testsuite.output.sparc --etype match --db ./data/sparc/database/ --table ./data/sparc/tables.json
+
+# CoSQL
+CUDA_VISIBLE_DEVICES=3 python scripts/infer_one.py --config configs/duorat/duorat-spider-sparc-cosql-new-db-content-source-target-interaction.jsonnet --logdir ./logdir/duorat-spider-sparc-cosql-new-db-content-source-target-interaction --data-type CoSQL --db-folder-path ./data/cosql/database/ --eval-file ./data/cosql/sql_state_tracking/cosql_dev.json --output-eval-file ./logdir/duorat-spider-sparc-cosql-new-db-content-source-target-interaction/val-duorat-spider-sparc-cosql-new-db-content-source-target-interaction.output.cosql --ignored-patterns "I have left the chat" &> ./logdir/duorat-spider-sparc-cosql-new-db-content-source-target-interaction/gpu_latency.log
+
+python scripts/get_testsuite_preds.py ./logdir/duorat-spider-sparc-cosql-new-db-content-source-target-interaction/val-duorat-spider-sparc-cosql-new-db-content-source-target-interaction.output.cosql ./data/cosql/sql_state_tracking/cosql_dev_fixed.json ./data/cosql/sql_state_tracking/dev_gold_fixed.txt ./data/cosql/sql_state_tracking/dev_gold_fixed_filtered.txt  ./logdir/duorat-spider-sparc-cosql-new-db-content-source-target-interaction/val-duorat-spider-sparc-cosql-new-db-content-source-target-interaction-eval-testsuite.output.cosql "I have left the chat"
+
+python3 evaluation.py --gold /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/cosql/sql_state_tracking/dev_gold_fixed_filtered.txt --pred /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/logdir/duorat-spider-sparc-spider-sparc-cosql-new-db-content-source-target-interaction/val-duorat-spider-sparc-cosql-new-db-content-source-target-interaction-eval-testsuite.output.cosql --db ./database --etype all --table /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/cosql/tables_fixed.json --plug_value --progress_bar_for_each_datapoint
+
+python2 ./third_party/sparc/evaluation.py --gold ./data/cosql/sql_state_tracking/dev_gold_fixed.txt --pred ./logdir/duorat-spider-sparc-cosql-new-db-content-source-target-interaction/val-duorat-spider-sparc-cosql-new-db-content-source-target-interaction-eval-testsuite.output.cosql --etype match --db ./data/cosql/database/ --table ./data/cosql/tables.json
+
