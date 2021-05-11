@@ -332,7 +332,6 @@ CUDA_VISIBLE_DEVICES=0 python scripts/data_aug/extract_templates.py --sql-keywor
 # w/ OP & SC denotations
 python scripts/data_aug/extract_templates.py --sql-keyword-list-file ./scripts/data_aug/sql_keywords.txt --duorat-prediction-file ./logdir/duorat-new-db-content-bs4-ac7/train-duorat-new-db-content-bs4-ac7.eval --duorat-config-file ./configs/duorat/duorat-new-db-content.jsonnet --logdir ./logdir/duorat-new-db-content-bs4-ac7 --template-output-file ./logdir/duorat-new-db-content-bs4-ac7/train_spider.nl2sql_templates --output-in-csv --with-stemming --with-op-denotation --with-sc-denotation
 
-
 # *** Spider w/ extra schema descriptions
 python3 scripts/split_spider_by_db.py --tables-path tables_descriptions.json
 
@@ -469,3 +468,8 @@ python3 evaluation.py --gold /mnt/shared/vchoang/works/projects/oda/text2sql/cod
 
 python2 ./third_party/sparc/evaluation.py --gold ./data/cosql/sql_state_tracking/dev_gold_fixed.txt --pred ./logdir/duorat-spider-sparc-cosql-new-db-content-source-target-interaction/val-duorat-spider-sparc-cosql-new-db-content-source-target-interaction-eval-testsuite.output.cosql --etype match --db ./data/cosql/database/ --table ./data/cosql/tables.json
 
+# *** Spider w/ inferred column types
+python3 scripts/split_spider_by_db.py --tables-path tables_inferred_col_types.json
+
+# train & test w/ additional schema descriptions
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-infered-col-types.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-infered-col-types --force-preprocess --force-train &> logdir/train-duorat-spider-new-db-content-with-infered-col-types.log &

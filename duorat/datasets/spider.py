@@ -107,7 +107,7 @@ def schema_dict_to_spider_schema(schema_dict):
             zip(
                 schema_dict["extended_column_names"] if "extended_column_names" in schema_dict else schema_dict["column_names"] ,
                 schema_dict["column_names_original"],
-                schema_dict["column_types"],
+                schema_dict["inferred_column_types"] if "inferred_column_types" in schema_dict else schema_dict["column_types"],
             )
         )
     )
