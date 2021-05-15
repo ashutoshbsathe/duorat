@@ -62,7 +62,7 @@ if __name__ == '__main__':
 
     main(spider_path=args.spider_path,
          duorat_path=args.duorat_path,
-         default_examples_paths=args.examples_paths.split(','),
+         default_examples_paths=args.examples_paths.split(',') if args.examples_paths != '' else [],
          tables_path=args.tables_path,
          aug_data=args.aug_data,
          aug_suffix=args.aug_suffix)

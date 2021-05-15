@@ -483,6 +483,7 @@ python2 ./third_party/sparc/evaluation.py --gold ./data/cosql/sql_state_tracking
 # *** Experiments for focusing idea
 
 # ** Use Spider synthetic data from tensor2struct
+python3 scripts/split_spider_by_db.py --aug-data spider_synthetic_data_tensor2struct.json --aug-suffix spider_synthetic_data_tensor2struct
 
 # original training data + synthetic data
 
