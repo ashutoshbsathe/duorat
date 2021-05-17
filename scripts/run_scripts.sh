@@ -505,3 +505,6 @@ python scripts/split_dev.py --dev-json-file ./data/spider/dev.json --split-json-
 python scripts/split_dev.py --dev-json-file ./data/spider/dev.json --split-json-file-prefix ./data/spider/dev_split_3_7 --split-rate 0.3
 python scripts/split_dev.py --dev-json-file ./data/spider/dev.json --split-json-file-prefix ./data/spider/dev_split_2_8 --split-rate 0.2
 python scripts/split_dev.py --dev-json-file ./data/spider/dev.json --split-json-file-prefix ./data/spider/dev_split_1_9 --split-rate 0.1
+
+python3 scripts/split_spider_by_db.py --examples-paths 'train_spider.json,train_others.json,dev_split_5_5_half1.json' --default-example-file-name examples_plus_dev55.json
+python3 scripts/split_spider_by_db.py --examples-paths '' --aug-data dev_split_5_5_half2.json --aug-suffix dev_split_5_5
