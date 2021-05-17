@@ -533,3 +533,10 @@ python3 scripts/split_spider_by_db.py --examples-paths 'train_spider.json,train_
 python3 scripts/split_spider_by_db.py --examples-paths '' --aug-data dev_split_3_7_half2.json --aug-suffix dev_split_3_7
 
 CUDA_VISIBLE_DEVICES=3 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-train-plus-dev37.jsonnet --logdir ./logdir/duorat-spider-new-db-content-train-plus-dev37 --force-preprocess --force-train &>./logdir/train-duorat-spider-new-db-content-train-plus-dev37.log &
+
+# 2-8
+python scripts/split_dev.py --dev-json-file ./data/spider/dev.json --split-json-file-prefix ./data/spider/dev_split_2_8 --split-rate 0.2
+python3 scripts/split_spider_by_db.py --examples-paths 'train_spider.json,train_others.json,dev_split_2_8_half1.json' --default-example-file-name examples_plus_dev28.json
+python3 scripts/split_spider_by_db.py --examples-paths '' --aug-data dev_split_2_8_half2.json --aug-suffix dev_split_2_8
+
+CUDA_VISIBLE_DEVICES=3 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-train-plus-dev28.jsonnet --logdir ./logdir/duorat-spider-new-db-content-train-plus-dev28 --force-preprocess --force-train &>./logdir/train-duorat-spider-new-db-content-train-plus-dev28.log &
