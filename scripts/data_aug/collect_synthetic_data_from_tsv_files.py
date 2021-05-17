@@ -33,5 +33,5 @@ if __name__ == "__main__":
     parser.add_argument("--output-data-file", required=True)
     args = parser.parse_args()
 
-
-
+    collect_synthetic_data(tsv_files_folder_path=args.tsv_files_folder_path,
+                           output_data_file=args.output_data_file)
