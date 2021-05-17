@@ -498,6 +498,9 @@ $ train w/ synthetic data --> finetune w/ original data
 
 # *** Experiments for adding dev data into training data
 
+# train on original data but evaluate on splitted val data
+CUDA_VISIBLE_DEVICES=3 python scripts/infer_one.py --config configs/duorat/duorat-new-db-content.jsonnet --logdir ./logdir/duorat-new-db-content-bs4-ac7 --db-folder-path ./data/database/ --eval-file ./data/spider/dev_split_5_5_half2.json --output-eval-file ./logdir/duorat-new-db-content-bs4-ac7/val-dev55-duorat-new-db-content.output
+
 # split dev randomly
 # Spider
 python scripts/split_dev.py --dev-json-file ./data/spider/dev.json --split-json-file-prefix ./data/spider/dev_split_5_5 --split-rate 0.5

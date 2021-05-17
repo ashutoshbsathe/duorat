@@ -117,7 +117,7 @@ if __name__ == "__main__":
                                                        history=history,
                                                        beam_size=args.beam_size,
                                                        decode_max_time_step=args.decode_max_time_step)
-                    if not args.use_groundtruths and \
+                    if args.data_type is not 'Spider' and not args.use_groundtruths and \
                             'target' in duorat_api.config['model']['preproc']['interaction_type']:
                         interactions[index] = (interaction[0], re.sub("[\w]+\.",
                                                                       '',
