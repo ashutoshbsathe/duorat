@@ -16,9 +16,14 @@ def split_dev(dev_json_file: str, split_json_file_prefix: str, split_rate: float
     half1_examples_by_db = {}
     half2_examples_by_db = {}
     for db_id, examples in examples_by_db.items():
-        half1_examples_by_db[db_id], half2_examples_by_db[db_id] = model_selection.train_test_split(examples,
-                                                                                                    random_state=42,
-                                                                                                    train_size=split_rate)
+        if int(split_rate * len(examples)) < 1:
+            half1_examples_by_db[db_id], half2_examples_by_db[db_id] = model_selection.train_test_split(examples,
+                                                                                                        random_state=42,
+                                                                                                        train_size=1)
+        else:
+            half1_examples_by_db[db_id], half2_examples_by_db[db_id] = model_selection.train_test_split(examples,
+                                                                                                        random_state=42,
+                                                                                                        train_size=split_rate)
 
     half1_examples = []
     for _, examples in half1_examples_by_db.items():
