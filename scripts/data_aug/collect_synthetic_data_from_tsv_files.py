@@ -25,9 +25,12 @@ def collect_synthetic_data(tsv_files_folder_path: str, output_data_file, samples
                 }
                 examples.append(example_dict)
 
-            sampled_examples, _ = model_selection.train_test_split(examples,
-                                                                   random_state=42,
-                                                                   train_size=samples_by_level)
+            if samples_by_level != -1:
+                sampled_examples, _ = model_selection.train_test_split(examples,
+                                                                       random_state=42,
+                                                                       train_size=samples_by_level)
+            else:  # otherwise, get all.
+                sampled_examples = examples
             output_data.extend(sampled_examples)
 
     with open(output_data_file, 'w') as outf:
