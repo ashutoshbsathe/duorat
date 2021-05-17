@@ -3,7 +3,7 @@ function(output_from, data_path='data/', save_dir='duorat/') {
 
     data: {
         train: (import '../../data/train_plus_dev55.libsonnet')(prefix=PREFIX),
-        val: (import '../../data/val_spider_dev55.libsonnet')(prefix=PREFIX),
+        val: (import '../../data/val_dev55.libsonnet')(prefix=PREFIX),
     },
 
     model: {
