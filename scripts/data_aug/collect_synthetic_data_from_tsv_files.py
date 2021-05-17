@@ -7,6 +7,7 @@ from sklearn import model_selection
 def collect_synthetic_data(tsv_files_folder_path: str, output_data_file, samples_by_level: int = 100):
     output_data = []
     for file_name in glob.iglob(f'{tsv_files_folder_path}/**/*.tsv', recursive=True):
+        print(f"Processing file path: {file_name}...")
         with open(file_name) as f:
             examples = []
             for line in f:
