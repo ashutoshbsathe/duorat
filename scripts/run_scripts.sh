@@ -495,9 +495,10 @@ python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-syn
 
 # get synthetic data from @Philip Arthur
 python scripts/data_aug/collect_synthetic_data_from_tsv_files.py --tsv-files-folder-path /mnt/shared/parthur/experiments/nl2sql/output/data/v1/spider --output-data-file ./data/spider/train_synthetic_data_by_template_scfg_100s.json --samples-by-level 100
-python3 scripts/split_spider_by_db.py --examples-paths '' --aug-data train_synthetic_data_by_template_scfg_100s.json --aug-suffix spider_synthetic_data_template_scfg_100s
+python3 scripts/split_spider_by_db.py --examples-paths '' --aug-data train_synthetic_data_by_template_scfg_100s.json --aug-suffix spider_synthetic_data_template_scfg_100s\
 
 # train w/ synthetic data --> finetune w/ original data
+python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-synthetic-data-template-scfg-100s.jsonnet --logdir ./logdir/duorat-spider-new-db-content-synthetic-data-template-scfg-100s --force-preprocess --force-train
 
 # *** Experiments for adding dev data into training data
 
@@ -509,7 +510,6 @@ CUDA_VISIBLE_DEVICES=3 python scripts/infer_one.py --config configs/duorat/duora
 
 # split dev randomly
 # Spider
-python scripts/split_dev.py --dev-json-file ./data/spider/dev.json --split-json-file-prefix ./data/spider/dev_split_3_7 --split-rate 0.3
 python scripts/split_dev.py --dev-json-file ./data/spider/dev.json --split-json-file-prefix ./data/spider/dev_split_2_8 --split-rate 0.2
 python scripts/split_dev.py --dev-json-file ./data/spider/dev.json --split-json-file-prefix ./data/spider/dev_split_1_9 --split-rate 0.1
 
@@ -526,3 +526,10 @@ python3 scripts/split_spider_by_db.py --examples-paths 'train_spider.json,train_
 python3 scripts/split_spider_by_db.py --examples-paths '' --aug-data dev_split_4_6_half2.json --aug-suffix dev_split_4_6
 
 CUDA_VISIBLE_DEVICES=3 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-train-plus-dev46.jsonnet --logdir ./logdir/duorat-spider-new-db-content-train-plus-dev46 --force-preprocess --force-train &>./logdir/train-duorat-spider-new-db-content-train-plus-dev46.log &
+
+# 3-7
+python scripts/split_dev.py --dev-json-file ./data/spider/dev.json --split-json-file-prefix ./data/spider/dev_split_3_7 --split-rate 0.3
+python3 scripts/split_spider_by_db.py --examples-paths 'train_spider.json,train_others.json,dev_split_3_7_half1.json' --default-example-file-name examples_plus_dev37.json
+python3 scripts/split_spider_by_db.py --examples-paths '' --aug-data dev_split_3_7_half2.json --aug-suffix dev_split_3_7
+
+CUDA_VISIBLE_DEVICES=3 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-train-plus-dev37.jsonnet --logdir ./logdir/duorat-spider-new-db-content-train-plus-dev37 --force-preprocess --force-train &>./logdir/train-duorat-spider-new-db-content-train-plus-dev37.log &
