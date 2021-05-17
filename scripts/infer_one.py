@@ -95,7 +95,7 @@ if __name__ == "__main__":
 
                         interactions.append((interaction['utterance'], interaction['query']))
                 else:
-                    interactions.append((data_example['question'], ''))
+                    interactions.append((data_example['question'], data_example['query']))
 
                 for index, interaction in enumerate(interactions):
                     history = None
