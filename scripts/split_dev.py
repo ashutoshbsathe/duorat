@@ -40,7 +40,7 @@ def split_dev(dev_json_file: str,
 
     with open(f"{split_json_file_prefix}_gold.txt", "w") as outf_gold:
         for example in half2_examples:
-            outf_gold.write(f"{example['query']} \t {example['db_id']}\n")
+            outf_gold.write(f"{example['query']}\t{example['db_id']}\n")
 
 
 if __name__ == "__main__":
