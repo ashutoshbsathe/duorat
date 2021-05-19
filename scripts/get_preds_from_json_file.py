@@ -10,7 +10,7 @@ def get_preds_from_json_file(preds_json_file: str, output_preds_txt_file: str) -
             preds.append(json.loads(line))
 
         for pred in preds:
-            query = pred["inferred_code"]
+            query = pred["beams"][0]["inferred_code"]
             outf.write(f"{query}\n")
 
 
