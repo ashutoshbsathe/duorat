@@ -506,7 +506,7 @@ python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-syn
 # train on original data but evaluate on splitted val data
 # 5-5
 CUDA_VISIBLE_DEVICES=0 python scripts/infer_one.py --config configs/duorat/duorat-new-db-content.jsonnet --logdir ./logdir/duorat-new-db-content-bs4-ac7 --db-folder-path ./data/database/ --eval-file ./data/spider/dev_split_5_5_half2.json --output-eval-file ./logdir/duorat-new-db-content-bs4-ac7/val-dev55-duorat-new-db-content.output
-
+python scripts/get_preds_from_json_file.py --preds-json-file ./logdir/duorat-new-db-content-bs4-ac7/val-dev55-duorat-new-db-content.output --output-preds-txt-file ./logdir/duorat-new-db-content-bs4-ac7/val-dev55-duorat-new-db-content.output.txt
 # 4-6
 CUDA_VISIBLE_DEVICES=0 python scripts/infer_one.py --config configs/duorat/duorat-new-db-content.jsonnet --logdir ./logdir/duorat-new-db-content-bs4-ac7 --db-folder-path ./data/database/ --eval-file ./data/spider/dev_split_4_6_half2.json --output-eval-file ./logdir/duorat-new-db-content-bs4-ac7/val-dev46-duorat-new-db-content.output
 # 3-7

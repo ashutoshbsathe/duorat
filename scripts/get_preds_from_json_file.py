@@ -4,7 +4,11 @@ import argparse
 
 def get_preds_from_json_file(preds_json_file: str, output_preds_txt_file: str) -> None:
     with open(preds_json_file) as inpf, open(output_preds_txt_file, 'w') as outf:
-        preds = json.load(inpf)
+        preds = []
+        for line in inpf:
+            line = line.strip()
+            preds.append(json.loads(line))
+
         for pred in preds:
             query = pred["inferred_code"]
             outf.write(f"{query}\n")
