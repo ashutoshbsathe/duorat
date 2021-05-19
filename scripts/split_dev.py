@@ -3,7 +3,9 @@ import argparse
 from sklearn import model_selection
 
 
-def split_dev(dev_json_file: str, split_json_file_prefix: str, split_rate: float = 0.5):
+def split_dev(dev_json_file: str,
+              split_json_file_prefix: str,
+              split_rate: float = 0.5):
     dev_data = json.load(open(dev_json_file))
     examples_by_db = {}
     for entry in dev_data:
@@ -35,6 +37,10 @@ def split_dev(dev_json_file: str, split_json_file_prefix: str, split_rate: float
     with open(f"{split_json_file_prefix}_half1.json", "w") as fout1, open(f"{split_json_file_prefix}_half2.json", "w") as fout2:
         json.dump(half1_examples, fout1, sort_keys=True, indent=4)
         json.dump(half2_examples, fout2, sort_keys=True, indent=4)
+
+    with open(f"{split_json_file_prefix}_gold.txt", "w") as outf_gold:
+        for example in half2_examples:
+            outf_gold.write(f"{example['query']} \t {example['db_id']}\n")
 
 
 if __name__ == "__main__":

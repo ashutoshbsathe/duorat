@@ -483,6 +483,7 @@ python2 ./third_party/sparc/evaluation.py --gold ./data/cosql/sql_state_tracking
 # *** Experiments for focusing idea
 
 # ** Use Spider synthetic data from tensor2struct
+#python collect_spider_synthetic_data_tensor2struct.py --tensor2struct-synthetic-data-file
 python3 scripts/split_spider_by_db.py --examples-paths '' --aug-data spider_synthetic_data_tensor2struct.json --aug-suffix spider_synthetic_data_tensor2struct
 
 # original training data + synthetic data
@@ -504,9 +505,14 @@ python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-syn
 
 # train on original data but evaluate on splitted val data
 # 5-5
-CUDA_VISIBLE_DEVICES=3 python scripts/infer_one.py --config configs/duorat/duorat-new-db-content.jsonnet --logdir ./logdir/duorat-new-db-content-bs4-ac7 --db-folder-path ./data/database/ --eval-file ./data/spider/dev_split_5_5_half2.json --output-eval-file ./logdir/duorat-new-db-content-bs4-ac7/val-dev55-duorat-new-db-content.output
+CUDA_VISIBLE_DEVICES=0 python scripts/infer_one.py --config configs/duorat/duorat-new-db-content.jsonnet --logdir ./logdir/duorat-new-db-content-bs4-ac7 --db-folder-path ./data/database/ --eval-file ./data/spider/dev_split_5_5_half2.json --output-eval-file ./logdir/duorat-new-db-content-bs4-ac7/val-dev55-duorat-new-db-content.output
+python scripts/eval.py --config configs/duorat/duorat-new-db-content.jsonnet --section val --do-execute --inferred ./logdir/duorat-new-db-content-bs4-ac7/val-dev55-duorat-new-db-content.output --output ./logdir/duorat-new-db-content-bs4-ac7/val-dev55-duorat-new-db-content-bs4-ac7.eval
 # 4-6
-CUDA_VISIBLE_DEVICES=3 python scripts/infer_one.py --config configs/duorat/duorat-new-db-content.jsonnet --logdir ./logdir/duorat-new-db-content-bs4-ac7 --db-folder-path ./data/database/ --eval-file ./data/spider/dev_split_4_6_half2.json --output-eval-file ./logdir/duorat-new-db-content-bs4-ac7/val-dev46-duorat-new-db-content.output
+CUDA_VISIBLE_DEVICES=0 python scripts/infer_one.py --config configs/duorat/duorat-new-db-content.jsonnet --logdir ./logdir/duorat-new-db-content-bs4-ac7 --db-folder-path ./data/database/ --eval-file ./data/spider/dev_split_4_6_half2.json --output-eval-file ./logdir/duorat-new-db-content-bs4-ac7/val-dev46-duorat-new-db-content.output
+# 3-7
+CUDA_VISIBLE_DEVICES=0 python scripts/infer_one.py --config configs/duorat/duorat-new-db-content.jsonnet --logdir ./logdir/duorat-new-db-content-bs4-ac7 --db-folder-path ./data/database/ --eval-file ./data/spider/dev_split_3_7_half2.json --output-eval-file ./logdir/duorat-new-db-content-bs4-ac7/val-dev37-duorat-new-db-content.output
+# 2-8
+CUDA_VISIBLE_DEVICES=0 python scripts/infer_one.py --config configs/duorat/duorat-new-db-content.jsonnet --logdir ./logdir/duorat-new-db-content-bs4-ac7 --db-folder-path ./data/database/ --eval-file ./data/spider/dev_split_2_8_half2.json --output-eval-file ./logdir/duorat-new-db-content-bs4-ac7/val-dev28-duorat-new-db-content.output
 
 # split dev randomly
 # Spider
