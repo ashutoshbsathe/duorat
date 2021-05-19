@@ -9,7 +9,7 @@ def get_preds_from_json_file(preds_json_file: str,
         preds = []
         for line, line_gold in zip(inpf, inpf_gold):
             line = line.strip()
-            db_id = line_gold.strip().split('\t')[1]
+            db_id = line_gold.strip().split('\t')[1].strip()
             preds.append((json.loads(line), db_id))
 
         for pred in preds:
