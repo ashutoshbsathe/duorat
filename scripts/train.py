@@ -88,18 +88,6 @@ class Logger:
                 self.log_file.flush()
 
 
-class ConcatDataset(torch.utils.data.Dataset):
-    def __init__(self, datasets):
-        self.datasets = datasets
-
-    def __getitem__(self, i):
-        return tuple(d[i % len(d)] for d in self.datasets)
-
-    def __len__(self):
-        # return max(len(d) for d in self.datasets)
-        return sum(len(d) for d in self.datasets)
-
-
 class Trainer:
     def __init__(self, logger, config):
         if torch.cuda.is_available():
@@ -240,8 +228,16 @@ class Trainer:
                     datasets = [self.config["data"]]
                 data_splits = [f"{dataset['name']}_train" if 'name' in dataset else "train" for dataset in datasets]
 
+            sampler = None
             if self.config["train"].get('batch_balancing', None):
-                train_datasets = ConcatDataset([self.model_preproc.dataset(split) for split in data_splits])
+                # dataset_example_count = [len(data_split) for data_split in data_splits]
+                # dataset_weights = 1. / torch.Tensor(dataset_example_count)
+                # dataset_weights = dataset_weights.double()
+                #
+                # sampler = torch.utils.data.sampler.WeightedRandomSampler(train_sample_weights, self.config["train"]["batch_size"])
+
+                train_datasets = torch.utils.data.ConcatDataset(
+                    datasets=[self.model_preproc.dataset(split) for split in data_splits])
             else:
                 train_datasets = list(itertools.chain.from_iterable(
                     self.model_preproc.dataset(split) for split in data_splits)
@@ -257,6 +253,7 @@ class Trainer:
                     collate_fn=lambda x: x,
                     pin_memory=self.config["train"].get('pin_memory', False),
                     num_workers=self.config["train"].get('num_workers', 0),
+                    sampler=sampler,
                 )
             )
 
