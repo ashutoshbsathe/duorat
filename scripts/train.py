@@ -88,6 +88,18 @@ class Logger:
                 self.log_file.flush()
 
 
+class ConcatDataset(torch.utils.data.Dataset):
+    def __init__(self, datasets):
+        self.datasets = datasets
+
+    def __getitem__(self, i):
+        return tuple(d[i % len(d)] for d in self.datasets)
+
+    def __len__(self):
+        # return max(len(d) for d in self.datasets)
+        return sum(len(d) for d in self.datasets)
+
+
 class Trainer:
     def __init__(self, logger, config):
         if torch.cuda.is_available():
@@ -228,39 +240,43 @@ class Trainer:
                     datasets = [self.config["data"]]
                 data_splits = [f"{dataset['name']}_train" if 'name' in dataset else "train" for dataset in datasets]
 
-            train_data = list(
-                itertools.chain.from_iterable(
-                    self.model_preproc.dataset(split) for split in data_splits
+            if self.config["train"].get('batch_balancing', None):
+                train_datasets = ConcatDataset([self.model_preproc.dataset(split) for split in data_splits])
+            else:
+                train_datasets = list(itertools.chain.from_iterable(
+                    self.model_preproc.dataset(split) for split in data_splits)
                 )
-            )
-            self.logger.log(f"There are {len(train_data)} training examples.")
+            self.logger.log(f"There are {len(train_datasets)} training examples.")
 
             train_data_loader = self._yield_batches_from_epochs(
                 DataLoader(
-                    train_data,
+                    train_datasets,
                     batch_size=self.config["train"]["batch_size"],
                     shuffle=True,
                     drop_last=True,
                     collate_fn=lambda x: x,
+                    pin_memory=self.config["train"].get('pin_memory', False),
+                    num_workers=self.config["train"].get('num_workers', 0),
                 )
             )
 
         # loader for train data
         train_eval_data_loader = DataLoader(
-            train_data,
+            train_datasets,
             batch_size=self.config["train"]["eval_batch_size"],
             collate_fn=lambda x: x,
         )
 
         # loader for val data
         if isinstance(self.config["data"], list):
-            val_data = list(itertools.chain.from_iterable(
-                self.model_preproc.dataset(f"{dataset['name']}_val") for dataset in self.config["data"]))
+            val_datasets = list(itertools.chain.from_iterable(
+                self.model_preproc.dataset(f"{dataset['name']}_val") for dataset in self.config["data"] if
+                dataset is not None))
         else:
-            val_data = self.model_preproc.dataset("val")
-        self.logger.log(f"There are {len(val_data)} validation examples.")
+            val_datasets = self.model_preproc.dataset("val")
+        self.logger.log(f"There are {len(val_datasets)} validation examples.")
         val_data_loader = DataLoader(
-            val_data,
+            val_datasets,
             batch_size=self.config["train"]["eval_batch_size"],
             collate_fn=lambda x: x,
         )
@@ -450,6 +466,9 @@ class Trainer:
                 preproc_data: List[RATPreprocItem] = self.model_preproc.dataset(eval_section)
             else:
                 preproc_data: List[RATPreprocItem] = self.model_preproc.dataset(f"{name}_{eval_section}")
+
+            if preproc_data is None:
+                continue
 
             self.model.eval()
             with torch.no_grad():

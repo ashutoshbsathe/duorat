@@ -510,10 +510,16 @@ python scripts/get_preds_from_json_file.py --preds-json-file ./logdir/duorat-new
 python -m third_party.spider.evaluation --gold ./data/spider/dev_split_5_5_gold.txt --pred ./logdir/duorat-new-db-content-bs4-ac7/val-dev55-duorat-new-db-content.output.txt --etype match --db ./data/database --table ./data/spider/tables.json
 # 4-6
 CUDA_VISIBLE_DEVICES=0 python scripts/infer_one.py --config configs/duorat/duorat-new-db-content.jsonnet --logdir ./logdir/duorat-new-db-content-bs4-ac7 --db-folder-path ./data/database/ --eval-file ./data/spider/dev_split_4_6_half2.json --output-eval-file ./logdir/duorat-new-db-content-bs4-ac7/val-dev46-duorat-new-db-content.output
+python scripts/get_preds_from_json_file.py --preds-json-file ./logdir/duorat-new-db-content-bs4-ac7/val-dev46-duorat-new-db-content.output --gold-txt-file ./data/spider/dev_split_4_6_gold.txt --output-preds-txt-file ./logdir/duorat-new-db-content-bs4-ac7/val-dev46-duorat-new-db-content.output.txt
+python -m third_party.spider.evaluation --gold ./data/spider/dev_split_4_6_gold.txt --pred ./logdir/duorat-new-db-content-bs4-ac7/val-dev46-duorat-new-db-content.output.txt --etype match --db ./data/database --table ./data/spider/tables.json
 # 3-7
 CUDA_VISIBLE_DEVICES=0 python scripts/infer_one.py --config configs/duorat/duorat-new-db-content.jsonnet --logdir ./logdir/duorat-new-db-content-bs4-ac7 --db-folder-path ./data/database/ --eval-file ./data/spider/dev_split_3_7_half2.json --output-eval-file ./logdir/duorat-new-db-content-bs4-ac7/val-dev37-duorat-new-db-content.output
+python scripts/get_preds_from_json_file.py --preds-json-file ./logdir/duorat-new-db-content-bs4-ac7/val-dev37-duorat-new-db-content.output --gold-txt-file ./data/spider/dev_split_3_7_gold.txt --output-preds-txt-file ./logdir/duorat-new-db-content-bs4-ac7/val-dev37-duorat-new-db-content.output.txt
+python -m third_party.spider.evaluation --gold ./data/spider/dev_split_3_7_gold.txt --pred ./logdir/duorat-new-db-content-bs4-ac7/val-dev37-duorat-new-db-content.output.txt --etype match --db ./data/database --table ./data/spider/tables.json
 # 2-8
-CUDA_VISIBLE_DEVICES=0 python scripts/infer_one.py --config configs/duorat/duorat-new-db-content.jsonnet --logdir ./logdir/duorat-new-db-content-bs4-ac7 --db-folder-path ./data/database/ --eval-file ./data/spider/dev_split_2_8_half2.json --output-eval-file ./logdir/duorat-new-db-content-bs4-ac7/val-dev28-duorat-new-db-content.output
+CUDA_VISIBLE_DEVICES=3 python scripts/infer_one.py --config configs/duorat/duorat-new-db-content.jsonnet --logdir ./logdir/duorat-new-db-content-bs4-ac7 --db-folder-path ./data/database/ --eval-file ./data/spider/dev_split_2_8_half2.json --output-eval-file ./logdir/duorat-new-db-content-bs4-ac7/val-dev28-duorat-new-db-content.output
+python scripts/get_preds_from_json_file.py --preds-json-file ./logdir/duorat-new-db-content-bs4-ac7/val-dev28-duorat-new-db-content.output --gold-txt-file ./data/spider/dev_split_2_8_gold.txt --output-preds-txt-file ./logdir/duorat-new-db-content-bs4-ac7/val-dev28-duorat-new-db-content.output.txt
+python -m third_party.spider.evaluation --gold ./data/spider/dev_split_2_8_gold.txt --pred ./logdir/duorat-new-db-content-bs4-ac7/val-dev28-duorat-new-db-content.output.txt --etype match --db ./data/database --table ./data/spider/tables.json
 
 # split dev randomly
 # Spider
@@ -524,6 +530,9 @@ python3 scripts/split_spider_by_db.py --examples-paths 'train_spider.json,train_
 python3 scripts/split_spider_by_db.py --examples-paths '' --aug-data dev_split_5_5_half2.json --aug-suffix dev_split_5_5
 
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-train-plus-dev55.jsonnet --logdir ./logdir/duorat-spider-new-db-content-train-plus-dev55 --force-preprocess --force-train &>./logdir/train-duorat-spider-new-db-content-train-plus-dev55.log &
+
+# 2-8
+CUDA_VISIBLE_DEVICES=3 python scripts/infer_one.py --config configs/duorat/duorat-spider-new-db-content-train-plus-dev55.jsonnet --logdir ./logdir/duorat-spider-new-db-content-train-plus-dev55 --db-folder-path ./data/database/ --eval-file ./data/spider/dev_split_5_5_half2.json --output-eval-file ./logdir/duorat-spider-new-db-content-train-plus-dev55/val-dev55-duorat-new-db-content.output
 
 # 4-6
 python scripts/split_dev.py --dev-json-file ./data/spider/dev.json --split-json-file-prefix ./data/spider/dev_split_4_6 --split-rate 0.4
@@ -545,3 +554,23 @@ python3 scripts/split_spider_by_db.py --examples-paths 'train_spider.json,train_
 python3 scripts/split_spider_by_db.py --examples-paths '' --aug-data dev_split_2_8_half2.json --aug-suffix dev_split_2_8
 
 CUDA_VISIBLE_DEVICES=3 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-train-plus-dev28.jsonnet --logdir ./logdir/duorat-spider-new-db-content-train-plus-dev28 --force-preprocess --force-train &>./logdir/train-duorat-spider-new-db-content-train-plus-dev28.log &
+
+# *** Get prediction errors
+
+# db-id=concert_singer
+python scripts/get_output_errors.py ./logdir/duorat-new-db-content-bs4-ac7/val-duorat-new-db-content-bs4-ac7.eval ./logdir/duorat-new-db-content-bs4-ac7/val-duorat-new-db-content-bs4-ac7.errors.concert_singer concert_singer
+
+# db-id=pets_1
+python scripts/get_output_errors.py ./logdir/duorat-new-db-content-bs4-ac7/val-duorat-new-db-content-bs4-ac7.eval ./logdir/duorat-new-db-content-bs4-ac7/val-duorat-new-db-content-bs4-ac7.errors.pets_1 pets_1
+
+# db-id=car_1
+python scripts/get_output_errors.py ./logdir/duorat-new-db-content-bs4-ac7/val-duorat-new-db-content-bs4-ac7.eval ./logdir/duorat-new-db-content-bs4-ac7/val-duorat-new-db-content-bs4-ac7.errors.car_1 car_1
+
+# *** CustomNER for NL2SQL
+
+# run interactive mode for error analysis
+CUDA_VISIBLE_DEVICES=0 python scripts/interactive.py --logdir ./logdir/duorat-new-db-content-bs4-ac7 --config configs/duorat/duorat-new-db-content.jsonnet --db-path ./data/database/concert_singer/concert_singer.sqlite --schema-path ./data/database/concert_singer/tables.json
+
+CUDA_VISIBLE_DEVICES=0 python scripts/interactive.py --logdir ./logdir/duorat-new-db-content-bs4-ac7 --config configs/duorat/duorat-new-db-content.jsonnet --db-path ./data/database/pets_1/pets_1.sqlite --schema-path ./data/database/pets_1/tables.json
+
+CUDA_VISIBLE_DEVICES=0 python scripts/interactive.py --logdir ./logdir/duorat-new-db-content-bs4-ac7 --config configs/duorat/duorat-new-db-content.jsonnet --db-path ./data/database/car_1/car_1.sqlite --schema-path ./data/database/car_1/tables.json

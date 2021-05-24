@@ -189,8 +189,12 @@ class DuoRATPreproc(abstract_preproc.AbstractPreproc):
             self.target_vocab = pickle.load(f)
 
     def dataset(self, section: str) -> List[RATPreprocItem]:
+        if not os.path.exists(os.path.join(self.save_path, section + ".pkl")):
+            return None
+
         with open(os.path.join(self.save_path, section + ".pkl"), "rb") as f:
             items = pickle.load(f)
+
         return items
 
 
