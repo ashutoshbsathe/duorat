@@ -230,14 +230,18 @@ class Trainer:
 
             sampler = None
             if self.config["train"].get('batch_balancing', None):
-                # dataset_example_count = [len(data_split) for data_split in data_splits]
-                # dataset_weights = 1. / torch.Tensor(dataset_example_count)
-                # dataset_weights = dataset_weights.double()
-                #
-                # sampler = torch.utils.data.sampler.WeightedRandomSampler(train_sample_weights, self.config["train"]["batch_size"])
-
+                train_datasets = [self.model_preproc.dataset(split) for split in data_splits]
+                dataset_example_count = [len(train_dataset) for train_dataset in train_datasets]
+                dataset_weights = 1. / torch.Tensor(dataset_example_count)
+                train_ds_ids = []
+                for idx, train_dataset in enumerate(train_datasets):
+                    train_ds_ids.extend([idx] * len(train_dataset))
+                train_sample_weights = [dataset_weights[ds_id] for ds_id in train_ds_ids]
+                sampler = torch.utils.data.sampler.WeightedRandomSampler(train_sample_weights,
+                                                                         len(train_ds_ids)
+                                                                         )
                 train_datasets = torch.utils.data.ConcatDataset(
-                    datasets=[self.model_preproc.dataset(split) for split in data_splits])
+                    datasets=train_datasets)
             else:
                 train_datasets = list(itertools.chain.from_iterable(
                     self.model_preproc.dataset(split) for split in data_splits)
