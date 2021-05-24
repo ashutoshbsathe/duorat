@@ -8,14 +8,11 @@
             name: 'Spider',
             train: (import '../../data/train.libsonnet')(prefix=PREFIX_SPIDER),
             val: (import '../../data/val.libsonnet')(prefix=PREFIX_SPIDER),
-            train_sample_size: 500,
-            val_sample_size: 100,
             type: 'original'
         },
         {
             name: 'Spider_Synthetic_TemplateSCFG',
             train: (import '../../data/train_spider_synthetic_data_template_scfg_100s.libsonnet')(prefix=PREFIX_SPIDER),
-            train_sample_size: 1000,
             type: 'synthetic'
         },
     ],
