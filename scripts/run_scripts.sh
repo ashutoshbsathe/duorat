@@ -501,7 +501,7 @@ python3 scripts/split_spider_by_db.py --examples-paths '' --aug-data train_synth
 # train w/ synthetic data --> finetune w/ original data
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-synthetic-data-template-scfg-100s.jsonnet --logdir ./logdir/duorat-spider-new-db-content-synthetic-data-template-scfg-100s --force-preprocess --force-train
 
-# train w/ mix of originla and synthetic data
+# train w/ mix of original and synthetic data
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-original-plus-synthetic-data-batch-balancing.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-original-plus-synthetic-data-batch-balancing --force-preprocess --force-train
 
 # *** Experiments for adding dev data into training data

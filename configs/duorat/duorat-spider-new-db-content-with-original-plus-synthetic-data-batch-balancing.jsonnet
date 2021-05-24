@@ -41,7 +41,7 @@
 
     train+: {
         num_eval_items: 1034,
-        batch_balancing: false,
+        batch_balancing: true,
         pin_memory: true,
         num_workers: 4,
     }
