@@ -459,6 +459,9 @@ class Trainer:
             else:
                 name = 'default'
 
+            if eval_section not in dataset:
+                continue
+
             # retrieve original data --> @Vu Hoang: can we do this step only once?
             orig_data = registry.construct("dataset", dataset[eval_section])
             orig_data.sample(sample_size=dataset.get(f'{eval_section}_sample_size', None))
