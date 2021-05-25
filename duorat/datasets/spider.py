@@ -85,6 +85,7 @@ class SpiderItem:
     spider_schema: SpiderSchema
     db_path: str
     orig: dict
+    type: Optional[str] = 'original'
 
 
 def schema_dict_to_spider_schema(schema_dict):

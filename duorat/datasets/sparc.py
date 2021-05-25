@@ -41,7 +41,7 @@ def load_tables(tables_files: List[str]) -> Tuple[Dict[str, SpiderSchema], Dict[
 
 @dataclass
 class SparcItem(SpiderItem):
-    interaction: List[SpiderItem]
+    interaction: Optional[List[SpiderItem]] = None
 
 
 @registry.register("dataset", "sparc")

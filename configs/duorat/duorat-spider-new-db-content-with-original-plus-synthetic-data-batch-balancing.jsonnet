@@ -1,7 +1,5 @@
 (import 'duorat-finetune-bert-large.jsonnet') {
     local PREFIX_SPIDER = './data/',
-    local PREFIX_SPARC = './data/sparc',
-    local PREFIX_COSQL = './data/cosql/sql_state_tracking',
 
     data: [
         {

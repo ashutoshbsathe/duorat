@@ -499,14 +499,17 @@ python scripts/data_aug/collect_synthetic_data_from_tsv_files.py --tsv-files-fol
 python3 scripts/split_spider_by_db.py --examples-paths '' --aug-data train_synthetic_data_by_template_scfg_100s.json --aug-suffix spider_synthetic_data_template_scfg_100s\
 
 # train w/ synthetic data --> finetune w/ original data
+# train w/ synthetic data
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-synthetic-data-template-scfg-100s.jsonnet --logdir ./logdir/duorat-spider-new-db-content-synthetic-data-template-scfg-100s --force-preprocess --force-train
+# finetune w/ original data
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-initialized-from-synthetic-data-template-scfg-100s.jsonnet --logdir ./logdir/duorat-spider-new-db-content-initialized-from-synthetic-data-template-scfg-100s --force-preprocess --force-train
 
 # train w/ mix of original and synthetic data
 # w/ batch balancing (to be checked)
-CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-original-plus-synthetic-data-batch-balancing.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-original-plus-synthetic-data-batch-balancing --force-preprocess --force-train
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-original-plus-synthetic-data-batch-balancing.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-original-plus-synthetic-data-batch-balancing --force-preprocess --force-train &>./logdir/train-duorat-spider-new-db-content-with-original-plus-synthetic-data-batch-balancing.log &
 
 # w/o batch balancing
-CUDA_VISIBLE_DEVICES=3 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-original-plus-synthetic-data.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-original-plus-synthetic-data --force-preprocess --force-train
+CUDA_VISIBLE_DEVICES=3 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-original-plus-synthetic-data.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-original-plus-synthetic-data --force-preprocess --force-train &>././logdir/train-duorat-spider-new-db-content-with-original-plus-synthetic-data.log &
 
 # *** Experiments for adding dev data into training data
 

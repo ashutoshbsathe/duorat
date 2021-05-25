@@ -56,6 +56,9 @@ class Preprocessor:
 
                 for i, item in enumerate(
                         tqdm.tqdm(data, desc=real_section, dynamic_ncols=True)):  # SpiderItem/SparcItem
+
+                    item.type = dataset.get('type', 'original')
+
                     to_add, validation_info = self.model_preproc.validate_item(
                         item, real_section
                     )
