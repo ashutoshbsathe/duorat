@@ -201,14 +201,19 @@ class Trainer:
         saver = saver_mod.Saver(
             self.model, optimizer
         )
-        last_step, best_val_all_exact = saver.restore(modeldir)
+        last_step, best_val_all_exact = saver.restore(model_dir=modeldir)
         if last_step is 0 and self.config["train"].get("initialize_from", False):
-            saver.restore(self.config["train"]["initialize_from"])
-            self.logger.log(
-                "Model initialized from {}".format(
-                    self.config["train"]["initialize_from"]
+            saver.restore(model_dir=self.config["train"]["initialize_from"].get('path', ''),
+                          filters=self.config["train"]["initialize_from"].get('model_weight_filters', [])
+                          )
+            if os.path.exists(self.config["train"]["initialize_from"].get('path', '')):
+                self.logger.log(
+                    "Model initialized from {}".format(
+                        self.config["train"]["initialize_from"]["path"]
+                    )
                 )
-            )
+            else:
+                self.logger.log("Model path from train.initialize_from.path is invalid.")
         else:
             self.logger.log(f"Model restored, the last step is {last_step}, best val_all_exact is {best_val_all_exact}")
 

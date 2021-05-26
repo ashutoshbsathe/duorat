@@ -47,7 +47,7 @@ class ArgsDict(dict):
 
 
 def load_checkpoint(
-    model, optimizer, model_dir, load_best, map_location=None, step=None
+    model, optimizer, model_dir, load_best, map_location=None, step=None, filters=None
 ):
     if step is not None:
         path = os.path.join(model_dir, "model_checkpoint-{:08d}".format(step))
@@ -84,8 +84,15 @@ def load_checkpoint(
                 logger.warning(f"missing key {key}: using random initialization")
                 checkpoint["model"][key] = old_state_dict[key]
         for key in list(checkpoint["model"].keys()):
-            if key not in old_state_dict:
-                logger.warning(f"unexpected key {key}")
+            # @Vu Hoang: only load required weights within the prespecified filters
+            is_kept = False
+            for filter in filters:
+                if filter in key:
+                    is_kept = True
+                    break
+
+            if key not in old_state_dict or not is_kept:
+                logger.warning(f"unexpected/unwanted key {key}")
                 del checkpoint["model"][key]
         model.load_state_dict(checkpoint["model"])
         if optimizer is not None:
@@ -147,7 +154,7 @@ class Saver(object):
         self._model = model
         self._optimizer = optimizer
 
-    def restore(self, model_dir, map_location=None, step=None, load_best=False):
+    def restore(self, model_dir, filters=None, map_location=None, step=None, load_best=False):
         """Restores model and optimizer from given directory.
         If load_best, loads the best model. Otherwise, loads the last model.
 
@@ -156,7 +163,10 @@ class Saver(object):
            best_validation_metric: Best metric on the validation set so far
         """
         last_step, best_validation_metric = load_checkpoint(
-            self._model, self._optimizer, model_dir, load_best, map_location, step
+            self._model, self._optimizer, model_dir, load_best,
+            map_location=map_location,
+            step=step,
+            filters=filters
         )
         return last_step, best_validation_metric
 

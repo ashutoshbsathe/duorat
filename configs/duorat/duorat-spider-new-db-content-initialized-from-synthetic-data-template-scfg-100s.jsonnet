@@ -16,7 +16,10 @@
     },
 
     train+: {
-        initialize_from: './logdir/duorat-spider-new-db-content-synthetic-data-template-scfg-100s',
+        initialize_from: {
+            pretrained_model_path: './logdir/duorat-spider-new-db-content-synthetic-data-template-scfg-100s',
+            model_weight_filters: ['initial_encoder']
+        },
         pin_memory: true,
         num_workers: 4,
     }
