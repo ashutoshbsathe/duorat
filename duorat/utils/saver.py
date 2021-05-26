@@ -95,9 +95,9 @@ def load_checkpoint(
                 is_kept = True
 
             if key not in old_state_dict or not is_kept:
-                logger.warning(f"unexpected/unwanted key {key}")
+                logger.warning(f"unexpected/unwanted key: {key}")
                 del checkpoint["model"][key]
-        model.load_state_dict(checkpoint["model"])
+        model.load_state_dict(checkpoint["model"], strict=False if filters is not None else True)
         if optimizer is not None:
             optimizer.load_state_dict(checkpoint["optimizer"])
         return checkpoint.get("step", 0), checkpoint.get("best_validation_metric", 0)
