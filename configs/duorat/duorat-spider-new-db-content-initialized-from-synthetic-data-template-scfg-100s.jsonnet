@@ -16,7 +16,7 @@
     },
 
     train+: {
-        initialize_from: './logdir/duorat-spider-new-db-content-synthetic-data-template-scfg-100s'
+        initialize_from: './logdir/duorat-spider-new-db-content-synthetic-data-template-scfg-100s',
         pin_memory: true,
         num_workers: 4,
     }
