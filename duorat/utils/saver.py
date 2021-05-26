@@ -85,11 +85,14 @@ def load_checkpoint(
                 checkpoint["model"][key] = old_state_dict[key]
         for key in list(checkpoint["model"].keys()):
             # @Vu Hoang: only load required weights within the prespecified filters
-            is_kept = False
-            for filter in filters:
-                if filter in key:
-                    is_kept = True
-                    break
+            if filter is not None:
+                is_kept = False
+                for filter in filters:
+                    if filter in key:
+                        is_kept = True
+                        break
+            else:
+                is_kept = True
 
             if key not in old_state_dict or not is_kept:
                 logger.warning(f"unexpected/unwanted key {key}")
