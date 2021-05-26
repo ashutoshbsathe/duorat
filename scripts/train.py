@@ -203,9 +203,9 @@ class Trainer:
         )
         last_step, best_val_all_exact = saver.restore(model_dir=modeldir)
         if last_step is 0 and self.config["train"].get("initialize_from", False):
-            saver.restore(model_dir=self.config["train"]["initialize_from"].get('pretrained_model_path', ''),
-                          filters=self.config["train"]["initialize_from"].get('model_weight_filters', []),
-                          load_best=True)
+            saver.restore_part(other_model_dir=self.config["train"]["initialize_from"].get('pretrained_model_path', ''),
+                               filters=self.config["train"]["initialize_from"].get('model_weight_filters', []))
+
             if os.path.exists(self.config["train"]["initialize_from"].get('pretrained_model_path', '')):
                 self.logger.log(
                     "Model initialized from {}".format(

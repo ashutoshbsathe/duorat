@@ -110,11 +110,19 @@ def load_checkpoint(
     return 0, 0
 
 
-def load_and_map_checkpoint(model, model_dir, remap):
-    path = os.path.join(model_dir, "model_checkpoint")
-    print("Loading parameters %s from %s" % (remap.keys(), model_dir))
+def load_and_map_checkpoint(model, model_dir, filters):
+    path = os.path.join(model_dir, "model_best_checkpoint")
     checkpoint = torch.load(path)
     new_state_dict = model.state_dict()
+
+    remap = {}
+    for filter in filters:
+        for weight_name in new_state_dict.keys():
+            if filter in weight_name:
+                if weight_name in checkpoint["model"]:
+                    remap[weight_name] = weight_name
+
+    print("Loading parameters %s from %s" % (remap.keys(), model_dir))
     for name, value in remap.items():
         # TODO: smarter mapping.
         new_state_dict[name] = checkpoint["model"][value]
@@ -197,13 +205,14 @@ class Saver(object):
             best_validation_metric,
         )
 
-    def restore_part(self, other_model_dir, remap):
+    def restore_part(self, other_model_dir, filters):
         """Restores part of the model from other directory.
 
         Useful to initialize part of the model with another pretrained model.
 
         Args:
             other_model_dir: Model directory to load from.
-            remap: dict, remapping current parameters to the other model's.
+            # remap: dict, remapping current parameters to the other model's.
+            filters: list, list of model weight filters
         """
-        load_and_map_checkpoint(self._model, other_model_dir, remap)
+        load_and_map_checkpoint(self._model, other_model_dir, filters)
