@@ -1,4 +1,4 @@
-(import 'duorat-spider-finetune-bert-large.jsonnet') {
+(import 'duorat-finetune-bert-large.jsonnet') {
     model+: {
         encoder+: {
             source_relation_types: {
