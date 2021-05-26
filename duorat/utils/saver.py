@@ -47,7 +47,7 @@ class ArgsDict(dict):
 
 
 def load_checkpoint(
-    model, optimizer, model_dir, load_best, map_location=None, step=None, filters=None
+    model, optimizer, model_dir, load_best, map_location=None, step=None
 ):
     if step is not None:
         path = os.path.join(model_dir, "model_checkpoint-{:08d}".format(step))
@@ -89,24 +89,18 @@ def load_checkpoint(
             if key not in checkpoint["model"]:
                 logger.warning(f"missing key {key}: using random initialization")
                 checkpoint["model"][key] = old_state_dict[key]
-        for key in list(checkpoint["model"].keys()):
-            # @Vu Hoang: only load required weights within the prespecified filters
-            if filters is not None:
-                is_kept = False
-                for filter in filters:
-                    if filter in key:
-                        is_kept = True
-                        break
-            else:
-                is_kept = True
 
-            if key not in old_state_dict or not is_kept:
+        for key in list(checkpoint["model"].keys()):
+            if key not in old_state_dict:
                 logger.warning(f"unexpected/unwanted key: {key}")
                 del checkpoint["model"][key]
-        model.load_state_dict(checkpoint["model"], strict=False if filters is not None else True)
+
+        model.load_state_dict(checkpoint["model"])
         if optimizer is not None:
             optimizer.load_state_dict(checkpoint["optimizer"])
+
         return checkpoint.get("step", 0), checkpoint.get("best_validation_metric", 0)
+
     return 0, 0
 
 
@@ -171,7 +165,7 @@ class Saver(object):
         self._model = model
         self._optimizer = optimizer
 
-    def restore(self, model_dir, filters=None, map_location=None, step=None, load_best=False):
+    def restore(self, model_dir, map_location=None, step=None, load_best=False):
         """Restores model and optimizer from given directory.
         If load_best, loads the best model. Otherwise, loads the last model.
 
@@ -183,7 +177,6 @@ class Saver(object):
             self._model, self._optimizer, model_dir, load_best,
             map_location=map_location,
             step=step,
-            filters=filters
         )
         return last_step, best_validation_metric
 
