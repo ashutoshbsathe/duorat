@@ -66,14 +66,20 @@ def load_checkpoint(
             )
             path = os.path.join(model_dir, "model_checkpoint")
     else:
-        # Load last model
-        path = os.path.join(model_dir, "model_last_checkpoint")
-        # Backwards compatibility: load "model_checkpoint" if "model_last_checkpoint" is not available
-        if not os.path.exists(path):
+        if os.path.isfile(model_dir):
+            path = model_dir
             logger.warning(
-                f"{path} does not exist, loading model_checkpoint instead ..."
+                f"Loading model_checkpoint from specified file at {model_dir} ..."
             )
-            path = os.path.join(model_dir, "model_checkpoint")
+        else:
+            # Load last model
+            path = os.path.join(model_dir, "model_last_checkpoint")
+            # Backwards compatibility: load "model_checkpoint" if "model_last_checkpoint" is not available
+            if not os.path.exists(path):
+                logger.warning(
+                    f"{path} does not exist, loading model_checkpoint instead ..."
+                )
+                path = os.path.join(model_dir, "model_checkpoint")
 
     if os.path.exists(path):
         logger.info("Loading model from %s" % path)
