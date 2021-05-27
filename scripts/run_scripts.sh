@@ -584,3 +584,6 @@ CUDA_VISIBLE_DEVICES=0 python scripts/interactive.py --logdir ./logdir/duorat-ne
 CUDA_VISIBLE_DEVICES=0 python scripts/interactive.py --logdir ./logdir/duorat-new-db-content-bs4-ac7 --config configs/duorat/duorat-new-db-content.jsonnet --db-path ./data/database/pets_1/pets_1.sqlite --schema-path ./data/database/pets_1/tables.json
 
 CUDA_VISIBLE_DEVICES=0 python scripts/interactive.py --logdir ./logdir/duorat-new-db-content-bs4-ac7 --config configs/duorat/duorat-new-db-content.jsonnet --db-path ./data/database/car_1/car_1.sqlite --schema-path ./data/database/car_1/tables.json
+
+# get SLML outputs
+python scripts/get_slml_outputs.py --duorat-config-file ./configs/duorat/duorat-new-db-content.jsonnet --input-file ./data/spider/dev.json  --output-file ./data/spider/dev_with_unsup_slml.json

@@ -1,4 +1,4 @@
-# Latency for Inference
+# All-in-one inferrer for DuoRAT
 # Cong Duy Vu Hoang, 5-5-2021
 
 import argparse
