@@ -67,7 +67,6 @@ if __name__ == '__main__':
 
     # Initialize
     duorat_config_file = args.duorat_config_file
-    output_file = args.template_output_file
 
     # DuoRAT config
     print("Initializing DuoRAT config...")
