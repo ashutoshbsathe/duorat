@@ -76,7 +76,6 @@ if __name__ == '__main__':
     # DuoRAT preprocessor
     print("Initializing DuoRAT preprocessor...")
     duorat_preprocessor: AbstractPreproc = registry.construct("preproc", config["model"]["preproc"])
-    duorat_preprocessor.load()
 
     # Extract NL2SQL templates
     print(f"Processing input file from {args.input_file}...")
