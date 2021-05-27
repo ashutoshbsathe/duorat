@@ -27,16 +27,22 @@ def get_slml_outputs(duorat_preprocessor: AbstractPreproc,
     with open(input_file) as f:
         data = json.load(f)
 
+    schema_cache = {}
     for ind, item in enumerate(tqdm.tqdm(data)):
         db_id = item["db_id"]
         db_path = os.path.join(db_folder_path, db_id, f"{db_id}.sqlite")
         question = item["question"]
 
-        sql_schema: SQLSchema = preprocess_schema_uncached(
-            schema=schema_dict_to_spider_schema(refine_schema_names(dump_db_json_schema(db_path, ""))),
-            db_path=db_path,
-            tokenize=duorat_preprocessor._schema_tokenize,
-        )
+        if db_id in schema_cache:
+            sql_schema = schema_cache[db_id]
+        else:
+            sql_schema: SQLSchema = preprocess_schema_uncached(
+                schema=schema_dict_to_spider_schema(refine_schema_names(dump_db_json_schema(db_path, ""))),
+                db_path=db_path,
+                tokenize=duorat_preprocessor._schema_tokenize,
+            )
+            schema_cache[db_id] = sql_schema
+
         slml_question: str = duorat_preprocessor.schema_linker.question_to_slml(
             question=question, sql_schema=sql_schema,
         )
