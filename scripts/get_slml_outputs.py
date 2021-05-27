@@ -22,14 +22,14 @@ from third_party.spider.preprocess.get_tables import dump_db_json_schema
 def get_slml_outputs(duorat_preprocessor: AbstractPreproc,
                      input_file: str,
                      output_file: str,
-                     db_path: str):
+                     db_folder_path: str):
     # read data
     with open(input_file) as f:
         data = json.load(f)
 
     for ind, item in enumerate(tqdm.tqdm(data)):
         db_id = item["db_id"]
-        db_path = os.path.join(db_path, db_id, f"{db_id}.sqlite")
+        db_path = os.path.join(db_folder_path, db_id, f"{db_id}.sqlite")
         question = item["question"]
 
         sql_schema: SQLSchema = preprocess_schema_uncached(
