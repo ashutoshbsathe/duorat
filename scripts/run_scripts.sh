@@ -567,14 +567,17 @@ CUDA_VISIBLE_DEVICES=3 python scripts/train.py --config configs/duorat/duorat-sp
 
 # *** Get prediction errors
 
-# db-id=concert_singer
+# db_id=concert_singer
 python scripts/get_output_errors.py ./logdir/duorat-new-db-content-bs4-ac7/val-duorat-new-db-content-bs4-ac7.eval ./logdir/duorat-new-db-content-bs4-ac7/val-duorat-new-db-content-bs4-ac7.errors.concert_singer concert_singer
 
-# db-id=pets_1
+# db_id=pets_1
 python scripts/get_output_errors.py ./logdir/duorat-new-db-content-bs4-ac7/val-duorat-new-db-content-bs4-ac7.eval ./logdir/duorat-new-db-content-bs4-ac7/val-duorat-new-db-content-bs4-ac7.errors.pets_1 pets_1
 
-# db-id=car_1
+# db_id=car_1
 python scripts/get_output_errors.py ./logdir/duorat-new-db-content-bs4-ac7/val-duorat-new-db-content-bs4-ac7.eval ./logdir/duorat-new-db-content-bs4-ac7/val-duorat-new-db-content-bs4-ac7.errors.car_1 car_1
+
+# db_id=department_management (perfect)
+python scripts/get_output_errors.py ./logdir/duorat-new-db-content-bs4-ac7/val-duorat-new-db-content-bs4-ac7.eval ./logdir/duorat-new-db-content-bs4-ac7/val-duorat-new-db-content-bs4-ac7.errors.department_management department_management
 
 # *** CustomNER for NL2SQL
 

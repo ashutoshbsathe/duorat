@@ -124,11 +124,18 @@ if __name__ == "__main__":
                     print(f"Gold SQL: {interaction[2]}")
 
                     infer_time = time.perf_counter()
-                    results = duorat_on_db.infer_query(question,
-                                                       slml_question=interaction[1],
-                                                       history=history,
-                                                       beam_size=args.beam_size,
-                                                       decode_max_time_step=args.decode_max_time_step)
+                    try:
+                        results = duorat_on_db.infer_query(question,
+                                                           slml_question=interaction[1],
+                                                           history=history,
+                                                           beam_size=args.beam_size,
+                                                           decode_max_time_step=args.decode_max_time_step)
+                    except ValueError as error:
+                        print(error)
+                        continue
+                    except:
+                        continue
+
                     if args.data_type is not 'Spider' and not args.use_groundtruths and \
                             'target' in duorat_api.config['model']['preproc']['interaction_type']:
                         interactions[index] = (interaction[0], re.sub("[\w]+\.",
