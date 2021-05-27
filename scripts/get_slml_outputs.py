@@ -82,4 +82,4 @@ if __name__ == '__main__':
     get_slml_outputs(duorat_preprocessor=duorat_preprocessor,
                      input_file=args.input_file,
                      output_file=args.output_file,
-                     db_path=args.db_folder_path)
+                     db_folder_path=args.db_folder_path)
