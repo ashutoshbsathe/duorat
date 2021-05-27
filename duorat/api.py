@@ -79,22 +79,23 @@ class DuoratAPI(object):
                     question: str,
                     spider_schema: SpiderSchema,
                     preprocessed_schema: SQLSchema,
-                    history: Optional[Union[List[str], List[Tuple[str, str]]]] = None,
+                    slml_question: Optional[str] = None,
+                    history: Optional[Union[List[str], List[Tuple[str, str, str]]]] = None,
                     beam_size: Optional[int] = 1,
                     decode_max_time_step: Optional[int] = 500
                     ):
         # TODO: we should only need the preprocessed schema here
         if history is not None:
             interaction = [SpiderItem(question=prev_question[0] if isinstance(prev_question, tuple) else prev_question,
-                                      slml_question=None,
-                                      query=prev_question[1] if isinstance(prev_question, tuple) else "",
+                                      slml_question=prev_question[1] if isinstance(prev_question, tuple) else None,
+                                      query=prev_question[2] if isinstance(prev_question, tuple) else "",
                                       spider_sql={},
                                       spider_schema=spider_schema,
                                       db_path="",
                                       orig={}) for prev_question in history]
             input_item = SparcItem(
                 question=question,
-                slml_question=None,
+                slml_question=slml_question,
                 query="",
                 spider_sql={},
                 spider_schema=spider_schema,
@@ -105,7 +106,7 @@ class DuoratAPI(object):
         else:
             input_item = SpiderItem(
                 question=question,
-                slml_question=None,
+                slml_question=slml_question,
                 query="",
                 spider_sql={},
                 spider_schema=spider_schema,
@@ -179,10 +180,11 @@ class DuoratOnDatabase(object):
             tokenize=self.duorat.preproc._schema_tokenize,
         )
 
-    def infer_query(self, question, history=None, beam_size=1, decode_max_time_step=500):
+    def infer_query(self, question, slml_question=None, history=None, beam_size=1, decode_max_time_step=500):
         return self.duorat.infer_query(question,
-                                       self.schema,
-                                       self.preprocessed_schema,
+                                       spider_schema=self.schema,
+                                       preprocessed_schema=self.preprocessed_schema,
+                                       slml_question=slml_question,
                                        history=history,
                                        beam_size=beam_size,
                                        decode_max_time_step=decode_max_time_step)

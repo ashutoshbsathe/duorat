@@ -94,27 +94,38 @@ if __name__ == "__main__":
                         if args.data_type == 'CoSQL' and re.search(args.ignored_patterns, interaction["utterance"]):
                             continue
 
-                        interactions.append((interaction['utterance'], interaction['query']))
+                        interactions.append((interaction['utterance'],
+                                             interaction.get('slml_question', None),
+                                             interaction['query']))
                 else:
-                    interactions.append((data_example['question'], data_example['query']))
+                    interactions.append((data_example['question'],
+                                         data_example.get('slml_question', None),
+                                         data_example['query']))
 
                 for index, interaction in enumerate(interactions):
                     history = None
                     if index > 0:
                         if duorat_api.config['model']['preproc']['interaction_type'] == 'source':
-                            history = [(interactions[index - 1][0], '')]
+                            history = [(interactions[index - 1][0],
+                                        interactions[index - 1][1],
+                                        '')]
                         elif duorat_api.config['model']['preproc']['interaction_type'] == 'target':
-                            history = [('', interactions[index - 1][1])]
+                            history = [('',
+                                        '',
+                                        interactions[index - 1][2])]
                         elif duorat_api.config['model']['preproc']['interaction_type'] == 'source&target':
-                            history = [(interactions[index - 1][0], interactions[index - 1][1])]
+                            history = [(interactions[index - 1][0],
+                                        interactions[index - 1][1],
+                                        interactions[index - 1][2])]
 
                     question = interaction[0]
                     print("-" * 20)
                     print(f"{question}")
-                    print(f"Gold SQL: {interaction[1]}")
+                    print(f"Gold SQL: {interaction[2]}")
 
                     infer_time = time.perf_counter()
                     results = duorat_on_db.infer_query(question,
+                                                       slml_question=interaction[1],
                                                        history=history,
                                                        beam_size=args.beam_size,
                                                        decode_max_time_step=args.decode_max_time_step)
