@@ -172,7 +172,7 @@ if __name__ == "__main__":
 
                     fout_output_eval_file.write(json.dumps(decoded_result) + "\n")
                     fout_output_eval_file.flush()
-                    fout_output_eval_file_in_txt.write(f'{results["query"]}\n')
+                    fout_output_eval_file_in_txt.write(f'{results["query"]}\t{db_id}\n')
                     fout_output_eval_file_in_txt.flush()
 
                     if args.do_execute:
