@@ -66,10 +66,10 @@ class SLMLParser(HTMLParser):
 
     @staticmethod
     def _is_bad_tokens_for_matching(token: str) -> bool:
-        number_pat = '^[-+]?[0-9]+$'
+        number_pat = '^[0-9][0-9]?$'
         if re.search(number_pat, token):
             return True
-        if token in ['a', 'an', 'the', 'as', 'in', 'is', 'of']:
+        if token in ['a', 'an', 'the', 'as', 'in', 'is', 'of', 'or', 'at']:
             return True
         return False
 
