@@ -603,3 +603,11 @@ python -m third_party.spider.evaluation --gold ./data/spider/dev_gold.sql --pred
 CUDA_VISIBLE_DEVICES=0 python scripts/infer_one.py --config configs/duorat/duorat-new-db-content.jsonnet --logdir ./logdir/duorat-new-db-content-bs4-ac7 --db-folder-path ./data/database/ --eval-file ./data/spider/dev_with_human_slml.json --output-eval-file ./logdir/duorat-new-db-content-bs4-ac7/val-duorat-new-db-content-with-human-slml.output
 python scripts/get_preds_from_json_file.py --preds-json-file ./logdir/duorat-new-db-content-bs4-ac7/val-duorat-new-db-content-with-human-slml.output --gold-txt-file ./data/spider/dev_gold.sql --output-preds-txt-file ./logdir/duorat-new-db-content-bs4-ac7/val-duorat-new-db-content-with-human-slml.output.txt
 python -m third_party.spider.evaluation --gold ./data/spider/dev_gold.sql --pred ./logdir/duorat-new-db-content-bs4-ac7/val-duorat-new-db-content-with-human-slml.output.txt --etype match --db ./data/database --table ./data/spider/tables.json
+
+# * Filtering bad tokens for matching (simple heuristic)
+
+# infer only
+CUDA_VISIBLE_DEVICES=0 python scripts/infer_one.py --config configs/duorat/duorat-new-db-content.jsonnet --logdir ./logdir/duorat-new-db-content-bs4-ac7 --db-folder-path ./data/database/ --eval-file ./data/spider/dev.json --output-eval-file ./logdir/duorat-new-db-content-bs4-ac7/val-duorat-new-db-content-with-schema-linker-bad-match-filtering.output
+
+# re-train
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-schema-linker-bad-match-filtering.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-schema-linker-bad-match-filtering --force-preprocess --force-train &> logdir/train-duorat-spider-new-db-content-with-schema-linker-bad-match-filtering.log &

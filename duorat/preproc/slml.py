@@ -69,7 +69,7 @@ class SLMLParser(HTMLParser):
         number_pat = '^[-+]?[0-9]+$'
         if re.search(number_pat, token):
             return True
-        if token in ['a', 'an', 'the', 'as', 'in']:
+        if token in ['a', 'an', 'the', 'as', 'in', 'is', 'of']:
             return True
         return False
 
