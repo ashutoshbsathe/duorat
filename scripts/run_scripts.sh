@@ -608,7 +608,7 @@ python -m third_party.spider.evaluation --gold ./data/spider/dev_gold.sql --pred
 
 # infer only
 CUDA_VISIBLE_DEVICES=0 python scripts/infer_one.py --config configs/duorat/duorat-spider-new-db-content-with-schema-linker-bad-match-filtering.jsonnet --logdir ./logdir/duorat-new-db-content-bs4-ac7 --db-folder-path ./data/database/ --eval-file ./data/spider/dev.json --output-eval-file ./logdir/duorat-new-db-content-bs4-ac7/val-duorat-new-db-content-with-schema-linker-bad-match-filtering.output
-python scripts/get_preds_from_json_file.py --preds-json-file ./logdir/val-duorat-new-db-content-with-schema-linker-bad-match-filtering.output --gold-txt-file ./data/spider/dev_gold.sql --output-preds-txt-file ./logdir/duorat-new-db-content-bs4-ac7/val-duorat-new-db-content-with-schema-linker-bad-match-filtering.output.txt
+python scripts/get_preds_from_json_file.py --preds-json-file ./logdir/duorat-new-db-content-bs4-ac7/val-duorat-new-db-content-with-schema-linker-bad-match-filtering.output --gold-txt-file ./data/spider/dev_gold.sql --output-preds-txt-file ./logdir/duorat-new-db-content-bs4-ac7/val-duorat-new-db-content-with-schema-linker-bad-match-filtering.output.txt
 python -m third_party.spider.evaluation --gold ./data/spider/dev_gold.sql --pred ./logdir/duorat-new-db-content-bs4-ac7/val-duorat-new-db-content-with-schema-linker-bad-match-filtering.output.txt --etype match --db ./data/database --table ./data/spider/tables.json
 
 # re-train

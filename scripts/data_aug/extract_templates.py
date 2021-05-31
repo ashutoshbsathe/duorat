@@ -225,7 +225,9 @@ def extract_nl2sql_templates(sql_kw_file: str,
                              output_in_csv: bool,
                              duorat_preprocessor: AbstractPreproc,
                              with_op_denotation: bool = True,
-                             with_sc_denotation: bool = True):
+                             with_sc_denotation: bool = True,
+                             top_k_t: int = 0,
+                             top_k_e: int = 0):
     def _maybe_correct_val_mask_dict(g_sql: str, p_sql: str, m_dict: bidict):
         def _get_potential_op_values(sql: str) -> List[str]:
             op_values = []
@@ -290,6 +292,7 @@ def extract_nl2sql_templates(sql_kw_file: str,
 
     template_collection = {}
     templates_by_hardness = {"easy": {}, "medium": {}, "hard": {}, "extra": {}}
+    templates_by_sql = {}
     for ind, item in enumerate(tqdm.tqdm(data["per_item"])):
         gold_sql = postprocess_sql(sql=item["gold"])
         predicted_sql = postprocess_sql(sql=item["predicted"])
@@ -427,6 +430,10 @@ def extract_nl2sql_templates(sql_kw_file: str,
                 templates_by_hardness[hardness][(nl_template, sql_template)].append((question, gold_sql, db_name))
             else:
                 templates_by_hardness[hardness][(nl_template, sql_template)] = [(question, gold_sql, db_name)]
+            if sql_template in templates_by_sql:
+                templates_by_sql[sql_template].append(nl_template)
+            else:
+                templates_by_sql[sql_template] = []
 
     # *** Write to files (.txt or .csv)
     print(f"Done! There are {len(template_collection)} NL<->SQL templates.")
@@ -446,6 +453,15 @@ def extract_nl2sql_templates(sql_kw_file: str,
                     for example in examples:
                         fout.write(f"{template[0]}\t{template[1]}\t{example[0]}\t{example[1]}\t{example[2]}\n")
                     fout.write("-----------------------------\n")
+
+        for index, sql_template, nl_template_list in enumerate(sorted(templates_by_sql.items(), key=lambda item: len(item[1]), reverse=True)):
+            with open(f"{output_file}.by_sql.txt", "w") as fout:
+                nl_strs = '\t'.join([nl_template for nl_template in nl_template_list][
+                                    :top_k_e if top_k_e != 0 else len(nl_template_list)])
+                fout.write(f"{sql_template}\t{nl_strs}\n")
+
+            if 0 < top_k_t <= index + 1:
+                break
     else:
         fieldnames = ['nl_template', 'sql_template', 'examples']
         with open(f"{output_file}.csv", 'w', newline='') as fcsvfile:
@@ -469,6 +485,14 @@ def extract_nl2sql_templates(sql_kw_file: str,
                                               }
                                              )
 
+        with open(f"{output_file}.by_sql.csv", "w", newline='') as fcsvfile:
+            by_sql_writer = csv.DictWriter(fcsvfile, fieldnames=['nl_template', 'examples'])
+            for sql_template, nl_template_list in sorted(templates_by_sql.items(), key=lambda item: len(item[1]),
+                                                         reverse=True):
+                by_sql_writer.writerow({'nl_template': sql_template,
+                                        'examples': str(nl_template_list)
+                                        })
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
@@ -483,6 +507,10 @@ if __name__ == '__main__':
                         help="The logging dir", required=True)
     parser.add_argument("--template-output-file",
                         help="The NL2SQL template output file", required=True)
+    parser.add_argument("--top-k-t",
+                        help="Top-k templates", required=False, type=int, default=0)
+    parser.add_argument("--top-k-e",
+                        help="Top-k examples by template", required=False, type=int, default=0)
     parser.add_argument(
         "--output-in-csv",
         default=False,
@@ -535,4 +563,6 @@ if __name__ == '__main__':
                              output_in_csv=args.output_in_csv,
                              duorat_preprocessor=duorat_preprocessor,
                              with_op_denotation=args.with_op_denotation,
-                             with_sc_denotation=args.with_sc_denotation)
+                             with_sc_denotation=args.with_sc_denotation,
+                             top_k_t=args.top_k_t,
+                             top_k_e=args.top_k_e)
