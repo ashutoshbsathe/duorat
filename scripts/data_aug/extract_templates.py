@@ -227,7 +227,8 @@ def extract_nl2sql_templates(sql_kw_file: str,
                              with_op_denotation: bool = True,
                              with_sc_denotation: bool = True,
                              top_k_t: int = 0,
-                             top_k_e: int = 0):
+                             top_k_e: int = 0,
+                             debug_n: int = 0):
     def _maybe_correct_val_mask_dict(g_sql: str, p_sql: str, m_dict: bidict):
         def _get_potential_op_values(sql: str) -> List[str]:
             op_values = []
@@ -294,6 +295,9 @@ def extract_nl2sql_templates(sql_kw_file: str,
     templates_by_hardness = {"easy": {}, "medium": {}, "hard": {}, "extra": {}}
     templates_by_sql = {}
     for ind, item in enumerate(tqdm.tqdm(data["per_item"])):
+        if 0 < debug_n <= ind + 1:
+            break
+        
         gold_sql = postprocess_sql(sql=item["gold"])
         predicted_sql = postprocess_sql(sql=item["predicted"])
         predicted_parse_error = bool(item["predicted_parse_error"])
@@ -511,6 +515,8 @@ if __name__ == '__main__':
                         help="Top-k templates", required=False, type=int, default=0)
     parser.add_argument("--top-k-e",
                         help="Top-k examples by template", required=False, type=int, default=0)
+    parser.add_argument("--debug-n",
+                        help="Process n examples (for debugging only)", required=False, type=int, default=0)
     parser.add_argument(
         "--output-in-csv",
         default=False,
@@ -565,4 +571,5 @@ if __name__ == '__main__':
                              with_op_denotation=args.with_op_denotation,
                              with_sc_denotation=args.with_sc_denotation,
                              top_k_t=args.top_k_t,
-                             top_k_e=args.top_k_e)
+                             top_k_e=args.top_k_e,
+                             debug_n=args.debug_n)
