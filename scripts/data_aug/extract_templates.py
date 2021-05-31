@@ -297,7 +297,7 @@ def extract_nl2sql_templates(sql_kw_file: str,
     for ind, item in enumerate(tqdm.tqdm(data["per_item"])):
         if 0 < debug_n <= ind + 1:
             break
-        
+
         gold_sql = postprocess_sql(sql=item["gold"])
         predicted_sql = postprocess_sql(sql=item["predicted"])
         predicted_parse_error = bool(item["predicted_parse_error"])
@@ -491,6 +491,7 @@ def extract_nl2sql_templates(sql_kw_file: str,
 
         with open(f"{output_file}.by_sql.csv", "w", newline='') as fcsvfile:
             by_sql_writer = csv.DictWriter(fcsvfile, fieldnames=['nl_template', 'examples'])
+            hardness_writer.writeheader()
             for sql_template, nl_template_list in sorted(templates_by_sql.items(), key=lambda item: len(item[1]),
                                                          reverse=True):
                 by_sql_writer.writerow({'nl_template': sql_template,
