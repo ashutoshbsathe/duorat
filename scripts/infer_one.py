@@ -64,7 +64,6 @@ if __name__ == "__main__":
     load_time = time.perf_counter() - load_time
 
     fout_output_eval_file = open(args.output_eval_file, "w")
-    fout_output_eval_file_in_txt = open(f"{args.output_eval_file.replace('.json', '')}.txt", "w")
 
     with open(args.eval_file) as f:
         eval_data = json.load(f)
@@ -173,8 +172,6 @@ if __name__ == "__main__":
 
                     fout_output_eval_file.write(json.dumps(decoded_result) + "\n")
                     fout_output_eval_file.flush()
-                    fout_output_eval_file_in_txt.write(f'{results["query"]}\t{data_example[db_id]}\n')
-                    fout_output_eval_file_in_txt.flush()
 
                     if args.do_execute:
                         try:
@@ -200,5 +197,3 @@ if __name__ == "__main__":
 
     fout_output_eval_file.flush()
     fout_output_eval_file.close()
-    fout_output_eval_file_in_txt.flush()
-    fout_output_eval_file_in_txt.close()

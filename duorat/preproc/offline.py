@@ -452,7 +452,9 @@ class BertDuoRATPreproc(DuoRATPreproc):
         ) if item.slml_question is None else item.slml_question
         item.slml_question = slml_question
 
-        parser = SLMLParser(sql_schema=sql_schema, tokenizer=self.tokenizer)
+        parser = SLMLParser(sql_schema=sql_schema,
+                            tokenizer=self.tokenizer,
+                            do_filter_bad_matches=self.schema_linker.do_filter_bad_matches)
         parser.feed(data=slml_question)
 
         question: Tuple[PreprocQuestionToken, ...] = (

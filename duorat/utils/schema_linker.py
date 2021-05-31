@@ -58,11 +58,13 @@ class SpiderSchemaLinker(AbstractSchemaLinker):
         blocking_match: bool = True,
         whole_entry_db_content_confidence: str = "high",
         partial_entry_db_content_confidence: str = "low",
+        do_filter_bad_matches: bool = False,
     ):
         super(SpiderSchemaLinker, self).__init__()
         self.max_n_gram = max_n_gram
         self.with_stemming = with_stemming
         self.blocking_match = blocking_match
+        self.do_filter_bad_matches = do_filter_bad_matches
         self.whole_entry_db_content_confidence = MATCH_CONFIDENCE[
             whole_entry_db_content_confidence
         ]
@@ -83,7 +85,9 @@ class SpiderSchemaLinker(AbstractSchemaLinker):
             partial_entry_db_content_confidence=self.partial_entry_db_content_confidence,
         )
         slml_builder = SLMLBuilder(
-            sql_schema=sql_schema, detokenize=self.tokenizer.detokenize
+            sql_schema=sql_schema,
+            detokenize=self.tokenizer.detokenize,
+
         )
         slml_builder.add_question_tokens(question_tokens=tagged_question_tokens)
         slml_question = slml_builder.build()
