@@ -7,6 +7,7 @@ import json
 from typing import Dict, Set, List
 import csv
 from bidict import bidict
+import re
 
 import argparse
 
@@ -52,10 +53,16 @@ def postprocess_sql(sql: str) -> str:
     sql = sql.replace("  ", " ")
 
     # 7 . 5 -> 7.5
-    sql = sql.replace(" . ", ".")
+    # sql = sql.replace(" . ", ".")
+    sql = re.sub(r'([0-9]+) \. ([0-9]+)', r'\1.\2', sql)
 
     #  stanley.monahan @ example.org -->  stanley.monahan@example.org
     sql = sql.replace(" @ ", "@")
+
+    # standardize ()
+    sql = sql.replace('(', ' ( ').replace(')', ' ) ')
+
+    sql = ' '.join(sql.split())
 
     return sql.strip()
 
@@ -272,6 +279,8 @@ def extract_nl2sql_templates(sql_kw_file: str,
             return
 
         for p_op_val, g_op_val in zip(p_op_values, g_op_values):
+            p_op_val = p_op_val.replace('%', '').replace(' _ ', '_').strip()
+            g_op_val = g_op_val.replace('%', '').replace(' _ ', '_').strip()
             if p_op_val in m_dict and g_op_val not in m_dict:
                 p_op_val_mask = m_dict[p_op_val]
                 del m_dict[p_op_val]
@@ -298,6 +307,10 @@ def extract_nl2sql_templates(sql_kw_file: str,
         if 0 < debug_n <= ind + 1:
             break
 
+        question = postprocess_question(question=item["question"])
+        # if 'display the employee number, name( first name and last name ) and jo' not in question:
+        #     continue  # for debugging only
+
         gold_sql = postprocess_sql(sql=item["gold"])
         predicted_sql = postprocess_sql(sql=item["predicted"])
         predicted_parse_error = bool(item["predicted_parse_error"])
@@ -305,7 +318,6 @@ def extract_nl2sql_templates(sql_kw_file: str,
         db_path = item["db_path"]
         db_name = item["db_name"]
         hardness = item["hardness"]
-        question = postprocess_question(question=item["question"])
 
         # *** Extract SQL template
         tab_mask_dict = {}
@@ -326,9 +338,19 @@ def extract_nl2sql_templates(sql_kw_file: str,
                     open_bracket_pos = sql_token.find('(') + 1
 
                     table_name = sql_token[open_bracket_pos: dot_pos]
-                    sql_token = sql_token.replace(table_name,
-                                                  get_table_mask_sid(mask_dict=tab_mask_dict,
-                                                                     tab_name=table_name))
+
+                    def _replace_table_name(tok: str, rep_tok: str, rep_val: str) -> str:
+                        toks = tok.split('.')
+                        toks[0] = toks[0].replace(rep_tok, rep_val)
+                        return '.'.join(toks)
+
+                    # sql_token = sql_token.replace(table_name,
+                    #                               get_table_mask_sid(mask_dict=tab_mask_dict,
+                    #                                                  tab_name=table_name))
+                    sql_token = _replace_table_name(tok=sql_token,
+                                                    rep_tok=table_name,
+                                                    rep_val=get_table_mask_sid(mask_dict=tab_mask_dict,
+                                                                               tab_name=table_name))
 
                     dot_pos = sql_token.find('.')
                     if open_bracket_pos == 0:
@@ -358,7 +380,7 @@ def extract_nl2sql_templates(sql_kw_file: str,
                 elif not is_sql_keyword(text=sql_token,
                                         sql_keyword_set=sql_keyword_set) \
                         and sql_token.upper() not in SQL_OP_LIST and sql_token not in ['\'', '"']:
-                    if 'OP#' in prev_sql_token or prev_sql_token in ['\'', '"']:
+                    if 'OP#' in prev_sql_token or (prev_sql_token in ['\'', '"'] and sql_token != ')'):
                         if sql_token in val_mask_dict:
                             value_str = val_mask_dict[sql_token]
                         else:
@@ -394,7 +416,12 @@ def extract_nl2sql_templates(sql_kw_file: str,
                 prev_sql_token = sql_token
                 template_sql_token_list.append(sql_token)
 
-            sql_template = postprocess_sql(sql=' '.join(template_sql_token_list))
+            def _maybe_postprocess_parentheses_sql(sql: str) -> str:
+                sql = sql.replace('( ', '(').replace(' )', ')')
+
+                return sql
+
+            sql_template = _maybe_postprocess_parentheses_sql(sql=postprocess_sql(sql=' '.join(template_sql_token_list)))
             # print(f"Predicted SQL: {predicted_sql}")
             # print(f"SQL Template: {sql_template}")
 
@@ -415,7 +442,21 @@ def extract_nl2sql_templates(sql_kw_file: str,
                     nl_text = nl_text.replace('. ', '.').replace(' @ ', '@')
 
                 for k, v in mask_dict.items():
-                    nl_text = nl_text.replace(k, v)
+
+                    def _maybe_handle_abbreviations(kval: str) -> str:
+                        if kval in ['m', 'M']:
+                            return 'male'
+                        if kval in ['f', 'F']:
+                            return 'female'
+                        return kval
+
+                    new_k = _maybe_handle_abbreviations(kval=k)
+                    if new_k != '':
+                        pos = nl_text.find(new_k)
+                        if pos != -1:
+                            if pos > 0 and pos + len(new_k) < len(nl_text) \
+                                    and nl_text[pos - 1] in [' ', '"', "'"] and nl_text[pos + len(new_k)] in [' ', '"', "'"]:
+                                nl_text = nl_text.replace(new_k, v)
                 return nl_text
 
             nl_template = _maybe_postprocess_last(nl_text=nl_template, mask_dict=val_mask_dict)
@@ -437,7 +478,7 @@ def extract_nl2sql_templates(sql_kw_file: str,
             if sql_template in templates_by_sql:
                 templates_by_sql[sql_template].append(nl_template)
             else:
-                templates_by_sql[sql_template] = []
+                templates_by_sql[sql_template] = [nl_template]
 
     # *** Write to files (.txt or .csv)
     print(f"Done! There are {len(template_collection)} NL<->SQL templates.")
@@ -492,11 +533,16 @@ def extract_nl2sql_templates(sql_kw_file: str,
         with open(f"{output_file}.by_sql.csv", "w", newline='') as fcsvfile:
             by_sql_writer = csv.DictWriter(fcsvfile, fieldnames=['nl_template', 'examples'])
             by_sql_writer.writeheader()
-            for sql_template, nl_template_list in sorted(templates_by_sql.items(), key=lambda item: len(item[1]),
-                                                         reverse=True):
+            for index, sql_template, nl_template_list in enumerate(
+                    sorted(templates_by_sql.items(), key=lambda item: len(item[1]),
+                           reverse=True)):
                 by_sql_writer.writerow({'nl_template': sql_template,
-                                        'examples': str(nl_template_list)
+                                        'examples': str(nl_template_list[
+                                                        :top_k_e if top_k_e != 0 else len(nl_template_list)])
                                         })
+
+                if 0 < top_k_t <= index + 1:
+                    break
 
 
 if __name__ == '__main__':
