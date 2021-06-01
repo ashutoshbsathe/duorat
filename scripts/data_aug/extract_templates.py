@@ -421,7 +421,8 @@ def extract_nl2sql_templates(sql_kw_file: str,
 
                 return sql
 
-            sql_template = _maybe_postprocess_parentheses_sql(sql=postprocess_sql(sql=' '.join(template_sql_token_list)))
+            sql_template = _maybe_postprocess_parentheses_sql(
+                sql=postprocess_sql(sql=' '.join(template_sql_token_list)))
             # print(f"Predicted SQL: {predicted_sql}")
             # print(f"SQL Template: {sql_template}")
 
@@ -455,7 +456,8 @@ def extract_nl2sql_templates(sql_kw_file: str,
                         pos = nl_text.find(new_k)
                         if pos != -1:
                             if pos > 0 and pos + len(new_k) < len(nl_text) \
-                                    and nl_text[pos - 1] in [' ', '"', "'"] and nl_text[pos + len(new_k)] in [' ', '"', "'"]:
+                                    and nl_text[pos - 1] in [' ', '"', "'"] and nl_text[pos + len(new_k)] in [' ', '"',
+                                                                                                              "'"]:
                                 nl_text = nl_text.replace(new_k, v)
                 return nl_text
 
@@ -494,12 +496,16 @@ def extract_nl2sql_templates(sql_kw_file: str,
         for hardness, hardness_template_collection in templates_by_hardness.items():
             with open(f"{output_file}.{hardness}.txt", "w") as fout:
                 fout.write(f"{len(hardness_template_collection)}\n")
-                for template, examples in sorted(hardness_template_collection.items(), key=lambda item: len(item[1]), reverse=True):
+                for template, examples in sorted(hardness_template_collection.items(), key=lambda item: len(item[1]),
+                                                 reverse=True):
                     for example in examples:
                         fout.write(f"{template[0]}\t{template[1]}\t{example[0]}\t{example[1]}\t{example[2]}\n")
                     fout.write("-----------------------------\n")
 
-        for index, sql_template, nl_template_list in enumerate(sorted(templates_by_sql.items(), key=lambda item: len(item[1]), reverse=True)):
+        index = 0
+        for sql_template, nl_template_list in sorted(templates_by_sql.items(),
+                                                     key=lambda item: len(item[1]),
+                                                     reverse=True):
             with open(f"{output_file}.by_sql.txt", "w") as fout:
                 nl_strs = '\t'.join([nl_template for nl_template in nl_template_list][
                                     :top_k_e if top_k_e != 0 else len(nl_template_list)])
@@ -507,6 +513,8 @@ def extract_nl2sql_templates(sql_kw_file: str,
 
             if 0 < top_k_t <= index + 1:
                 break
+
+            index += 1
     else:
         fieldnames = ['nl_template', 'sql_template', 'examples']
         with open(f"{output_file}.csv", 'w', newline='') as fcsvfile:
@@ -523,7 +531,8 @@ def extract_nl2sql_templates(sql_kw_file: str,
             with open(f"{output_file}.{hardness}.csv", "w", newline='') as fcsvfile:
                 hardness_writer = csv.DictWriter(fcsvfile, fieldnames=fieldnames)
                 hardness_writer.writeheader()
-                for template, examples in sorted(hardness_template_collection.items(), key=lambda item: len(item[1]), reverse=True):
+                for template, examples in sorted(hardness_template_collection.items(), key=lambda item: len(item[1]),
+                                                 reverse=True):
                     hardness_writer.writerow({'nl_template': template[0],
                                               'sql_template': template[1],
                                               'examples': str(examples)
@@ -533,9 +542,10 @@ def extract_nl2sql_templates(sql_kw_file: str,
         with open(f"{output_file}.by_sql.csv", "w", newline='') as fcsvfile:
             by_sql_writer = csv.DictWriter(fcsvfile, fieldnames=['nl_template', 'examples'])
             by_sql_writer.writeheader()
-            for index, sql_template, nl_template_list in enumerate(
-                    sorted(templates_by_sql.items(), key=lambda item: len(item[1]),
-                           reverse=True)):
+            index = 0
+            for sql_template, nl_template_list in sorted(templates_by_sql.items(),
+                                                         key=lambda item: len(item[1]),
+                                                         reverse=True):
                 by_sql_writer.writerow({'nl_template': sql_template,
                                         'examples': str(nl_template_list[
                                                         :top_k_e if top_k_e != 0 else len(nl_template_list)])
@@ -543,6 +553,10 @@ def extract_nl2sql_templates(sql_kw_file: str,
 
                 if 0 < top_k_t <= index + 1:
                     break
+
+                index += 1
+
+    return
 
 
 if __name__ == '__main__':
