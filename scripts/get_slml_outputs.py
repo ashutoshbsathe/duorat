@@ -8,6 +8,8 @@ import os
 import _jsonnet
 import tqdm
 
+from typing import List
+
 from duorat.preproc import offline  # *** Compulsory for registering duorat.preproc classes
 from duorat.datasets.spider import (
     schema_dict_to_spider_schema,
@@ -20,12 +22,17 @@ from third_party.spider.preprocess.get_tables import dump_db_json_schema
 
 
 def get_slml_outputs(duorat_preprocessor: AbstractPreproc,
-                     input_file: str,
+                     input_files: List[str],
                      output_file: str,
                      db_folder_path: str):
     # read data
-    with open(input_file) as f:
-        data = json.load(f)
+    data = None
+    for input_file in input_files:
+        with open(input_file) as f:
+            if data is None:
+                data = json.load(f)
+            else:
+                data.extend(json.load(f))
 
     schema_cache = {}
     for ind, item in enumerate(tqdm.tqdm(data)):
@@ -57,7 +64,7 @@ if __name__ == '__main__':
         description='Get SLML outputs for a given input file')
     parser.add_argument("--duorat-config-file",
                         help="The DuoRAT config", required=True)
-    parser.add_argument("--input-file",
+    parser.add_argument("--input-files", nargs='+',
                         help="The input file", required=True)
     parser.add_argument("--output-file",
                         help="The output file", required=True)
@@ -86,6 +93,6 @@ if __name__ == '__main__':
     # Extract NL2SQL templates
     print(f"Processing input file from {args.input_file}...")
     get_slml_outputs(duorat_preprocessor=duorat_preprocessor,
-                     input_file=args.input_file,
+                     input_files=args.input_files,
                      output_file=args.output_file,
                      db_folder_path=args.db_folder_path)
