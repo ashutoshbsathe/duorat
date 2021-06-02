@@ -28,8 +28,6 @@ from third_party.spider.preprocess.get_tables import dump_db_json_schema
 from duorat.types import ColumnMatchTag, TableMatchTag, ValueMatchTag, HighConfidenceMatch
 from functools import lru_cache
 
-# PROCESSED_DB_CACHE = {}
-
 
 @lru_cache(maxsize=None)
 def get_processed_db_cached(db_path: str, duorat_preprocessor: AbstractPreproc) -> SQLSchema:
@@ -104,20 +102,15 @@ def extract_nl_template(duorat_preprocessor: AbstractPreproc,
     def _maybe_naive_postprocess_slml_output(slml: str) -> str:
         return slml.replace("-LRB-", "(").replace("-RRB-", ")")
 
-    # sql_schema: SQLSchema = preprocess_schema_uncached(
-    #     schema=schema_dict_to_spider_schema(refine_schema_names(dump_db_json_schema(db_path, ""))),
-    #     db_path=db_path,
-    #     tokenize=duorat_preprocessor._schema_tokenize,
-    # )
     sql_schema = get_processed_db_cached(db_path=db_path, duorat_preprocessor=duorat_preprocessor)
-
     # print(sql_schema)
+
     slml_question: str = duorat_preprocessor.schema_linker.question_to_slml(
         question=question, sql_schema=sql_schema,
     )
     slml_question = _maybe_naive_postprocess_slml_output(slml=slml_question)
-
     # print(slml_question)
+
     parser = SLMLParser(sql_schema=sql_schema, tokenizer=duorat_preprocessor.tokenizer)
     parser.feed(data=slml_question)
 
