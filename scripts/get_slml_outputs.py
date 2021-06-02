@@ -91,7 +91,7 @@ if __name__ == '__main__':
     duorat_preprocessor: AbstractPreproc = registry.construct("preproc", config["model"]["preproc"])
 
     # Extract NL2SQL templates
-    print(f"Processing input file from {args.input_file}...")
+    print(f"Processing input files from {str(args.input_files)}...")
     get_slml_outputs(duorat_preprocessor=duorat_preprocessor,
                      input_files=args.input_files,
                      output_file=args.output_file,
