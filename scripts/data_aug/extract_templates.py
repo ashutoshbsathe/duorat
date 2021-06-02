@@ -485,9 +485,9 @@ def extract_nl2sql_templates(sql_kw_file: str,
             else:
                 templates_by_hardness[hardness][(nl_template, sql_template)] = [(question, gold_sql, db_name)]
             if sql_template in templates_by_sql:
-                templates_by_sql[sql_template].append((nl_template, question))
+                templates_by_sql[sql_template].append({'original': question, 'delexicalized': nl_template})
             else:
-                templates_by_sql[sql_template] = [(nl_template, question)]
+                templates_by_sql[sql_template] = [{'original': question, 'delexicalized': nl_template}]
 
     # *** Write to files (.txt or .csv)
     print(f"Done! There are {len(template_collection)} NL<->SQL templates.")
