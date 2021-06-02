@@ -509,19 +509,18 @@ def extract_nl2sql_templates(sql_kw_file: str,
                         fout.write(f"{template[0]}\t{template[1]}\t{example[0]}\t{example[1]}\t{example[2]}\n")
                     fout.write("-----------------------------\n")
 
-        index = 0
-        for sql_template, nl_template_list in sorted(templates_by_sql.items(),
-                                                     key=lambda item: len(item[1]),
-                                                     reverse=True):
-            with open(f"{output_file}.by_sql.txt", "w") as fout:
-                nl_strs = '\t'.join([nl_template for nl_template in nl_template_list][
-                                    :top_k_e if top_k_e != 0 else len(nl_template_list)])
-                fout.write(f"{sql_template}\t{nl_strs}\n")
+        with open(f"{output_file}.by_sql_topkt{top_k_t}_topke{top_k_e}.txt", "w") as fout:
+            index = 0
+            for sql_template, nl_template_list in sorted(templates_by_sql.items(),
+                                                         key=lambda item: len(item[1]),
+                                                         reverse=True):
+                for nl_template in nl_template_list[:top_k_e if top_k_e != 0 else len(nl_template_list)]:
+                    fout.write(f"{sql_template}\t{nl_template['delexicalized']}\t{nl_template['original']}\n")
 
-            if 0 < top_k_t <= index + 1:
-                break
+                if 0 < top_k_t <= index + 1:
+                    break
 
-            index += 1
+                index += 1
     else:
         fieldnames = ['nl_template', 'sql_template', 'examples']
         with open(f"{output_file}.csv", 'w', newline='') as fcsvfile:
@@ -547,16 +546,18 @@ def extract_nl2sql_templates(sql_kw_file: str,
                                              )
 
         with open(f"{output_file}.by_sql_topkt{top_k_t}_topke{top_k_e}.csv", "w", newline='') as fcsvfile:
-            by_sql_writer = csv.DictWriter(fcsvfile, fieldnames=['nl_template', 'examples'])
+            by_sql_writer = csv.DictWriter(fcsvfile, fieldnames=['sql_template', 'nl_template', 'original_nl'])
             by_sql_writer.writeheader()
             index = 0
             for sql_template, nl_template_list in sorted(templates_by_sql.items(),
                                                          key=lambda item: len(item[1]),
                                                          reverse=True):
-                by_sql_writer.writerow({'nl_template': sql_template,
-                                        'examples': str(nl_template_list[
-                                                        :top_k_e if top_k_e != 0 else len(nl_template_list)])
-                                        })
+                top_nl_template_list = nl_template_list[:top_k_e if top_k_e != 0 else len(nl_template_list)]
+                for nl_dict in top_nl_template_list:
+                    by_sql_writer.writerow({'sql_template': sql_template,
+                                            'nl_template': nl_dict['delexicalized'],
+                                            'original_nl': nl_dict['original']
+                                            })
 
                 if 0 < top_k_t <= index + 1:
                     break
