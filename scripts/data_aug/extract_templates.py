@@ -539,7 +539,7 @@ def extract_nl2sql_templates(sql_kw_file: str,
                                               }
                                              )
 
-        with open(f"{output_file}.by_sql.csv", "w", newline='') as fcsvfile:
+        with open(f"{output_file}.by_sql_topkt{top_k_t}_topke{top_k_e}.csv", "w", newline='') as fcsvfile:
             by_sql_writer = csv.DictWriter(fcsvfile, fieldnames=['nl_template', 'examples'])
             by_sql_writer.writeheader()
             index = 0
