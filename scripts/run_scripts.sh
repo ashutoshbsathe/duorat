@@ -607,7 +607,7 @@ python scripts/get_preds_from_json_file.py --preds-json-file ./logdir/duorat-new
 python -m third_party.spider.evaluation --gold ./data/spider/dev_gold.sql --pred ./logdir/duorat-new-db-content-bs4-ac7/val-duorat-new-db-content-with-human-slml.output.txt --etype match --db ./data/database --table ./data/spider/tables.json
 
 # train
-
+python scripts/get_slml_outputs.py --duorat-config-file ./configs/duorat/duorat-new-db-content.jsonnet --input-files ./data/spider/train_spider.json ./data/spider/train_others.json  --output-file ./data/spider/train_spider_and_others_with_unsup_slml.json
 
 # * Filtering bad tokens for matching (simple heuristic)
 

@@ -15,10 +15,8 @@ from duorat.datasets.spider import (
     schema_dict_to_spider_schema,
 )
 from duorat.preproc.abstract_preproc import AbstractPreproc
-from duorat.preproc.utils import preprocess_schema_uncached, refine_schema_names
-from duorat.types import SQLSchema
 from duorat.utils import registry
-from third_party.spider.preprocess.get_tables import dump_db_json_schema
+from scripts.data_aug.extract_templates import get_processed_db_cached
 
 
 def get_slml_outputs(duorat_preprocessor: AbstractPreproc,
@@ -43,11 +41,7 @@ def get_slml_outputs(duorat_preprocessor: AbstractPreproc,
         if db_id in schema_cache:
             sql_schema = schema_cache[db_id]
         else:
-            sql_schema: SQLSchema = preprocess_schema_uncached(
-                schema=schema_dict_to_spider_schema(refine_schema_names(dump_db_json_schema(db_path, ""))),
-                db_path=db_path,
-                tokenize=duorat_preprocessor._schema_tokenize,
-            )
+            sql_schema = get_processed_db_cached(db_path=db_path, duorat_preprocessor=duorat_preprocessor)
             schema_cache[db_id] = sql_schema
 
         slml_question: str = duorat_preprocessor.schema_linker.question_to_slml(
