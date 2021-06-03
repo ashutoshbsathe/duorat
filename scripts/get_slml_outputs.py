@@ -22,7 +22,8 @@ from scripts.data_aug.extract_templates import get_processed_db_cached
 def get_slml_outputs(duorat_preprocessor: AbstractPreproc,
                      input_files: List[str],
                      output_file: str,
-                     db_folder_path: str):
+                     db_folder_path: str,
+                     do_filter_slml_with_heuristics: bool = False):
     # read data
     data = None
     for input_file in input_files:
