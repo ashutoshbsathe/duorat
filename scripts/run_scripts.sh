@@ -584,6 +584,15 @@ python scripts/get_output_errors.py ./logdir/duorat-new-db-content-bs4-ac7/val-d
 # db_id=department_management (perfect)
 python scripts/get_output_errors.py ./logdir/duorat-new-db-content-bs4-ac7/val-duorat-new-db-content-bs4-ac7.eval ./logdir/duorat-new-db-content-bs4-ac7/val-duorat-new-db-content-bs4-ac7.errors.department_management department_management
 
+# db_id=course_teach
+python scripts/get_output_errors.py ./logdir/duorat-new-db-content-bs4-ac7/val-duorat-new-db-content-bs4-ac7.eval ./logdir/duorat-new-db-content-bs4-ac7/val-duorat-new-db-content-bs4-ac7.errors.course_teach course_teach
+
+# db_id=student_transcripts_tracking
+python scripts/get_output_errors.py ./logdir/duorat-new-db-content-bs4-ac7/val-duorat-new-db-content-bs4-ac7.eval ./logdir/duorat-new-db-content-bs4-ac7/val-duorat-new-db-content-bs4-ac7.errors.student_transcripts_tracking student_transcripts_tracking
+
+# db_id=flight_2
+python scripts/get_output_errors.py ./logdir/duorat-new-db-content-bs4-ac7/val-duorat-new-db-content-bs4-ac7.eval ./logdir/duorat-new-db-content-bs4-ac7/val-duorat-new-db-content-bs4-ac7.errors.flight_2 flight_2
+
 # *** CustomNER for NL2SQL
 
 # run interactive mode for error analysis
