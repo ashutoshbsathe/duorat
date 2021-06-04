@@ -43,7 +43,7 @@ def collect_synthetic_data_json_files(json_files_folder_path: str,
                                       output_data_file: str,
                                       samples_by_db: int = 100):
     output_data = []
-    for json_file in glob.iglob(f'{json_files_folder_path}/**/*.tsv', recursive=True):
+    for json_file in glob.iglob(f'{json_files_folder_path}/**/*.json', recursive=True):
         print(f"Processing file path: {json_file}...")
         with open(json_file) as f:
             json_data = json.load(f)
@@ -87,11 +87,11 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.file_type == 'tsv':
-        collect_synthetic_data_tsv_files(tsv_files_folder_path=args.tsv_files_folder_path,
+        collect_synthetic_data_tsv_files(tsv_files_folder_path=args.files_folder_path,
                                          output_data_file=args.output_data_file,
                                          samples_by_db=args.samples_by_db)
     elif args.file_type == 'json':
-        collect_synthetic_data_json_files(json_files_folder_path=args.tsv_files_folder_path,
+        collect_synthetic_data_json_files(json_files_folder_path=args.files_folder_path,
                                           output_data_file=args.output_data_file,
                                           samples_by_db=args.samples_by_db)
     else:
