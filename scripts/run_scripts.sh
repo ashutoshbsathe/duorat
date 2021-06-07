@@ -640,3 +640,23 @@ CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-sp
 
 # serve
 CUDA_VISIBLE_DEVICES=0 python scripts/serve.py --logdir ./logdir/duorat-new-db-content-bs4-ac7 --config configs/duorat/duorat-new-db-content.jsonnet --db-path ./data/database --server-port 8900 --do-logging --log-append --do-sql-post-processing
+
+# * Evaluating unsupervised schema linking by alternating match types
+
+# table only
+CUDA_VISIBLE_DEVICES=3 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-unsup-schema-linker-match-type-table-only.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-unsup-schema-linker-match-type-table-only --force-preprocess --force-train
+
+# column only
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-unsup-schema-linker-match-type-column-only.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-unsup-schema-linker-match-type-column-only --force-preprocess --force-train
+
+# value only
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-unsup-schema-linker-match-type-value-only.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-unsup-schema-linker-match-type-value-only --force-preprocess --force-train
+
+# table+column
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-unsup-schema-linker-match-type-table-column.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-unsup-schema-linker-match-type-table-column --force-preprocess --force-train
+
+# table+value
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-unsup-schema-linker-match-type-table-value.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-unsup-schema-linker-match-type-table-value --force-preprocess --force-train
+
+# column+value
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-unsup-schema-linker-match-type-column-value.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-unsup-schema-linker-match-type-column-value --force-preprocess --force-train
