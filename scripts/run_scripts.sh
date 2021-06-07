@@ -521,6 +521,42 @@ CUDA_VISIBLE_DEVICES=3 python scripts/train.py --config configs/duorat/duorat-sp
 # w/ batch balancing
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-original-plus-synthetic-data-batch-balancing-v3-fixed.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-original-plus-synthetic-data-batch-balancing-v3-fixed --force-preprocess --force-train &>./logdir/train-duorat-spider-new-db-content-with-original-plus-synthetic-data-batch-balancing-v3-fixed.log &
 
+# 1-shot
+python scripts/data_aug/collect_synthetic_data_template_scfg.py --file-type json --files-folder-path /mnt/shared/parthur/experiments/nl2sql/output/data/v3_fixed/database --output-data-file ./data/spider/train_synthetic_data_by_template_scfg_v3_fixed_val_db_only_1shot.json --samples-by-db 1
+python3 scripts/split_spider_by_db.py --examples-paths '' --aug-data train_synthetic_data_by_template_scfg_v3_fixed_val_db_only_1shot.json --aug-suffix spider_synthetic_data_template_scfg_v3_fixed_val_db_only_1shot
+
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-original-plus-synthetic-data-v3-fixed-val-db-only-1shot.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-original-plus-synthetic-data-v3-fixed-val-db-only-1shot --force-preprocess --force-train
+
+# 5-shot
+python scripts/data_aug/collect_synthetic_data_template_scfg.py --file-type json --files-folder-path /mnt/shared/parthur/experiments/nl2sql/output/data/v3_fixed/database --output-data-file ./data/spider/train_synthetic_data_by_template_scfg_v3_fixed_val_db_only_5shot.json --samples-by-db 5
+python3 scripts/split_spider_by_db.py --examples-paths '' --aug-data train_synthetic_data_by_template_scfg_v3_fixed_val_db_only_5shot.json --aug-suffix spider_synthetic_data_template_scfg_v3_fixed_val_db_only_5shot
+
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-original-plus-synthetic-data-v3-fixed-val-db-only-5shot.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-original-plus-synthetic-data-v3-fixed-val-db-only-5shot --force-preprocess --force-train
+
+# 10-shot
+python scripts/data_aug/collect_synthetic_data_template_scfg.py --file-type json --files-folder-path /mnt/shared/parthur/experiments/nl2sql/output/data/v3_fixed/database --output-data-file ./data/spider/train_synthetic_data_by_template_scfg_v3_fixed_val_db_only_10shot.json --samples-by-db 10
+python3 scripts/split_spider_by_db.py --examples-paths '' --aug-data train_synthetic_data_by_template_scfg_v3_fixed_val_db_only_10shot.json --aug-suffix spider_synthetic_data_template_scfg_v3_fixed_val_db_only_10shot
+
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-original-plus-synthetic-data-v3-fixed-val-db-only-10shot.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-original-plus-synthetic-data-v3-fixed-val-db-only-10shot --force-preprocess --force-train
+
+# 20-shot
+python scripts/data_aug/collect_synthetic_data_template_scfg.py --file-type json --files-folder-path /mnt/shared/parthur/experiments/nl2sql/output/data/v3_fixed/database --output-data-file ./data/spider/train_synthetic_data_by_template_scfg_v3_fixed_val_db_only_20shot.json --samples-by-db 20
+python3 scripts/split_spider_by_db.py --examples-paths '' --aug-data train_synthetic_data_by_template_scfg_v3_fixed_val_db_only_20shot.json --aug-suffix spider_synthetic_data_template_scfg_v3_fixed_val_db_only_20shot
+
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-original-plus-synthetic-data-v3-fixed-val-db-only-20shot.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-original-plus-synthetic-data-v3-fixed-val-db-only-20shot --force-preprocess --force-train
+
+# 50-shot
+python scripts/data_aug/collect_synthetic_data_template_scfg.py --file-type json --files-folder-path /mnt/shared/parthur/experiments/nl2sql/output/data/v3_fixed/database --output-data-file ./data/spider/train_synthetic_data_by_template_scfg_v3_fixed_val_db_only_50shot.json --samples-by-db 50
+python3 scripts/split_spider_by_db.py --examples-paths '' --aug-data train_synthetic_data_by_template_scfg_v3_fixed_val_db_only_50shot.json --aug-suffix spider_synthetic_data_template_scfg_v3_fixed_val_db_only_50shot
+
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-original-plus-synthetic-data-v3-fixed-val-db-only-50shot.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-original-plus-synthetic-data-v3-fixed-val-db-only-50shot --force-preprocess --force-train
+
+# 100-shot
+python scripts/data_aug/collect_synthetic_data_template_scfg.py --file-type json --files-folder-path /mnt/shared/parthur/experiments/nl2sql/output/data/v3_fixed/database --output-data-file ./data/spider/train_synthetic_data_by_template_scfg_v3_fixed_val_db_only_100shot.json --samples-by-db 100
+python3 scripts/split_spider_by_db.py --examples-paths '' --aug-data train_synthetic_data_by_template_scfg_v3_fixed_val_db_only_100shot.json --aug-suffix spider_synthetic_data_template_scfg_v3_fixed_val_db_only_100shot
+
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-original-plus-synthetic-data-v3-fixed-val-db-only-100shot.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-original-plus-synthetic-data-v3-fixed-val-db-only-100shot --force-preprocess --force-train
+
 # *** Experiments for adding dev data into training data
 
 # train on original data but evaluate on splitted val data
