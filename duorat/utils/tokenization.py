@@ -3,7 +3,7 @@ from functools import lru_cache
 from typing import List, Sequence, Tuple
 
 import stanza
-from transformers import BertTokenizerFast
+from transformers import AutoTokenizer  #, BertTokenizerFast
 from transformers import BasicTokenizer
 
 from duorat.utils import registry, corenlp
@@ -66,7 +66,10 @@ class StanzaTokenizer(AbstractTokenizer):
 @registry.register("tokenizer", "BERTTokenizer")
 class BERTTokenizer(AbstractTokenizer):
     def __init__(self, pretrained_model_name_or_path: str):
-        self._bert_tokenizer = BertTokenizerFast.from_pretrained(
+        # self._bert_tokenizer = BertTokenizerFast.from_pretrained(
+        #     pretrained_model_name_or_path=pretrained_model_name_or_path
+        # )
+        self._bert_tokenizer = AutoTokenizer.from_pretrained(
             pretrained_model_name_or_path=pretrained_model_name_or_path
         )
         self._basic_tokenizer = BasicTokenizer()

@@ -5,8 +5,7 @@ from typing import Optional, Tuple
 import torch
 from torch import nn
 
-
-from transformers import BertModel
+from transformers import AutoModel  #, BertModel
 
 from duorat.models.utils import _flip_attention_mask
 from duorat.models.rat import RATLayer
@@ -20,7 +19,8 @@ from duorat.types import DuoRATInputSegmentBatch
 from duorat.utils import registry
 
 
-# not yet in pytorch main tree, therefore temporarily taken from https://github.com/pytorch/examples/blob/632d385444ae16afe3e4003c94864f9f97dc8541/word_language_model/model.py
+# not yet in pytorch main tree, therefore temporarily taken from
+# https://github.com/pytorch/examples/blob/632d385444ae16afe3e4003c94864f9f97dc8541/word_language_model/model.py
 class PositionalEncoding(nn.Module):
     r"""Inject some information about the relative or absolute position of the tokens
         in the sequence. The positional encodings have the same dimension as
@@ -311,7 +311,11 @@ class BertEncoder(InitialEncoder):
 
         assert isinstance(preproc, BertDuoRATPreproc)
 
-        self.bert = BertModel.from_pretrained(
+        # self.bert = BertModel.from_pretrained(
+        #     pretrained_model_name_or_path=pretrained_model_name_or_path,
+        #     output_hidden_states=True,
+        # )
+        self.bert = AutoModel.from_pretrained(
             pretrained_model_name_or_path=pretrained_model_name_or_path,
             output_hidden_states=True,
         )

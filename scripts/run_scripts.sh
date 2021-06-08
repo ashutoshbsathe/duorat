@@ -696,3 +696,11 @@ CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-sp
 
 # column+value
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-unsup-schema-linker-match-type-column-value.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-unsup-schema-linker-match-type-column-value --force-preprocess --force-train
+
+# * Evaluate pretrained embeddings
+
+# RoBERTa
+
+# ELECTRA
+
+# BART
