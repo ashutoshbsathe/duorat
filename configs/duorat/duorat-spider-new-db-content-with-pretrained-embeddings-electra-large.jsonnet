@@ -27,7 +27,7 @@
     },
 
     train+: {
-        "batch_size": 6,
-        "n_grad_accumulation_steps": 6,
+        "batch_size": 4,
+        "n_grad_accumulation_steps": 7,
     }
 }
