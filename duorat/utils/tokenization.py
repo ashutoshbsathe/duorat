@@ -72,14 +72,27 @@ class BERTTokenizer(AbstractTokenizer):
         self._bert_tokenizer = AutoTokenizer.from_pretrained(
             pretrained_model_name_or_path=pretrained_model_name_or_path
         )
+        self._model_name = pretrained_model_name_or_path
         self._basic_tokenizer = BasicTokenizer()
+        self._subword_sep_char = self._get_subword_sep_char()
 
     def tokenize(self, s: str) -> List[str]:
         return self._bert_tokenizer.tokenize(s)
 
+    def _maybe_lowercase(self, tok: str) -> str:
+        if 'uncased' in self._model_name:
+            return tok.lower()
+        return tok
+
+    def _get_subword_sep_char(self) -> str:
+        if 'roberta' in self._model_name or 'grappa' in self._model_name:
+            return 'Ġ'
+        return '##'
+
     def tokenize_with_raw(self, s: str) -> List[Tuple[str, str]]:
         # TODO: at some point, hopefully, transformers API will be mature enough
         # to do this in 1 call instead of 2
+        s = s.strip()
         tokens = self._bert_tokenizer.tokenize(s)
         encoding_result = self._bert_tokenizer(s, return_offsets_mapping=True)
         assert len(encoding_result[0]) == len(tokens) + 2
@@ -94,22 +107,34 @@ class BERTTokenizer(AbstractTokenizer):
                 continue
 
             assert (
-                token == raw_token.lower()
-                or token[2:] == raw_token.lower()
-                or token[-2:] == raw_token.lower()
+                    token == self._maybe_lowercase(raw_token)
+                    or token[2:] == self._maybe_lowercase(raw_token)
+                    or token[-2:] == self._maybe_lowercase(raw_token)
             )
-            if token.startswith("##"):
-                raw_token_strings_with_sharps.append("##" + raw_token)
-            elif token.endswith("##"):
-                raw_token_strings_with_sharps.append(raw_token + "##")
-            else:
-                raw_token_strings_with_sharps.append(raw_token)
+
+            if self._subword_sep_char == '##':
+                if token.startswith("##"):
+                    raw_token_strings_with_sharps.append("##" + raw_token)
+                elif token.endswith("##"):
+                    raw_token_strings_with_sharps.append(raw_token + "##")
+                else:
+                    raw_token_strings_with_sharps.append(raw_token)
+            elif self._subword_sep_char == 'Ġ':
+                if token.startswith("Ġ"):
+                    raw_token_strings_with_sharps.append("Ġ" + raw_token)
+                else:
+                    raw_token_strings_with_sharps.append(raw_token)
+
         return zip(tokens, raw_token_strings_with_sharps)
 
     def detokenize(self, xs: Sequence[str]) -> str:
         """Naive implementation, see https://github.com/huggingface/transformers/issues/36"""
-        text = " ".join([x for x in xs])
-        fine_text = text.replace(" ##", "")
+        if self._subword_sep_char == '##':
+            text = " ".join([x for x in xs])
+            fine_text = text.replace(" ##", "")
+        elif self._subword_sep_char == 'Ġ':
+            text = "".join([x for x in xs])
+            fine_text = text.replace("Ġ", " ")
         return fine_text
 
     def convert_token_to_id(self, s: str) -> int:
