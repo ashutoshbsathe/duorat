@@ -25,4 +25,9 @@
             }
         }
     },
+
+    train+: {
+        "batch_size": 2,
+        "n_grad_accumulation_steps": 10,
+    }
 }
