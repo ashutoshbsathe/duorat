@@ -91,7 +91,7 @@ class BERTTokenizer(AbstractTokenizer):
 
     @classmethod
     def _preprocess_non_standard_quote(cls, text: str) -> str:
-        return text.replace('‘', '\'').replace('“', '"').strip()
+        return text.replace('‘', '\'').replace('’', '\'').replace('“', '"').replace('”', '"').strip()
 
     def tokenize_with_raw(self, s: str) -> List[Tuple[str, str]]:
         # TODO: at some point, hopefully, transformers API will be mature enough
