@@ -108,8 +108,8 @@ class BERTTokenizer(AbstractTokenizer):
 
             assert (
                     token == self._maybe_lowercase(raw_token)
-                    or token[2:] == self._maybe_lowercase(raw_token)
-                    or token[-2:] == self._maybe_lowercase(raw_token)
+                    or token[len(self._subword_sep_char):] == self._maybe_lowercase(raw_token)
+                    or token[-len(self._subword_sep_char):] == self._maybe_lowercase(raw_token)
             )
 
             if self._subword_sep_char == '##':
