@@ -401,12 +401,17 @@ class BertEncoder(InitialEncoder):
         else:
             _input_position_ids = None
 
-        last_layer_hidden_state, _pooled_output, all_hidden_states = self.bert(
+        # @Vu Hoang: this is for HF transformers v4.6.0 as of June 2021
+        # last_layer_hidden_state, _pooled_output, all_hidden_states = \
+        bert_result = self.bert(
             input_a.to(device=device),
             attention_mask=_input_attention_mask,
             token_type_ids=_input_token_type_ids,
             position_ids=_input_position_ids,
         )
+        last_layer_hidden_state = bert_result.last_hidden_state
+        _pooled_output = bert_result.pooler_output
+        all_hidden_states = bert_result.hidden_states
 
         assert len(all_hidden_states) == self.bert.config.num_hidden_layers + 1
         # assert all(
