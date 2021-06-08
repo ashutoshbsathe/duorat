@@ -89,10 +89,14 @@ class BERTTokenizer(AbstractTokenizer):
             return 'Ġ'
         return '##'
 
+    @classmethod
+    def _preprocess_non_standard_quote(cls, text: str) -> str:
+        return text.replace('‘', '\'').replace('“', '"').strip()
+
     def tokenize_with_raw(self, s: str) -> List[Tuple[str, str]]:
         # TODO: at some point, hopefully, transformers API will be mature enough
         # to do this in 1 call instead of 2
-        s = s.strip()
+        s = self._preprocess_non_standard_quote(text=s)
         tokens = self._bert_tokenizer.tokenize(s)
         encoding_result = self._bert_tokenizer(s, return_offsets_mapping=True)
         assert len(encoding_result[0]) == len(tokens) + 2
