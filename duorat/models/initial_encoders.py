@@ -5,7 +5,7 @@ from typing import Optional, Tuple
 import torch
 from torch import nn
 
-from transformers import AutoModel  #, BertModel
+from transformers import AutoModel  # , BertModel
 
 from duorat.models.utils import _flip_attention_mask
 from duorat.models.rat import RATLayer
@@ -54,7 +54,7 @@ class PositionalEncoding(nn.Module):
         self.register_buffer("pe", pe)
 
     def forward(
-        self, x: torch.Tensor, position_ids: Optional[torch.Tensor] = None
+            self, x: torch.Tensor, position_ids: Optional[torch.Tensor] = None
     ) -> torch.Tensor:
         r"""Inputs of forward function
         Args:
@@ -97,21 +97,20 @@ class InitialEncoder(abc.ABC, nn.Module):
 
     @abc.abstractmethod
     def forward(
-        self,
-        input_a: torch.Tensor,
-        input_b: torch.Tensor,
-        input_attention_mask: torch.Tensor,
-        input_key_padding_mask: torch.Tensor,
-        input_token_type_ids: torch.Tensor,
-        input_position_ids: torch.Tensor,
-        input_source_gather_index: torch.Tensor,
-        input_segments: Tuple[DuoRATInputSegmentBatch, ...],
+            self,
+            input_a: torch.Tensor,
+            input_b: torch.Tensor,
+            input_attention_mask: torch.Tensor,
+            input_key_padding_mask: torch.Tensor,
+            input_token_type_ids: torch.Tensor,
+            input_position_ids: torch.Tensor,
+            input_source_gather_index: torch.Tensor,
+            input_segments: Tuple[DuoRATInputSegmentBatch, ...],
     ) -> torch.Tensor:
         pass
 
 
 class SingletonGloVeEmbedding(nn.Module):
-
     _embed = None
 
     def __init__(self):
@@ -145,15 +144,15 @@ class SingletonGloVeEmbedding(nn.Module):
 @registry.register("initial_encoder", "Transformer")
 class TransformerEncoder(InitialEncoder):
     def __init__(
-        self,
-        num_heads: int,
-        ffn_dim: int,
-        dropout: float,
-        num_layers: int,
-        use_attention_mask: bool,
-        use_position_ids: bool,
-        use_positional_embedding: bool,
-        preproc: TransformerDuoRATPreproc,
+            self,
+            num_heads: int,
+            ffn_dim: int,
+            dropout: float,
+            num_layers: int,
+            use_attention_mask: bool,
+            use_position_ids: bool,
+            use_positional_embedding: bool,
+            preproc: TransformerDuoRATPreproc,
     ) -> None:
         super(TransformerEncoder, self).__init__()
 
@@ -202,15 +201,15 @@ class TransformerEncoder(InitialEncoder):
         return None
 
     def forward(
-        self,
-        input_a: torch.Tensor,
-        input_b: torch.Tensor,
-        input_attention_mask: torch.Tensor,
-        input_key_padding_mask: torch.Tensor,
-        input_token_type_ids: torch.Tensor,
-        input_position_ids: torch.Tensor,
-        input_source_gather_index: torch.Tensor,
-        input_segments: Tuple[DuoRATInputSegmentBatch, ...],
+            self,
+            input_a: torch.Tensor,
+            input_b: torch.Tensor,
+            input_attention_mask: torch.Tensor,
+            input_key_padding_mask: torch.Tensor,
+            input_token_type_ids: torch.Tensor,
+            input_position_ids: torch.Tensor,
+            input_source_gather_index: torch.Tensor,
+            input_segments: Tuple[DuoRATInputSegmentBatch, ...],
     ) -> torch.Tensor:
         device = next(self.parameters()).device
 
@@ -281,8 +280,8 @@ class TransformerEncoder(InitialEncoder):
         assert _batch_size == batch_size
         _input_source_gather_index = (
             input_source_gather_index.to(device=device)
-            .unsqueeze(dim=2)
-            .expand(batch_size, max_src_length, self.embed_dim)
+                .unsqueeze(dim=2)
+                .expand(batch_size, max_src_length, self.embed_dim)
         )
         source = torch.gather(input, dim=1, index=_input_source_gather_index)
         assert source.shape == (batch_size, max_src_length, self.embed_dim)
@@ -294,18 +293,18 @@ class TransformerEncoder(InitialEncoder):
 @registry.register("initial_encoder", "Bert")
 class BertEncoder(InitialEncoder):
     def __init__(
-        self,
-        pretrained_model_name_or_path: str,
-        trainable: bool,
-        num_return_layers: int,
-        embed_dim: int,
-        use_dedicated_gpu: bool,
-        use_affine_transformation: bool,
-        use_attention_mask: bool,
-        use_token_type_ids: bool,
-        use_position_ids: bool,
-        use_segments: bool,
-        preproc: BertDuoRATPreproc,
+            self,
+            pretrained_model_name_or_path: str,
+            trainable: bool,
+            num_return_layers: int,
+            embed_dim: int,
+            use_dedicated_gpu: bool,
+            use_affine_transformation: bool,
+            use_attention_mask: bool,
+            use_token_type_ids: bool,
+            use_position_ids: bool,
+            use_segments: bool,
+            preproc: BertDuoRATPreproc,
     ) -> None:
         super(BertEncoder, self).__init__()
 
@@ -355,13 +354,13 @@ class BertEncoder(InitialEncoder):
         return self._embed_dim
 
     def _forward_segment(
-        self,
-        input_a: torch.Tensor,
-        input_b: torch.Tensor,
-        input_attention_mask: torch.Tensor,
-        input_key_padding_mask: torch.Tensor,
-        input_token_type_ids: torch.Tensor,
-        input_position_ids: torch.Tensor,
+            self,
+            input_a: torch.Tensor,
+            input_b: torch.Tensor,
+            input_attention_mask: torch.Tensor,
+            input_key_padding_mask: torch.Tensor,
+            input_token_type_ids: torch.Tensor,
+            input_position_ids: torch.Tensor,
     ):
         device = next(self.parameters()).device
 
@@ -402,7 +401,7 @@ class BertEncoder(InitialEncoder):
             _input_position_ids = None
 
         # @Vu Hoang: this is for HF transformers v4.6.0 as of June 2021
-        # last_layer_hidden_state, _pooled_output, all_hidden_states = \
+        # last_layer_hidden_state, _, all_hidden_states = \
         bert_result = self.bert(
             input_a.to(device=device),
             attention_mask=_input_attention_mask,
@@ -410,7 +409,6 @@ class BertEncoder(InitialEncoder):
             position_ids=_input_position_ids,
         )
         last_layer_hidden_state = bert_result.last_hidden_state
-        _pooled_output = bert_result.pooler_output
         all_hidden_states = bert_result.hidden_states
 
         assert len(all_hidden_states) == self.bert.config.num_hidden_layers + 1
@@ -425,7 +423,7 @@ class BertEncoder(InitialEncoder):
         assert all(hidden_state.device == device for hidden_state in all_hidden_states)
         assert all_hidden_states[-1].data_ptr() == last_layer_hidden_state.data_ptr()
 
-        output = torch.cat(all_hidden_states[-self.num_return_layers :], 2)
+        output = torch.cat(all_hidden_states[-self.num_return_layers:], 2)
         assert output.shape == (batch_size, max_input_length, self._bert_embed_dim)
         assert output.device == device
 
@@ -437,15 +435,15 @@ class BertEncoder(InitialEncoder):
         return output
 
     def forward(
-        self,
-        input_a: torch.Tensor,
-        input_b: torch.Tensor,
-        input_attention_mask: torch.Tensor,
-        input_key_padding_mask: torch.Tensor,
-        input_token_type_ids: torch.Tensor,
-        input_position_ids: torch.Tensor,
-        input_source_gather_index: torch.Tensor,
-        input_segments: Tuple[DuoRATInputSegmentBatch, ...],
+            self,
+            input_a: torch.Tensor,
+            input_b: torch.Tensor,
+            input_attention_mask: torch.Tensor,
+            input_key_padding_mask: torch.Tensor,
+            input_token_type_ids: torch.Tensor,
+            input_position_ids: torch.Tensor,
+            input_source_gather_index: torch.Tensor,
+            input_segments: Tuple[DuoRATInputSegmentBatch, ...],
     ) -> torch.Tensor:
         device = next(self.parameters()).device
 
@@ -467,8 +465,8 @@ class BertEncoder(InitialEncoder):
                 assert _segment_size == segment_size
                 _input_source_gather_index = (
                     segment.input_source_gather_index.to(device=device)
-                    .unsqueeze(dim=2)
-                    .expand(segment_size, src_length, self.embed_dim)
+                        .unsqueeze(dim=2)
+                        .expand(segment_size, src_length, self.embed_dim)
                 )
                 source_tensor = torch.gather(
                     output, dim=1, index=_input_source_gather_index,
@@ -480,14 +478,14 @@ class BertEncoder(InitialEncoder):
                 )
                 _input_source_gather_index_mask = ~(
                     segment.input_source_gather_index_mask.to(device=device)
-                    .unsqueeze(dim=2)
-                    .expand(segment_size, src_length, self.embed_dim)
+                        .unsqueeze(dim=2)
+                        .expand(segment_size, src_length, self.embed_dim)
                 )
                 source_tensor = torch.masked_fill(
                     source_tensor, mask=_input_source_gather_index_mask, value=0,
                 )
                 del _input_source_gather_index_mask
-                source_tensor = torch.sum(source_tensor, dim=0, keepdim=False,)
+                source_tensor = torch.sum(source_tensor, dim=0, keepdim=False, )
                 assert source_tensor.shape == (src_length, self.embed_dim)
                 source_tensors.append(source_tensor)
             source = pad_nd_tensor(
@@ -518,8 +516,8 @@ class BertEncoder(InitialEncoder):
                 dim=1,
                 index=(
                     input_source_gather_index.to(device=device)
-                    .unsqueeze(dim=2)
-                    .expand(batch_size, max_src_length, self.embed_dim)
+                        .unsqueeze(dim=2)
+                        .expand(batch_size, max_src_length, self.embed_dim)
                 ),
             )
             assert source.shape == (batch_size, max_src_length, self.embed_dim)

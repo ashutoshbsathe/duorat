@@ -3,7 +3,7 @@ from functools import lru_cache
 from typing import List, Sequence, Tuple
 
 import stanza
-from transformers import AutoTokenizer  #, BertTokenizerFast
+from transformers import AutoTokenizer  # , BertTokenizerFast
 from transformers import BasicTokenizer
 
 from duorat.utils import registry, corenlp
@@ -101,12 +101,13 @@ class BERTTokenizer(AbstractTokenizer):
         encoding_result = self._bert_tokenizer(s, return_offsets_mapping=True)
         assert len(encoding_result[0]) == len(tokens) + 2
         raw_token_strings = [
-            self._basic_tokenizer._run_strip_accents(s[start:end]) for start, end in encoding_result["offset_mapping"][1:-1]
+            self._basic_tokenizer._run_strip_accents(s[start:end]) for start, end in
+            encoding_result["offset_mapping"][1:-1]
         ]
         raw_token_strings_with_sharps = []
         for token, raw_token in zip(tokens, raw_token_strings):
             # handle [UNK] token
-            if str(token) == '[UNK]':
+            if str(token) == self._bert_tokenizer.unk_token:  # '[UNK]':
                 raw_token_strings_with_sharps.append(raw_token)
                 continue
 
