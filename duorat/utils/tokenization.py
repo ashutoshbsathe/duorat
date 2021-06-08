@@ -80,7 +80,7 @@ class BERTTokenizer(AbstractTokenizer):
         return self._bert_tokenizer.tokenize(s)
 
     def _maybe_lowercase(self, tok: str) -> str:
-        if 'uncased' in self._model_name:
+        if self._bert_tokenizer.do_lower_case:
             return tok.lower()
         return tok
 

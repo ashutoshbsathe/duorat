@@ -703,5 +703,6 @@ CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-sp
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-roberta-base.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-roberta-base --force-preprocess --force-train
 
 # ELECTRA
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base --force-preprocess --force-train
 
 # BART
