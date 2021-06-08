@@ -347,7 +347,8 @@ class BertEncoder(InitialEncoder):
         if self.use_position_ids or self.use_segments:
             return None
         else:
-            return self.bert.config.max_position_embeddings
+            # For most of BERT-alike models (except for longformer or similar), 512 is maximum sequence length.
+            return self.bert.config.max_position_embeddings if self.bert.config.max_position_embeddings <= 512 else 512
 
     @property
     def embed_dim(self) -> int:
