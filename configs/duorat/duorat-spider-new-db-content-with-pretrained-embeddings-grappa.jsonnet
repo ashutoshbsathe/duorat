@@ -15,6 +15,7 @@
         preproc+: {
             add_cls_token: false,
             add_sep_token: true,
+            use_column_type: false,
             schema_linker+: {
                 whole_entry_db_content_confidence: 'high',
                 partial_entry_db_content_confidence: 'low'

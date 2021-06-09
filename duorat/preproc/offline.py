@@ -421,6 +421,7 @@ class BertDuoRATPreproc(DuoRATPreproc):
         super(BertDuoRATPreproc, self).__init__(**kwargs)
         self.add_cls_token = kwargs["add_cls_token"]
         self.add_sep_token = kwargs["add_sep_token"]
+        self.use_column_type = kwargs.get('use_column_type', True)
         assert isinstance(self.tokenizer, BERTTokenizer)
 
     def input_a_str_to_id(self, s: str) -> int:
@@ -435,7 +436,7 @@ class BertDuoRATPreproc(DuoRATPreproc):
         return (
             ([self.tokenizer.cls_token] if self.add_cls_token else [])
             + self.tokenizer.tokenize(
-                ("{} ".format(type) if type is not None else "") + name
+                ("{} ".format(type) if type is not None and self.use_column_type else "") + name
             )
             + ([self.tokenizer.sep_token] if self.add_sep_token else [])
         )
