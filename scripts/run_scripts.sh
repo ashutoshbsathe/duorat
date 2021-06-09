@@ -716,4 +716,4 @@ CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-sp
 CUDA_VISIBLE_DEVICES=3 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-large.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-large --force-preprocess --force-train
 
 # GraPPa
-CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-grappa.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-grappa --force-preprocess --force-train
+TOKENIZERS_PARALLELISM=true CUDA_LAUNCH_BLOCKING=1 CUDA_VISIBLE_DEVICES=3 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-grappa.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-grappa --force-preprocess --force-train
