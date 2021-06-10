@@ -677,6 +677,13 @@ CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-sp
 # serve
 CUDA_VISIBLE_DEVICES=0 python scripts/serve.py --logdir ./logdir/duorat-new-db-content-bs4-ac7 --config configs/duorat/duorat-new-db-content.jsonnet --db-path ./data/database --server-port 8900 --do-logging --log-append --do-sql-post-processing
 
+# create silver training data for custom NER model
+# train
+TOKENIZERS_PARALLELISM=true python scripts/custom_ner/create_silver_training_data.py --duorat-config-file ./configs/duorat/duorat-new-db-content.jsonnet --input-files ./data/spider/train_spider.json ./data/spider/train_others.json --output-file ./data/spider/train_spider_and_others_with_schema_custom_ner.json --schema-json-path ./data/spider/tables.json
+
+# dev
+TOKENIZERS_PARALLELISM=true python scripts/custom_ner/create_silver_training_data.py --duorat-config-file ./configs/duorat/duorat-new-db-content.jsonnet --input-files ./data/spider/dev.json --output-file ./data/spider/dev_with_schema_custom_ner.json --schema-json-path ./data/spider/tables.json
+
 # * Evaluating unsupervised schema linking by alternating match types
 
 # table only
