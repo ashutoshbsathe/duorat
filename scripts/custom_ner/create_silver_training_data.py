@@ -185,6 +185,7 @@ def create_silver_training_data(duorat_preprocessor: AbstractPreproc,
     all_spider_schemas: List[Schema] = load_original_schemas([schema_json_path])
 
     schema_cache = {}
+    dstats: Dict[str, Tuple[int, Set]] = {}
     for ind, item in enumerate(tqdm.tqdm(data)):
         db_id = item["db_id"]
         db_path = os.path.join(db_folder_path, db_id, f"{db_id}.sqlite")
@@ -384,7 +385,7 @@ def create_silver_training_data(duorat_preprocessor: AbstractPreproc,
             else:
                 schema_tags.append('O')
 
-        def _detokenize(tokens: List[str], tags: List[str]) -> Tuple[str, str]:
+        def _detokenize(tokens: List[str], tags: List[str]) -> Tuple[List[str], List[str]]:
             new_tokens = []
             new_tags = []
             for token, tag in zip(tokens, tags):
@@ -397,14 +398,34 @@ def create_silver_training_data(duorat_preprocessor: AbstractPreproc,
                 else:
                     new_tokens.append(token)
                     new_tags.append(tag)
-            return ' '.join(new_tokens), ' '.join(new_tags)
-        
-        detok_question, schema_tag_seq = _detokenize(tokens=question_tokens, tags=schema_tags)
-        item["schema_custom_ner"] = {"tokenized_question": detok_question,
-                                     "tagged_sequence": schema_tag_seq}
+            return new_tokens, new_tags
+
+        def _get_ne_stats(tags: List[str], db_id: str, dstats: Dict[str, Tuple[int, Set]]) -> None:
+            if db_id not in dstats:
+                dstats[db_id] = {'#examples': 0, "tags": {}}
+
+            if db_id in dstats:
+                dstats[db_id]['#examples'] += 1
+
+            for ind, tag in enumerate(tags):
+                if ind > 0 and tags[ind - 1] == tag:
+                    continue
+
+                if tag not in dstats[db_id]['tags']:
+                    dstats[db_id]['tags'][tag] = 1
+                else:
+                    dstats[db_id]['tags'][tag] += 1
+
+            return
+
+        question_tokens, schema_tags = _detokenize(tokens=question_tokens, tags=schema_tags)
+        _get_ne_stats(tags=schema_tags, db_id=db_id, dstats=dstats)
+        item["schema_custom_ner"] = {"toked_question": ' '.join(question_tokens),
+                                     "tags": ' '.join(schema_tags)}
 
     # write output data
     json.dump(data, open(output_file, "w"), indent=4, sort_keys=True)
+    json.dump(dstats, open(f"{output_file.replace('.json', '_stats.json')}", "w"), indent=4, sort_keys=True)
 
 
 if __name__ == '__main__':
