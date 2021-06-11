@@ -301,6 +301,7 @@ SPIDER_DEV_DBS = set([
     "dog_kennels",
     "singer",
     "real_estate_properties"])
+DB_ID_MAP = {}
 duorat_model = None
 logger = None
 do_sql_post_processing = False
@@ -533,13 +534,14 @@ async def query_db(request: Text2SQLQueryDBRequest):
                 new_db_name = f"{db_name} (Spider, unseen test, {_get_db_examples(db_name=db_name)} examples)"
             else:
                 new_db_name = f"{db_name} (new, unseen)"
+            DB_ID_MAP[new_db_name] = db_name
             new_db_names.append(new_db_name)
         db_names = new_db_names
 
         return jsonable_encoder(
             Text2SQLQueryDBResponse(db_id='[ALL_DB]', db_json_content=json.dumps(db_names, indent=4)))
     elif request.query_type == '[CUR_DB]':
-        db_file = join(DB_PATH, request.db_id, request.db_id + ".sqlite")
+        db_file = join(DB_PATH, DB_ID_MAP[request.db_id], DB_ID_MAP[request.db_id] + ".sqlite")
         if exists(db_file):
             db_json_content = dump_db_json_schema(db_file=db_file, db_id=request.db_id)
         else:
