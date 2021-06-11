@@ -603,8 +603,8 @@ async def text2sql_infer(request: Text2SQLInferenceRequest):
         db_path = f"{DB_PATH_USER}/{request.db_id}.sqlite"
         schema_path = ''
     elif request.db_type == 'c_db':
-        db_path = f"{DB_PATH}/{request.db_id}/{request.db_id}.sqlite"
-        schema_path = f"{DB_PATH}/{request.db_id}/tables.json"
+        db_path = f"{DB_PATH}/{DB_ID_MAP[request.db_id]}/{DB_ID_MAP[request.db_id]}.sqlite"
+        schema_path = f"{DB_PATH}/{DB_ID_MAP[request.db_id]}/tables.json"
         if not os.path.exists(schema_path):
             schema_path = ""
 
@@ -632,8 +632,8 @@ async def text2sql_infer_followup(request: Text2SQLWithFollowUpInferenceRequest)
         db_path = f"{DB_PATH_USER}/{request.db_id}.sqlite"
         schema_path = ''
     elif request.db_type == 'c_db':
-        db_path = f"{DB_PATH}/{request.db_id}/{request.db_id}.sqlite"
-        schema_path = f"{DB_PATH}/{request.db_id}/tables.json"
+        db_path = f"{DB_PATH}/{DB_ID_MAP[request.db_id]}/{DB_ID_MAP[request.db_id]}.sqlite"
+        schema_path = f"{DB_PATH}/{DB_ID_MAP[request.db_id]}/tables.json"
         if not os.path.exists(schema_path):
             schema_path = ""
 
