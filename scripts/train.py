@@ -201,7 +201,9 @@ class Trainer:
         saver = saver_mod.Saver(
             self.model, optimizer
         )
-        last_step, best_val_all_exact = saver.restore(model_dir=modeldir)
+        last_step, best_val_all_exact = saver.restore(model_dir=modeldir,
+                                                      load_best=self.config["train"].get('load_best',
+                                                                                         False))
         if last_step is 0 and self.config["train"].get("initialize_from", False):
             saver.restore_part(other_model_dir=self.config["train"]["initialize_from"].get('pretrained_model_path', ''),
                                filters=self.config["train"]["initialize_from"].get('model_weight_filters', []))

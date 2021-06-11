@@ -681,8 +681,14 @@ CUDA_VISIBLE_DEVICES=0 python scripts/serve.py --logdir ./logdir/duorat-new-db-c
 # train
 TOKENIZERS_PARALLELISM=true python scripts/custom_ner/create_silver_training_data.py --duorat-config-file ./configs/duorat/duorat-new-db-content.jsonnet --input-files ./data/spider/train_spider.json ./data/spider/train_others.json --output-file ./data/spider/train_spider_and_others_with_schema_custom_ner.json --schema-json-path ./data/spider/tables.json
 
+mkdir -p ./data/custom_ner/spider/train
+python scripts/custom_ner/extract_custom_ner_data.py --input-file ./data/spider/train_spider_and_others_with_schema_custom_ner.json --output-folder ./data/custom_ner/spider/train
+
 # dev
 TOKENIZERS_PARALLELISM=true python scripts/custom_ner/create_silver_training_data.py --duorat-config-file ./configs/duorat/duorat-new-db-content.jsonnet --input-files ./data/spider/dev.json --output-file ./data/spider/dev_with_schema_custom_ner.json --schema-json-path ./data/spider/tables.json
+
+mkdir -p ./data/custom_ner/spider/dev
+python scripts/custom_ner/extract_custom_ner_data.py --input-file ./data/spider/dev_with_schema_custom_ner.json --output-folder ./data/custom_ner/spider/dev
 
 # * Evaluating unsupervised schema linking by alternating match types
 

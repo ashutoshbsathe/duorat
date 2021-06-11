@@ -43,6 +43,8 @@ SELECT name FROM head WHERE born_state != 'California'
 4) What are names of stations that have average bike availability above 10 and are not located in San Jose city?
 
 What are <cm table=\"station\" column=\"name\" confidence=\"low\">names</cm> of <tm table=\"station\" confidence=\"low\">stations</tm> that have average <cm table=\"status\" column=\"bikes_available\" confidence=\"low\">bike</cm> availability above <vm table=\"status\" column=\"bikes_available\" value=\"10\" confidence=\"high\">10</vm> and are not located in <vm table=\"station\" column=\"city\" value=\"San Jose\" confidence=\"high\">San Jose</vm> <cm table=\"station\" column=\"city\" confidence=\"high\">city</cm> ?
+
+What are the names of stations that have average bike availability above 10 and are not located in San Jose city ?
 O O @station.name O @station O O O @status.bikes_available @status.bikes_available O @status.bikes_available.value O O O O O @station.city.value @station.city.value @station.city O
 
 SELECT T1.name FROM station AS T1 JOIN status AS T2 ON T1.id  =  T2.station_id GROUP BY T2.station_id HAVING avg(bikes_available)  >  10 EXCEPT SELECT name FROM station WHERE city  =  \"San Jose\"

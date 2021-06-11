@@ -25,6 +25,9 @@ def extract_custom_ner_data(input_file: str,
         else:
             data_by_db[db_id].append({'question': question, 'tags': tags})
 
+    # split into train/test sections
+    # TODO
+
     for db_id, entries in data_by_db.items():
         fout = open(os.path.join(output_folder, f"{db_id}.txt"), "w")
         for entry in entries:
