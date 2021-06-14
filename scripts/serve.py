@@ -304,7 +304,6 @@ SPIDER_DEV_DBS = set([
     "dog_kennels",
     "singer",
     "real_estate_properties"])
-DB_ID_MAP = {}
 duorat_model = None
 logger = None
 do_sql_post_processing = False
@@ -630,6 +629,10 @@ def ask_any_question_with_followup(question: str,
                                      )
 
 
+def _get_proper_db_id(db_info: str) -> str:
+    return db_info.split()[0]
+
+
 @app.post('/text2sql/query_db', response_class=JSONResponse)
 async def query_db(request: Text2SQLQueryDBRequest):
     print(f'Attempting for a request: {request.query_type}')
@@ -667,14 +670,14 @@ async def query_db(request: Text2SQLQueryDBRequest):
                 new_db_name = f"{db_name} (Spider, unseen test, {_get_db_examples(db_name=db_name)} examples, {_get_db_file_size(db_name=db_name)})"
             else:
                 new_db_name = f"{db_name} (new, unseen, {_get_db_file_size(db_name=db_name)})"
-            DB_ID_MAP[new_db_name] = db_name
             new_db_names.append(new_db_name)
         db_names = new_db_names
 
         return jsonable_encoder(
             Text2SQLQueryDBResponse(db_id='[ALL_DB]', db_json_content=json.dumps(db_names, indent=4)))
     elif request.query_type == '[CUR_DB]':
-        db_file = join(DB_PATH, DB_ID_MAP[request.db_id], DB_ID_MAP[request.db_id] + ".sqlite")
+        db_id = _get_proper_db_id(db_info=request.db_id)
+        db_file = join(DB_PATH, db_id, f"{db_id}.sqlite")
         if exists(db_file):
             db_json_content = dump_db_json_schema(db_file=db_file, db_id=request.db_id)
         else:
@@ -736,8 +739,9 @@ async def text2sql_infer(request: Text2SQLInferenceRequest):
         db_path = f"{DB_PATH_USER}/{request.db_id}.sqlite"
         schema_path = ''
     elif request.db_type == 'c_db':
-        db_path = f"{DB_PATH}/{DB_ID_MAP[request.db_id]}/{DB_ID_MAP[request.db_id]}.sqlite"
-        schema_path = f"{DB_PATH}/{DB_ID_MAP[request.db_id]}/tables.json"
+        db_id = _get_proper_db_id(db_info=request.db_id)
+        db_path = f"{DB_PATH}/{db_id}/{db_id}.sqlite"
+        schema_path = f"{DB_PATH}/{db_id}/tables.json"
         if not os.path.exists(schema_path):
             schema_path = ""
 
@@ -765,8 +769,9 @@ async def text2sql_infer_followup(request: Text2SQLWithFollowUpInferenceRequest)
         db_path = f"{DB_PATH_USER}/{request.db_id}.sqlite"
         schema_path = ''
     elif request.db_type == 'c_db':
-        db_path = f"{DB_PATH}/{DB_ID_MAP[request.db_id]}/{DB_ID_MAP[request.db_id]}.sqlite"
-        schema_path = f"{DB_PATH}/{DB_ID_MAP[request.db_id]}/tables.json"
+        db_id = _get_proper_db_id(db_info=request.db_id)
+        db_path = f"{DB_PATH}/{db_id}/{db_id}.sqlite"
+        schema_path = f"{DB_PATH}/{db_id}/tables.json"
         if not os.path.exists(schema_path):
             schema_path = ""
 
