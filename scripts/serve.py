@@ -647,9 +647,9 @@ async def query_db(request: Text2SQLQueryDBRequest):
         db_file_stats = os.stat(db_file_path)
         db_file_size = db_file_stats.st_size
         if db_file_size < 1024:
-            f"{db_file_size} bytes"
+            return f"{db_file_size} bytes"
         elif 1024 <= db_file_size < 1024 * 1024:
-            f"{db_file_size / 1024:.2f} Kb"  # Kb
+            return f"{db_file_size / 1024:.2f} Kb"  # Kb
         elif 1024 * 1024 <= db_file_size < 1024 * 1024 * 1024:
             return f"{db_file_size / (1024 * 1024):.2f} Mb"  # in Mb
         else:
