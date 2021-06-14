@@ -14,7 +14,7 @@ from fastapi import File, Form, UploadFile
 import shutil
 from datetime import datetime
 import sqlite3
-from typing import Dict
+from typing import Dict, Tuple
 import json
 import re
 import copy
@@ -27,6 +27,9 @@ from nltk.tokenize.treebank import TreebankWordDetokenizer
 
 from duorat.api import DuoratAPI, DuoratOnDatabase
 from duorat.utils.evaluation import find_any_config
+from third_party.spider.process_sql import get_sql
+from third_party.spider.preprocess.schema import Schema
+
 from scripts.train import Logger
 
 
@@ -350,13 +353,13 @@ def show_schema(duorat_on_db: DuoratOnDatabase):
 NEW_VALID = re.compile(r"^[a-zA-Z_%]\w*$")
 
 
-def postprocess_sql(sql: str) -> str:
+def postprocess_sql_for_like_clause(sql: str) -> str:
     """
-    A heuristics-based SQL post-processing function
-    Args:
-        sql: a raw input sql
-    Returns:
-        a post-processed sql
+        A heuristics-based SQL post-processing function for converting EQ comparison into LIKE
+        Args:
+            sql: a raw input sql
+        Returns:
+            a post-processed sql
     """
 
     def _detokenize(txt: str) -> str:
@@ -426,6 +429,123 @@ def postprocess_sql(sql: str) -> str:
         return sql
 
 
+def postprocess_sql_for_star_column(sql: str, db_path: str) -> str:
+    """
+        A heuristics-based SQL post-processing function for replacing * column in SELECT by meaningful columns
+        Args:
+            sql: a raw input sql
+        Returns:
+            a post-processed sql
+
+        Example:
+            postprocess_sql_for_star_column(sql='SELECT * FROM  job_history AS T1 JOIN employees AS T2 ON
+                                                 T1.employee_id  =  T2.employee_id WHERE T2.salary  >=  12000',
+                                            db_path='./data/database/hr_1/hr_1.sqlite')
+    """
+
+    def _get_schema_from_json(db_path: str) -> Tuple[Dict, Dict, Dict]:
+        db_path_splits = db_path.split('/')
+        json_file_path = os.path.join('/'.join(db_path_splits[:-1]), 'tables.json')
+        if not os.path.exists(json_file_path):
+            return None
+        with open(json_file_path) as f:
+            data = json.load(f)
+            db = data[0]
+
+            schema = {}  # {'table': [col.lower, ..., ]} * -> __all__
+            schema_ori = {}  # similar to schema with original table/column names
+            column_names_original = db["column_names_original"]
+            table_names_original = db["table_names_original"]
+            tables = {
+                "column_names_original": column_names_original,
+                "table_names_original": table_names_original,
+            }
+            for i, tabn in enumerate(table_names_original):
+                table = str(tabn).lower()
+                cols = [str(col).lower() for td, col in column_names_original if td == i]
+                schema[table] = cols
+
+                table = str(tabn)
+                cols = [str(col) for td, col in column_names_original if td == i]
+                schema_ori[table] = cols
+
+            return schema, schema_ori, tables
+
+    def _get_schema_mapping(tables: Dict) -> Tuple[Dict[id, str], Dict[id, str]]:
+        tab2id = {}
+        col2id = {}
+
+        column_names_original = tables["column_names_original"]
+        table_names_original = tables["table_names_original"]
+        for i, (tab_id, col) in enumerate(column_names_original):
+            if tab_id == -1:
+                col2id[i] = '*'
+            else:
+                key = table_names_original[tab_id]
+                val = col
+                col2id[i] = key + "." + val
+
+        for i, tab in enumerate(table_names_original):
+            key = tab
+            tab2id[i] = key
+
+        return tab2id, col2id
+
+    schema_obj = _get_schema_from_json(db_path=db_path)
+    if schema_obj is None:
+        return sql
+    schema, schema_ori, tables = schema_obj
+    tab2id, col2id = _get_schema_mapping(tables=tables)
+    spider_sql: dict = get_sql(schema=Schema(schema=schema, table=tables), query=sql)  # a dictionary
+
+    # for from clause
+    from_clause = spider_sql['from']['table_units']
+    # print(from_clause)
+    table_name = None
+    if len(from_clause) > 0:
+        table_ref = from_clause[0][1]
+        if isinstance(table_ref, int):
+            table_name = tab2id[table_ref]
+
+    # for select clause
+    if table_name:
+        select_clause = spider_sql['select']
+        # print(select_clause)
+        if len(select_clause[1]) == 1:  # only if SELECT *
+            star_col = select_clause[1][0]
+            if isinstance(star_col, tuple) or isinstance(star_col, list):
+                if star_col[0] == 0:  # not a COUNT, MIN, MAX, AVG
+                    # only for col_unit1
+                    col_id = star_col[1][1][1]
+                    if isinstance(col_id, int):
+                        col_name = col2id[col_id]
+                        if col_name == '*':
+                            rep_col_names = ', '.join([f"{table_name}.{col_n}"for col_n in schema_ori[table_name]])
+                            # naive replacement
+                            sql = sql.replace('SELECT * ', f'SELECT {rep_col_names} ')
+
+    return sql
+
+
+def postprocess_sql(sql: str, db_path: str) -> str:
+    """
+    A heuristics-based SQL post-processing function
+    Args:
+        sql: a raw input sql
+        db_path: db path to .sqlite/.db
+    Returns:
+        a post-processed sql
+    """
+
+    # convert * column in SELECT clause into meaningful columns
+    final_sql = postprocess_sql_for_star_column(sql=sql, db_path=db_path)
+
+    # convert all eq to like for fuzzy string matching
+    final_sql = postprocess_sql_for_like_clause(sql=final_sql)
+
+    return final_sql
+
+
 def ask_any_question(question: str,
                      duorat_on_db: DuoratOnDatabase) -> Text2SQLInferenceResponse:
     if '@EXECUTE' not in question and '@execute' not in question:
@@ -443,7 +563,7 @@ def ask_any_question(question: str,
 
     if do_sql_post_processing:
         logger.log(f"SQL: {sql}")
-        sql = postprocess_sql(sql=sql)
+        sql = postprocess_sql(sql=sql, db_path=duorat_on_db.db_path)
 
     if logger:
         logger.log(f"Question: {question}")
@@ -483,7 +603,7 @@ def ask_any_question_with_followup(question: str,
 
     if do_sql_post_processing:
         logger.log(f"SQL: {sql}")
-        sql = postprocess_sql(sql=sql)
+        sql = postprocess_sql(sql=sql, db_path=duorat_on_db.db_path)
 
     if logger:
         logger.log(f"Question: {question}")
@@ -519,6 +639,19 @@ async def query_db(request: Text2SQLQueryDBRequest):
         examples = json.load(open(json_example_path))
         return len(examples)
 
+    def _get_db_file_size(db_name: str) -> str:
+        db_file_path = os.path.join(DB_PATH, db_name, f"{db_name}.sqlite")
+        db_file_stats = os.stat(db_file_path)
+        db_file_size = db_file_stats.st_size
+        if db_file_size < 1024:
+            f"{db_file_size} bytes"
+        elif 1024 <= db_file_size < 1024 * 1024:
+            f"{db_file_size / 1024:.2f} Kb"  # Kb
+        elif 1024 * 1024 <= db_file_size < 1024 * 1024 * 1024:
+            return f"{db_file_size / (1024 * 1024):.2f} Mb"  # in Mb
+        else:
+            return f"{db_file_size / (1024 * 1024 * 1024):.2f} Gb"  # in Gb
+
     if request.query_type == '[ALL_DB]':
         db_names = [
             df for df in listdir(path=DB_PATH) \
@@ -529,11 +662,11 @@ async def query_db(request: Text2SQLQueryDBRequest):
         new_db_names = []
         for db_name in db_names:
             if db_name in SPIDER_TRAIN_DBS:
-                new_db_name = f"{db_name} (Spider, trained, {_get_db_examples(db_name=db_name)} examples)"
+                new_db_name = f"{db_name} (Spider, trained, {_get_db_examples(db_name=db_name)} examples, {_get_db_file_size(db_name=db_name)})"
             elif db_name in SPIDER_DEV_DBS:
-                new_db_name = f"{db_name} (Spider, unseen test, {_get_db_examples(db_name=db_name)} examples)"
+                new_db_name = f"{db_name} (Spider, unseen test, {_get_db_examples(db_name=db_name)} examples, {_get_db_file_size(db_name=db_name)})"
             else:
-                new_db_name = f"{db_name} (new, unseen)"
+                new_db_name = f"{db_name} (new, unseen, {_get_db_file_size(db_name=db_name)})"
             DB_ID_MAP[new_db_name] = db_name
             new_db_names.append(new_db_name)
         db_names = new_db_names

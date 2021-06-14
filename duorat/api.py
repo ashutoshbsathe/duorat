@@ -169,7 +169,13 @@ class DuoratOnDatabase(object):
                 raise ValueError()
             self.schema: Dict = next(iter(schemas.values()))
         else:
-            self.schema: Dict = dump_db_json_schema(self.db_path, "")
+            db_path_splits = self.db_path.split('/')
+            db_id = db_path_splits[-1].replace('.sqlite', '').replace('.db', '')
+            self.schema: Dict = dump_db_json_schema(self.db_path, db_id)
+            schema_json_file = os.path.join('/'.join(db_path_splits[:-1]), 'tables.json')
+            if not os.path.exists(schema_json_file):  # Vu Hoang: write to JSON schema file if not exists.
+                with open(schema_json_file, "w") as f_json:
+                    json.dump(self.schema, f_json, indent=4, sort_keys=True)
             self.schema: SpiderSchema = schema_dict_to_spider_schema(
                 refine_schema_names(self.schema)
             )
