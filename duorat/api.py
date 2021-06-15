@@ -175,7 +175,7 @@ class DuoratOnDatabase(object):
             schema_json_file = os.path.join('/'.join(db_path_splits[:-1]), 'tables.json')
             if not os.path.exists(schema_json_file):  # Vu Hoang: write to JSON schema file if not exists.
                 with open(schema_json_file, "w") as f_json:
-                    json.dump(self.schema, f_json, indent=4, sort_keys=True)
+                    json.dump([self.schema], f_json, indent=4, sort_keys=True)
             self.schema: SpiderSchema = schema_dict_to_spider_schema(
                 refine_schema_names(self.schema)
             )
