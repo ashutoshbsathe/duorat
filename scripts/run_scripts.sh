@@ -281,6 +281,8 @@ CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-sp
 # interaction history (source&target, 1) in the inputs
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-sparc-cosql-new-db-content-source-target-interaction.jsonnet --logdir ./logdir/duorat-spider-sparc-cosql-new-db-content-source-target-interaction --force-preprocess --force-train &> logdir/train-duorat-spider-sparc-cosql-new-db-content-source-target-interaction.log &
 
+CUDA_VISIBLE_DEVICES=2 python scripts/serve.py --logdir ./logdir/duorat-spider-sparc-cosql-new-db-content-source-target-interaction --config configs/duorat/duorat-spider-sparc-cosql-new-db-content-source-target-interaction.jsonnet --db-path ./data/sparc/database --server-port 8200 --do-logging --log-append --do-sql-post-processing --log-file-name serve_followup.log &>./logdir/duorat-spider-sparc-cosql-new-db-content-source-target-interaction/server_followup_conn.log &
+
 # eval w/ TestSuite
 # Spider
 python scripts/get_testsuite_preds.py ./logdir/duorat-spider-sparc-cosql-new-db-content/val-duorat-spider-sparc-cosql-new-db-content.output.Spider ./data/spider/dev.json ./data/spider/dev_gold.sql /tmp/dump_file.txt ./logdir/duorat-spider-sparc-cosql-new-db-content/val-duorat-spider-sparc-cosql-new-db-content-eval-testsuite.output.Spider
