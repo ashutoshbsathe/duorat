@@ -536,11 +536,11 @@ def postprocess_sql(sql: str, db_path: str) -> str:
         a post-processed sql
     """
 
-    # convert * column in SELECT clause into meaningful columns
-    final_sql = postprocess_sql_for_star_column(sql=sql, db_path=db_path)
-
     # convert all eq to like for fuzzy string matching
-    final_sql = postprocess_sql_for_like_clause(sql=final_sql)
+    final_sql = postprocess_sql_for_like_clause(sql=sql)
+
+    # convert * column in SELECT clause into meaningful columns
+    final_sql = postprocess_sql_for_star_column(sql=final_sql, db_path=db_path)
 
     return final_sql
 
