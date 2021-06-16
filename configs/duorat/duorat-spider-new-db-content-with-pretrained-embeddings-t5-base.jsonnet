@@ -12,16 +12,20 @@
             }
         },
         preproc+: {
+            add_cls_token: true,  # T5 does not use CLS token.
+            add_sep_token: false,
             schema_linker+: {
                 whole_entry_db_content_confidence: 'high',
                 partial_entry_db_content_confidence: 'low'
             },
             tokenizer+: {
                 pretrained_model_name_or_path: 't5-base',
+                cls_token: '</s>'  # We replace cls_token with eos_token in T5.
             },
             transition_system+: {
                 tokenizer+: {
                     pretrained_model_name_or_path: 't5-base',
+                    cls_token: '</s>'  # We replace cls_token with eos_token in T5.
                 }
             }
         }

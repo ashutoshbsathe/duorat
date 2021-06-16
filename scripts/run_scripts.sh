@@ -733,10 +733,10 @@ TOKENIZERS_PARALLELISM=true CUDA_LAUNCH_BLOCKING=1 CUDA_VISIBLE_DEVICES=3 python
 # T5
 
 # small
-CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-t5-small.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-t5-small --force-preprocess --force-train
+TOKENIZERS_PARALLELISM=true CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-t5-small.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-t5-small --force-preprocess --force-train
 
 # base
-CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-t5-base.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-t5-base --force-preprocess --force-train
+TOKENIZERS_PARALLELISM=true CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-t5-base.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-t5-base --force-preprocess --force-train
 
 # BART
 

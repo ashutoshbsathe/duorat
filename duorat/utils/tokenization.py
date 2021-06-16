@@ -1,6 +1,6 @@
 import abc
 from functools import lru_cache
-from typing import List, Sequence, Tuple
+from typing import List, Sequence, Tuple, Optional
 
 import stanza
 from transformers import AutoTokenizer  # , BertTokenizerFast
@@ -65,14 +65,20 @@ class StanzaTokenizer(AbstractTokenizer):
 
 @registry.register("tokenizer", "BERTTokenizer")
 class BERTTokenizer(AbstractTokenizer):
-    def __init__(self, pretrained_model_name_or_path: str):
+    def __init__(self,
+                 pretrained_model_name_or_path: str,
+                 cls_token: Optional[str] = None,
+                 sep_token: Optional[str] = None):
         # self._bert_tokenizer = BertTokenizerFast.from_pretrained(
         #     pretrained_model_name_or_path=pretrained_model_name_or_path
         # )
         self._bert_tokenizer = AutoTokenizer.from_pretrained(
             pretrained_model_name_or_path=pretrained_model_name_or_path
         )
-        self._model_name = pretrained_model_name_or_path
+        if cls_token is not None:
+            self._bert_tokenizer.cls_token = cls_token
+        if sep_token is not None:
+            self._bert_tokenizer.sep_token = sep_token
         self._basic_tokenizer = BasicTokenizer()
         self._subword_sep_char = self._get_subword_sep_char()
 
