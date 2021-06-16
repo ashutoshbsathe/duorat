@@ -180,10 +180,13 @@ class RoBERTaTokenizer(BERTTokenizer):
         token, raw_token = tokens
         assert (
                 token == self._maybe_lowercase(raw_token)
+                or token == self._subword_sep_token
                 or token[len(self._subword_sep_token):] == self._maybe_lowercase(raw_token)
         )
 
-        if token.startswith(self._subword_sep_token):
+        if token == self._subword_sep_token:
+            raw_token_strings_with_sharps.append(self._subword_sep_token)
+        elif token.startswith(self._subword_sep_token):
             raw_token_strings_with_sharps.append(f"{self._subword_sep_token}{raw_token}")
         else:
             raw_token_strings_with_sharps.append(raw_token)
