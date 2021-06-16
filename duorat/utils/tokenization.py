@@ -80,8 +80,8 @@ class BERTTokenizer(AbstractTokenizer):
         if sep_token is not None:
             self._bert_tokenizer.sep_token = sep_token
         self._basic_tokenizer = BasicTokenizer()
-        self._subword_sep_char = self._get_subword_sep_char()
         self._pretrained_model_name_or_path = pretrained_model_name_or_path
+        self._subword_sep_char = self._get_subword_sep_char()
 
     def tokenize(self, s: str) -> List[str]:
         return self._bert_tokenizer.tokenize(s)
