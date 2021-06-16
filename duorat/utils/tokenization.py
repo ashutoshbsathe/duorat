@@ -1,6 +1,6 @@
 import abc
 from functools import lru_cache
-from typing import List, Sequence, Tuple, Optional
+from typing import List, Sequence, Tuple, Optional, Dict
 
 import stanza
 from transformers import AutoTokenizer  # , BertTokenizerFast
@@ -95,11 +95,16 @@ class BERTTokenizer(AbstractTokenizer):
     def _preprocess_non_standard_quote(cls, text: str) -> str:
         return text.replace('‘', '\'').replace('’', '\'').replace('“', '"').replace('”', '"').strip()
 
-    @classmethod
-    def _assert_tokenization_length_match(cls, enc_toks: List[str], toks: List[str]) -> bool:
-        assert len(enc_toks) == len(toks) + 2
+    def _get_raw_token_strings(self, enc_res: Dict, ori_s: str, toks: List[str]) -> List[str]:
+        assert len(enc_res['input_ids']) == len(toks) + 2
 
-    def _get_raw_token(self, tokens: Tuple[str, str], raw_token_strings_with_sharps: List[str]):
+        return [
+            self._basic_tokenizer._run_strip_accents(ori_s[start:end]) for start, end in
+            enc_res["offset_mapping"][1:-1]
+        ]
+
+    def _update_raw_token_strings_with_sharps(self, tokens: Tuple[str, str],
+                                              raw_token_strings_with_sharps: List[str]):
         token, raw_token = tokens
         assert (
                 token == self._maybe_lowercase(raw_token)
@@ -120,11 +125,9 @@ class BERTTokenizer(AbstractTokenizer):
         s = self._preprocess_non_standard_quote(text=s)
         tokens = self._bert_tokenizer.tokenize(s)
         encoding_result = self._bert_tokenizer(s, return_offsets_mapping=True)
-        self._assert_tokenization_length_match(enc_toks=encoding_result[0], toks=tokens)
-        raw_token_strings = [
-            self._basic_tokenizer._run_strip_accents(s[start:end]) for start, end in
-            encoding_result["offset_mapping"][1:-1]
-        ]
+        raw_token_strings = self._get_raw_token_strings(enc_res=encoding_result,
+                                                        ori_s=s,
+                                                        toks=tokens)
         raw_token_strings_with_sharps = []
         for token, raw_token in zip(tokens, raw_token_strings):
             # handle [UNK] token
@@ -132,8 +135,8 @@ class BERTTokenizer(AbstractTokenizer):
                 raw_token_strings_with_sharps.append(raw_token)
                 continue
 
-            self._get_raw_token(tokens=(token, raw_token),
-                                raw_token_strings_with_sharps=raw_token_strings_with_sharps)
+            self._update_raw_token_strings_with_sharps(tokens=(token, raw_token),
+                                                       raw_token_strings_with_sharps=raw_token_strings_with_sharps)
 
         return zip(tokens, raw_token_strings_with_sharps)
 
@@ -162,8 +165,8 @@ class RoBERTaTokenizer(BERTTokenizer):
                  cls_token: Optional[str] = None,
                  sep_token: Optional[str] = None):
         super(RoBERTaTokenizer, self).__init__(pretrained_model_name_or_path=pretrained_model_name_or_path,
-                                         cls_token=cls_token,
-                                         sep_token=sep_token)
+                                               cls_token=cls_token,
+                                               sep_token=sep_token)
         self._subword_sep_token = 'Ġ'
 
     def detokenize(self, xs: Sequence[str]) -> str:
@@ -171,9 +174,10 @@ class RoBERTaTokenizer(BERTTokenizer):
         fine_text = text.replace(self._subword_sep_token, " ")
         return fine_text
 
-    def _get_raw_token(self, tokens: Tuple[str, str], raw_token_strings_with_sharps: List[str]):
+    def _update_raw_token_strings_with_sharps(self,
+                                              tokens: Tuple[str, str],
+                                              raw_token_strings_with_sharps: List[str]):
         token, raw_token = tokens
-
         assert (
                 token == self._maybe_lowercase(raw_token)
                 or token[len(self._subword_sep_token):] == self._maybe_lowercase(raw_token)
@@ -192,10 +196,14 @@ class T5Tokenizer(RoBERTaTokenizer):
                  cls_token: Optional[str] = None,
                  sep_token: Optional[str] = None):
         super(T5Tokenizer, self).__init__(pretrained_model_name_or_path=pretrained_model_name_or_path,
-                                    cls_token=cls_token,
-                                    sep_token=sep_token)
+                                          cls_token=cls_token,
+                                          sep_token=sep_token)
         self._subword_sep_token = '▁'
 
-    @classmethod
-    def _assert_tokenization_length_match(cls, enc_toks: List[str], toks: List[str]) -> bool:
-        assert len(enc_toks) == len(toks) + 1
+    def _get_raw_token_strings(self, enc_res: Dict, ori_s: str, toks: List[str]) -> List[str]:
+        assert len(enc_res['input_ids']) == len(toks) + 1
+
+        return [
+            self._basic_tokenizer._run_strip_accents(ori_s[start:end]) for start, end in
+            enc_res["offset_mapping"][:-1]
+        ]
