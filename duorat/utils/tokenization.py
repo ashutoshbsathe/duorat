@@ -160,7 +160,7 @@ class RoBERTaTokenizer(BERTTokenizer):
                  pretrained_model_name_or_path: str,
                  cls_token: Optional[str] = None,
                  sep_token: Optional[str] = None):
-        super(RoBERTaTokenizer).__init__(pretrained_model_name_or_path=pretrained_model_name_or_path,
+        super(RoBERTaTokenizer, self).__init__(pretrained_model_name_or_path=pretrained_model_name_or_path,
                                          cls_token=cls_token,
                                          sep_token=sep_token)
         self._subword_sep_token = 'Ġ'
@@ -183,7 +183,7 @@ class T5Tokenizer(RoBERTaTokenizer):
                  pretrained_model_name_or_path: str,
                  cls_token: Optional[str] = None,
                  sep_token: Optional[str] = None):
-        super(T5Tokenizer).__init__(pretrained_model_name_or_path=pretrained_model_name_or_path,
+        super(T5Tokenizer, self).__init__(pretrained_model_name_or_path=pretrained_model_name_or_path,
                                     cls_token=cls_token,
                                     sep_token=sep_token)
         self._subword_sep_token = '▁'
