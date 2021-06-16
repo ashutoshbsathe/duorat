@@ -59,7 +59,7 @@ class SpiderSchemaLinker(AbstractSchemaLinker):
         whole_entry_db_content_confidence: str = "high",
         partial_entry_db_content_confidence: str = "low",
         do_filter_bad_matches: bool = False,
-        match_type: str = 'table,column,value',
+        match_type: Optional[str] = 'table,column,value',
     ):
         super(SpiderSchemaLinker, self).__init__()
         self.max_n_gram = max_n_gram

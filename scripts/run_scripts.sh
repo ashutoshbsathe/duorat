@@ -281,7 +281,7 @@ CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-sp
 # interaction history (source&target, 1) in the inputs
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-sparc-cosql-new-db-content-source-target-interaction.jsonnet --logdir ./logdir/duorat-spider-sparc-cosql-new-db-content-source-target-interaction --force-preprocess --force-train &> logdir/train-duorat-spider-sparc-cosql-new-db-content-source-target-interaction.log &
 
-CUDA_VISIBLE_DEVICES=2 python scripts/serve.py --logdir ./logdir/duorat-spider-sparc-cosql-new-db-content-source-target-interaction --config configs/duorat/duorat-spider-sparc-cosql-new-db-content-source-target-interaction.jsonnet --db-path ./data/sparc/database --server-port 8200 --do-logging --log-append --do-sql-post-processing --log-file-name serve_followup.log &>./logdir/duorat-spider-sparc-cosql-new-db-content-source-target-interaction/server_followup_conn.log &
+CUDA_VISIBLE_DEVICES=2 python scripts/serve.py --logdir ./logdir/duorat-spider-sparc-cosql-new-db-content-source-target-interaction --config configs/duorat/duorat-spider-sparc-cosql-new-db-content-source-target-interaction.jsonnet --db-path ./data/database --server-port 8200 --do-logging --log-append --do-sql-post-processing --log-file-name serve_followup.log &>./logdir/duorat-spider-sparc-cosql-new-db-content-source-target-interaction/server_followup_conn.log &
 
 # eval w/ TestSuite
 # Spider
@@ -729,3 +729,19 @@ CUDA_VISIBLE_DEVICES=3 python scripts/train.py --config configs/duorat/duorat-sp
 
 # GraPPa
 TOKENIZERS_PARALLELISM=true CUDA_LAUNCH_BLOCKING=1 CUDA_VISIBLE_DEVICES=3 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-grappa.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-grappa --force-preprocess --force-train
+
+# T5
+
+# small
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-t5-small.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-t5-small --force-preprocess --force-train
+
+# base
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-t5-base.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-t5-base --force-preprocess --force-train
+
+# BART
+
+# small
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-bart-small.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-bart-small --force-preprocess --force-train
+
+# base
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-bart-base.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-bart-base --force-preprocess --force-train

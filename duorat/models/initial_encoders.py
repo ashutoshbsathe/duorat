@@ -305,6 +305,7 @@ class BertEncoder(InitialEncoder):
             use_position_ids: bool,
             use_segments: bool,
             preproc: BertDuoRATPreproc,
+            use_outputs_from: Optional[str] = 'dec',
     ) -> None:
         super(BertEncoder, self).__init__()
 
@@ -341,6 +342,7 @@ class BertEncoder(InitialEncoder):
         self.use_token_type_ids = use_token_type_ids
         self.use_position_ids = use_position_ids
         self.use_segments = use_segments
+        self.use_outputs_from = use_outputs_from
 
     @property
     def max_supported_input_length(self) -> Optional[int]:
@@ -409,8 +411,15 @@ class BertEncoder(InitialEncoder):
             token_type_ids=_input_token_type_ids,
             position_ids=_input_position_ids,
         )
-        last_layer_hidden_state = bert_result.last_hidden_state
-        all_hidden_states = bert_result.hidden_states
+        if hasattr(bert_result, "encoder_hidden_states") and 'enc' == self.use_outputs_from:
+            last_layer_hidden_state = bert_result.encoder_last_hidden_state
+            all_hidden_states = bert_result.encoder_hidden_states
+        elif hasattr(bert_result, "decoder_hidden_states") and 'dec' == self.use_outputs_from:
+            last_layer_hidden_state = bert_result.last_hidden_state
+            all_hidden_states = bert_result.decoder_hidden_states
+        else:
+            last_layer_hidden_state = bert_result.last_hidden_state
+            all_hidden_states = bert_result.hidden_states
 
         assert len(all_hidden_states) == self.bert.config.num_hidden_layers + 1
         # assert all(
