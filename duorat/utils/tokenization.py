@@ -100,12 +100,19 @@ class BERTTokenizer(AbstractTokenizer):
         assert len(enc_toks) == len(toks) + 2
 
     def _get_raw_token(self, tokens: Tuple[str, str], raw_token_strings_with_sharps: List[str]):
-        if tokens[0].startswith(self._subword_sep_token):
-            raw_token_strings_with_sharps.append(f"{self._subword_sep_token}{tokens[1]}")
-        elif tokens[0].endswith(self._subword_sep_token):
-            raw_token_strings_with_sharps.append(f"{tokens[1]}{self._subword_sep_token}")
+        token, raw_token = tokens
+        assert (
+                token == self._maybe_lowercase(raw_token)
+                or token[len(self._subword_sep_token):] == self._maybe_lowercase(raw_token)
+                or token[-len(self._subword_sep_token):] == self._maybe_lowercase(raw_token)
+        )
+
+        if token.startswith(self._subword_sep_token):
+            raw_token_strings_with_sharps.append(f"{self._subword_sep_token}{raw_token}")
+        elif token.endswith(self._subword_sep_token):
+            raw_token_strings_with_sharps.append(f"{raw_token}{self._subword_sep_token}")
         else:
-            raw_token_strings_with_sharps.append(tokens[1])
+            raw_token_strings_with_sharps.append(raw_token)
 
     def tokenize_with_raw(self, s: str) -> List[Tuple[str, str]]:
         # TODO: at some point, hopefully, transformers API will be mature enough
@@ -124,12 +131,6 @@ class BERTTokenizer(AbstractTokenizer):
             if str(token) == self._bert_tokenizer.unk_token:  # '[UNK]':
                 raw_token_strings_with_sharps.append(raw_token)
                 continue
-
-            assert (
-                    token == self._maybe_lowercase(raw_token)
-                    or token[len(self._subword_sep_char):] == self._maybe_lowercase(raw_token)
-                    or token[-len(self._subword_sep_char):] == self._maybe_lowercase(raw_token)
-            )
 
             self._get_raw_token(tokens=tuple(token, raw_token),
                                 raw_token_strings_with_sharps=raw_token_strings_with_sharps)
@@ -171,10 +172,17 @@ class RoBERTaTokenizer(BERTTokenizer):
         return fine_text
 
     def _get_raw_token(self, tokens: Tuple[str, str], raw_token_strings_with_sharps: List[str]):
-        if tokens[0].startswith(self._subword_sep_token):
-            raw_token_strings_with_sharps.append(f"{self._subword_sep_token}{tokens[1]}")
+        token, raw_token = tokens
+
+        assert (
+                token == self._maybe_lowercase(raw_token)
+                or token[len(self._subword_sep_token):] == self._maybe_lowercase(raw_token)
+        )
+
+        if token.startswith(self._subword_sep_token):
+            raw_token_strings_with_sharps.append(f"{self._subword_sep_token}{raw_token}")
         else:
-            raw_token_strings_with_sharps.append(tokens[1])
+            raw_token_strings_with_sharps.append(raw_token)
 
 
 @registry.register("tokenizer", "T5Tokenizer")
