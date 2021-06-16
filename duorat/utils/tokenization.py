@@ -132,7 +132,7 @@ class BERTTokenizer(AbstractTokenizer):
                 raw_token_strings_with_sharps.append(raw_token)
                 continue
 
-            self._get_raw_token(tokens=tuple(token, raw_token),
+            self._get_raw_token(tokens=(token, raw_token),
                                 raw_token_strings_with_sharps=raw_token_strings_with_sharps)
 
         return zip(tokens, raw_token_strings_with_sharps)
