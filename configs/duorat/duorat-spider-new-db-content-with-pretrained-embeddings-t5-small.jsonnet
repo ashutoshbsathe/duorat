@@ -19,11 +19,13 @@
                 partial_entry_db_content_confidence: 'low'
             },
             tokenizer+: {
+                name: 'T5Tokenizer',
                 pretrained_model_name_or_path: 't5-small',
                 cls_token: '</s>'  # We replace cls_token with eos_token in T5.
             },
             transition_system+: {
                 tokenizer+: {
+                    name: 'T5Tokenizer',
                     pretrained_model_name_or_path: 't5-small',
                     cls_token: '</s>'  # We replace cls_token with eos_token in T5.
                 }

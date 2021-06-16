@@ -81,7 +81,7 @@ class BERTTokenizer(AbstractTokenizer):
             self._bert_tokenizer.sep_token = sep_token
         self._basic_tokenizer = BasicTokenizer()
         self._pretrained_model_name_or_path = pretrained_model_name_or_path
-        self._subword_sep_char = self._get_subword_sep_char()
+        self._subword_sep_token = '##'
 
     def tokenize(self, s: str) -> List[str]:
         return self._bert_tokenizer.tokenize(s)
@@ -91,15 +91,21 @@ class BERTTokenizer(AbstractTokenizer):
             return tok.lower()
         return tok
 
-    def _get_subword_sep_char(self) -> str:
-        if 'roberta' in self._pretrained_model_name_or_path \
-                or 'grappa' in self._pretrained_model_name_or_path:
-            return 'Ġ'
-        return '##'
-
     @classmethod
     def _preprocess_non_standard_quote(cls, text: str) -> str:
         return text.replace('‘', '\'').replace('’', '\'').replace('“', '"').replace('”', '"').strip()
+
+    @classmethod
+    def _assert_tokenization_length_match(cls, enc_toks: List[str], toks: List[str]) -> bool:
+        assert len(enc_toks) == len(toks) + 2
+
+    def _get_raw_token(self, tokens: Tuple[str, str], raw_token_strings_with_sharps: List[str]):
+        if tokens[0].startswith(self._subword_sep_token):
+            raw_token_strings_with_sharps.append(f"{self._subword_sep_token}{tokens[1]}")
+        elif tokens[0].endswith(self._subword_sep_token):
+            raw_token_strings_with_sharps.append(f"{tokens[1]}{self._subword_sep_token}")
+        else:
+            raw_token_strings_with_sharps.append(tokens[1])
 
     def tokenize_with_raw(self, s: str) -> List[Tuple[str, str]]:
         # TODO: at some point, hopefully, transformers API will be mature enough
@@ -107,7 +113,7 @@ class BERTTokenizer(AbstractTokenizer):
         s = self._preprocess_non_standard_quote(text=s)
         tokens = self._bert_tokenizer.tokenize(s)
         encoding_result = self._bert_tokenizer(s, return_offsets_mapping=True)
-        assert len(encoding_result[0]) == len(tokens) + 2
+        self._assert_tokenization_length_match(enc_toks=encoding_result[0], toks=tokens)
         raw_token_strings = [
             self._basic_tokenizer._run_strip_accents(s[start:end]) for start, end in
             encoding_result["offset_mapping"][1:-1]
@@ -125,29 +131,15 @@ class BERTTokenizer(AbstractTokenizer):
                     or token[-len(self._subword_sep_char):] == self._maybe_lowercase(raw_token)
             )
 
-            if self._subword_sep_char == '##':
-                if token.startswith("##"):
-                    raw_token_strings_with_sharps.append("##" + raw_token)
-                elif token.endswith("##"):
-                    raw_token_strings_with_sharps.append(raw_token + "##")
-                else:
-                    raw_token_strings_with_sharps.append(raw_token)
-            elif self._subword_sep_char == 'Ġ':
-                if token.startswith("Ġ"):
-                    raw_token_strings_with_sharps.append("Ġ" + raw_token)
-                else:
-                    raw_token_strings_with_sharps.append(raw_token)
+            self._get_raw_token(tokens=tuple(token, raw_token),
+                                raw_token_strings_with_sharps=raw_token_strings_with_sharps)
 
         return zip(tokens, raw_token_strings_with_sharps)
 
     def detokenize(self, xs: Sequence[str]) -> str:
         """Naive implementation, see https://github.com/huggingface/transformers/issues/36"""
-        if self._subword_sep_char == '##':
-            text = " ".join([x for x in xs])
-            fine_text = text.replace(" ##", "")
-        elif self._subword_sep_char == 'Ġ':
-            text = "".join([x for x in xs])
-            fine_text = text.replace("Ġ", " ")
+        text = " ".join([x for x in xs])
+        fine_text = text.replace(f" {self._subword_sep_token}", "")
         return fine_text
 
     def convert_token_to_id(self, s: str) -> int:
@@ -160,3 +152,42 @@ class BERTTokenizer(AbstractTokenizer):
     @property
     def sep_token(self) -> str:
         return self._bert_tokenizer.sep_token
+
+
+@registry.register("tokenizer", "RoBERTaTokenizer")
+class RoBERTaTokenizer(BERTTokenizer):
+    def __init__(self,
+                 pretrained_model_name_or_path: str,
+                 cls_token: Optional[str] = None,
+                 sep_token: Optional[str] = None):
+        super(RoBERTaTokenizer).__init__(pretrained_model_name_or_path=pretrained_model_name_or_path,
+                                         cls_token=cls_token,
+                                         sep_token=sep_token)
+        self._subword_sep_token = 'Ġ'
+
+    def detokenize(self, xs: Sequence[str]) -> str:
+        text = "".join([x for x in xs])
+        fine_text = text.replace(self._subword_sep_token, " ")
+        return fine_text
+
+    def _get_raw_token(self, tokens: Tuple[str, str], raw_token_strings_with_sharps: List[str]):
+        if tokens[0].startswith(self._subword_sep_token):
+            raw_token_strings_with_sharps.append(f"{self._subword_sep_token}{tokens[1]}")
+        else:
+            raw_token_strings_with_sharps.append(tokens[1])
+
+
+@registry.register("tokenizer", "T5Tokenizer")
+class T5Tokenizer(RoBERTaTokenizer):
+    def __init__(self,
+                 pretrained_model_name_or_path: str,
+                 cls_token: Optional[str] = None,
+                 sep_token: Optional[str] = None):
+        super(T5Tokenizer).__init__(pretrained_model_name_or_path=pretrained_model_name_or_path,
+                                    cls_token=cls_token,
+                                    sep_token=sep_token)
+        self._subword_sep_token = '▁'
+
+    @classmethod
+    def _assert_tokenization_length_match(cls, enc_toks: List[str], toks: List[str]) -> bool:
+        assert len(enc_toks) == len(toks) + 1
