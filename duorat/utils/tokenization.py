@@ -81,6 +81,7 @@ class BERTTokenizer(AbstractTokenizer):
             self._bert_tokenizer.sep_token = sep_token
         self._basic_tokenizer = BasicTokenizer()
         self._subword_sep_char = self._get_subword_sep_char()
+        self._pretrained_model_name_or_path = pretrained_model_name_or_path
 
     def tokenize(self, s: str) -> List[str]:
         return self._bert_tokenizer.tokenize(s)
@@ -91,7 +92,8 @@ class BERTTokenizer(AbstractTokenizer):
         return tok
 
     def _get_subword_sep_char(self) -> str:
-        if 'roberta' in self._model_name or 'grappa' in self._model_name:
+        if 'roberta' in self._pretrained_model_name_or_path \
+                or 'grappa' in self._pretrained_model_name_or_path:
             return 'Ġ'
         return '##'
 
