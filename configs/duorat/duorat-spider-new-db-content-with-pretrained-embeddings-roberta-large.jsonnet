@@ -2,7 +2,7 @@
     model+: {
         encoder+: {
             initial_encoder+: {
-                pretrained_model_name_or_path: 'roberta-base',
+                pretrained_model_name_or_path: 'roberta-large',
             },
             source_relation_types: {
                 use_schema_linking: true,
@@ -17,12 +17,12 @@
             },
             tokenizer+: {
                 name: 'RoBERTaTokenizer',
-                pretrained_model_name_or_path: 'roberta-base',
+                pretrained_model_name_or_path: 'roberta-large',
             },
             transition_system+: {
                 tokenizer+: {
                     name: 'RoBERTaTokenizer',
-                    pretrained_model_name_or_path: 'roberta-base',
+                    pretrained_model_name_or_path: 'roberta-large',
                 }
             }
         }

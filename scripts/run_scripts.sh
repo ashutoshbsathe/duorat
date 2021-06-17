@@ -680,12 +680,14 @@ CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-sp
 # train
 TOKENIZERS_PARALLELISM=true python scripts/custom_ner/create_silver_training_data.py --duorat-config-file ./configs/duorat/duorat-new-db-content.jsonnet --input-files ./data/spider/train_spider.json ./data/spider/train_others.json --output-file ./data/spider/train_spider_and_others_with_schema_custom_ner.json --schema-json-path ./data/spider/tables.json
 
+rm -rf ./data/custom_ner/spider/train
 mkdir -p ./data/custom_ner/spider/train
 python scripts/custom_ner/extract_custom_ner_data.py --input-file ./data/spider/train_spider_and_others_with_schema_custom_ner.json --output-folder ./data/custom_ner/spider/train --data-type spider_train
 
 # dev
 TOKENIZERS_PARALLELISM=true python scripts/custom_ner/create_silver_training_data.py --duorat-config-file ./configs/duorat/duorat-new-db-content.jsonnet --input-files ./data/spider/dev.json --output-file ./data/spider/dev_with_schema_custom_ner.json --schema-json-path ./data/spider/tables.json
 
+rm -rf ./data/custom_ner/spider/dev
 mkdir -p ./data/custom_ner/spider/dev
 python scripts/custom_ner/extract_custom_ner_data.py --input-file ./data/spider/dev_with_schema_custom_ner.json --output-folder ./data/custom_ner/spider/dev --data-type spider_dev
 
