@@ -721,6 +721,9 @@ TOKENIZERS_PARALLELISM=true CUDA_LAUNCH_BLOCKING=1 CUDA_VISIBLE_DEVICES=0 python
 
 # ELECTRA
 
+# small
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-small.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-small --force-preprocess --force-train
+
 # base
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base --force-preprocess --force-train
 

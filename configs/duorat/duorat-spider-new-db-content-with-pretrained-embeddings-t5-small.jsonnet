@@ -2,6 +2,7 @@
     model+: {
         encoder+: {
             initial_encoder+: {
+                name: 'T5Encoder',
                 pretrained_model_name_or_path: 't5-small',
                 use_outputs_from: 'enc',
             },

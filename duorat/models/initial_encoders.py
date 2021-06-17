@@ -1,11 +1,11 @@
 import abc
 import math
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Dict
 
 import torch
 from torch import nn
 
-from transformers import AutoModel  # , BertModel
+from transformers import AutoModel, T5EncoderModel  # , BertModel
 
 from duorat.models.utils import _flip_attention_mask
 from duorat.models.rat import RATLayer
@@ -311,14 +311,7 @@ class BertEncoder(InitialEncoder):
 
         assert isinstance(preproc, BertDuoRATPreproc)
 
-        # self.bert = BertModel.from_pretrained(
-        #     pretrained_model_name_or_path=pretrained_model_name_or_path,
-        #     output_hidden_states=True,
-        # )
-        self.bert = AutoModel.from_pretrained(
-            pretrained_model_name_or_path=pretrained_model_name_or_path,
-            output_hidden_states=True,
-        )
+        self.bert = self._load_pretrained(pretrained_model_name_or_path=pretrained_model_name_or_path)
         if not trainable:
             for param in self.bert.parameters():
                 param.requires_grad = False
@@ -344,6 +337,12 @@ class BertEncoder(InitialEncoder):
         self.use_segments = use_segments
         self.use_outputs_from = use_outputs_from
 
+    @classmethod
+    def _load_pretrained(cls, pretrained_model_name_or_path: str) -> AutoModel:
+        return AutoModel.from_pretrained(
+            pretrained_model_name_or_path=pretrained_model_name_or_path
+        )
+
     @property
     def max_supported_input_length(self) -> Optional[int]:
         if self.use_position_ids or self.use_segments:
@@ -355,6 +354,18 @@ class BertEncoder(InitialEncoder):
     @property
     def embed_dim(self) -> int:
         return self._embed_dim
+
+    def _get_pretrained_encoding_outputs(self, inputs: Dict) -> Tuple[torch.Tensor, torch.Tensor]:
+        # @Vu Hoang: this is for HF transformers v4.6.0 as of June 2021
+        bert_result = self.bert(
+            input_ids=inputs['input_ids'],
+            attention_mask=inputs['input_attention_mask'],
+            token_type_ids=inputs['input_token_type_ids'],
+            position_ids=inputs['input_position_ids'],
+            output_hidden_states=True
+        )
+
+        return bert_result.last_hidden_state, bert_result.hidden_states
 
     def _forward_segment(
             self,
@@ -403,23 +414,12 @@ class BertEncoder(InitialEncoder):
         else:
             _input_position_ids = None
 
-        # @Vu Hoang: this is for HF transformers v4.6.0 as of June 2021
-        # last_layer_hidden_state, _, all_hidden_states = \
-        bert_result = self.bert(
-            input_a.to(device=device),
-            attention_mask=_input_attention_mask,
-            token_type_ids=_input_token_type_ids,
-            position_ids=_input_position_ids,
-        )
-        if hasattr(bert_result, "encoder_hidden_states") and 'enc' == self.use_outputs_from:
-            last_layer_hidden_state = bert_result.encoder_last_hidden_state
-            all_hidden_states = bert_result.encoder_hidden_states
-        elif hasattr(bert_result, "decoder_hidden_states") and 'dec' == self.use_outputs_from:
-            last_layer_hidden_state = bert_result.last_hidden_state
-            all_hidden_states = bert_result.decoder_hidden_states
-        else:
-            last_layer_hidden_state = bert_result.last_hidden_state
-            all_hidden_states = bert_result.hidden_states
+        inputs = {'input_ids': input_a.to(device=device),
+                  'input_attention_mask': _input_attention_mask,
+                  'input_token_type_ids': _input_token_type_ids,
+                  'input_position_ids': _input_position_ids
+                  }
+        last_layer_hidden_state, all_hidden_states = self._get_pretrained_encoding_outputs(inputs=inputs)
 
         assert len(all_hidden_states) == self.bert.config.num_hidden_layers + 1
         # assert all(
@@ -537,3 +537,111 @@ class BertEncoder(InitialEncoder):
             return source.cuda(0)
         else:
             return source
+
+
+@registry.register("initial_encoder", "T5Encoder")
+class T5Encoder(BertEncoder):
+    def __init__(
+            self,
+            pretrained_model_name_or_path: str,
+            trainable: bool,
+            num_return_layers: int,
+            embed_dim: int,
+            use_dedicated_gpu: bool,
+            use_affine_transformation: bool,
+            use_attention_mask: bool,
+            use_token_type_ids: bool,
+            use_position_ids: bool,
+            use_segments: bool,
+            use_outputs_from: str,
+            preproc: BertDuoRATPreproc,
+    ) -> None:
+        super(T5Encoder, self).__init__(pretrained_model_name_or_path=pretrained_model_name_or_path,
+                                        trainable=trainable,
+                                        num_return_layers=num_return_layers,
+                                        embed_dim=embed_dim,
+                                        use_dedicated_gpu=use_dedicated_gpu,
+                                        use_affine_transformation=use_affine_transformation,
+                                        use_attention_mask=use_attention_mask,
+                                        use_token_type_ids=False,
+                                        use_position_ids=False,
+                                        use_segments=use_segments,
+                                        use_outputs_from=use_outputs_from,
+                                        preproc=preproc)
+
+    @classmethod
+    def _load_pretrained(cls, pretrained_model_name_or_path: str) -> T5EncoderModel:
+        return T5EncoderModel.from_pretrained(
+            pretrained_model_name_or_path=pretrained_model_name_or_path
+        )
+
+    def _get_pretrained_encoding_outputs(self, inputs: Dict) -> Tuple[torch.Tensor, torch.Tensor]:
+        # @Vu Hoang: this is for HF transformers v4.6.0 as of June 2021
+        bert_result = self.bert(
+            input_ids=inputs['input_ids'],
+            attention_mask=inputs['input_attention_mask'],
+            output_hidden_states=True
+        )
+
+        return bert_result.last_hidden_state, bert_result.hidden_states
+
+    def _forward_segment(
+            self,
+            input_a: torch.Tensor,
+            input_b: torch.Tensor,
+            input_attention_mask: torch.Tensor,
+            input_key_padding_mask: torch.Tensor,
+            input_token_type_ids: torch.Tensor,
+            input_position_ids: torch.Tensor,
+    ):
+        device = next(self.parameters()).device
+
+        # assert input_a.dtype == torch.long
+        (batch_size, max_input_length) = input_a.shape
+
+        # assert input_b.dtype == torch.long
+        assert input_b.shape == (batch_size, max_input_length)
+        # TODO: assert that input_b does not contain anything but UNK or padding
+
+        if self.use_attention_mask:
+            # attend according to attention mask
+            # assert input_attention_mask.dtype == torch.bool
+            assert input_attention_mask.shape == (
+                batch_size,
+                max_input_length,
+                max_input_length,
+            )
+            _input_attention_mask = input_attention_mask.to(device=device)
+        else:
+            # use the key padding mask as attention mask
+            # assert input_key_padding_mask.dtype == torch.bool
+            assert input_key_padding_mask.shape == (batch_size, max_input_length)
+            _input_attention_mask = input_key_padding_mask.to(device=device)
+
+        inputs = {'input_ids': input_a.to(device=device),
+                  'input_attention_mask': _input_attention_mask
+                  }
+        last_layer_hidden_state, all_hidden_states = self._get_pretrained_encoding_outputs(inputs=inputs)
+
+        assert len(all_hidden_states) == self.bert.config.num_hidden_layers + 1
+        # assert all(
+        #     hidden_state.dtype == torch.float for hidden_state in all_hidden_states
+        # )
+        assert all(
+            hidden_state.shape
+            == (batch_size, max_input_length, self.bert.config.hidden_size)
+            for hidden_state in all_hidden_states
+        )
+        assert all(hidden_state.device == device for hidden_state in all_hidden_states)
+        assert all_hidden_states[-1].data_ptr() == last_layer_hidden_state.data_ptr()
+
+        output = torch.cat(all_hidden_states[-self.num_return_layers:], 2)
+        assert output.shape == (batch_size, max_input_length, self._bert_embed_dim)
+        assert output.device == device
+
+        if self.use_affine_transformation:
+            output = self.linear(output)
+        assert output.shape == (batch_size, max_input_length, self.embed_dim)
+        assert output.device == device
+
+        return output
