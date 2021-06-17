@@ -113,7 +113,7 @@ SELECT T1.name FROM station AS T1 JOIN status AS T2 ON T1.id  =  T2.station_id G
                 6,         # col_id
                 false      # isDistinct
             ],
-            null           # col_unit1 (tuple)
+            null           # col_unit2 (tuple)
         ],
         "\"San Jose\"",    # val1
         null               # val2
@@ -146,7 +146,7 @@ import os
 import _jsonnet
 import tqdm
 
-from typing import List, Dict, Tuple, Set
+from typing import List, Dict, Tuple, Set, Any
 
 from duorat.preproc import offline  # *** Compulsory for registering duorat.preproc classes
 from duorat.preproc.abstract_preproc import AbstractPreproc
@@ -225,9 +225,8 @@ def create_silver_training_data(duorat_preprocessor: AbstractPreproc,
         # or just use existing item["sql"]
         spider_sql = item["sql"]
         # print(spider_sql)
-        allowed_schema_entities = set()
 
-        def _extract_allowed_schema_entities(spider_sql: Dict, allowed_schema_entities: Set[str]):
+        def _extract_allowed_schema_entities(spider_sql: Dict, allowed_schema_entities: Dict):
             # *** Get allowed schema entities (heuristics)
 
             # for select clause
@@ -239,10 +238,24 @@ def create_silver_training_data(duorat_preprocessor: AbstractPreproc,
 
                 # col_unit1
                 col_id = cond[1][1][1]
-                allowed_schema_entities.add(column_rmap[col_id])
+                allowed_schema_entities['table_or_column_entity_set'].add(column_rmap[col_id])
                 # col_unit2
                 if cond[1][2] is not None:
-                    allowed_schema_entities.add(column_rmap[cond[1][2][1]])
+                    allowed_schema_entities['table_or_column_entity_set'].add(column_rmap[cond[1][2][1]])
+
+            def _process_cond_val(cond_val: Any, cid: str) -> None:
+                if cond_val is not None and any([isinstance(cond_val, float),
+                                                 isinstance(cond_val, int),
+                                                 isinstance(cond_val, str)]):
+                    # potential value match
+                    if not isinstance(cond_val, str) and str(cond_val).endswith('.0'):
+                        cond_val = int(cond_val)  # convert to integer if required
+                    if isinstance(cond_val, str):
+                        cond_val = str(cond_val).replace('\"', '')
+                    else:
+                        cond_val = str(cond_val)
+                    for tok in duorat_preprocessor.tokenizer.tokenize(s=cond_val):
+                        allowed_schema_entities['value_entity_mapping'][tok] = column_rmap[cid]
 
             # for from clause
             from_clause = spider_sql['from']
@@ -250,7 +263,7 @@ def create_silver_training_data(duorat_preprocessor: AbstractPreproc,
             for table_unit in from_clause['table_units']:
                 table_id_or_nested_sql = table_unit[1]
                 if isinstance(table_id_or_nested_sql, int):
-                    allowed_schema_entities.add(table_rmap[table_id_or_nested_sql])
+                    allowed_schema_entities['table_or_column_entity_set'].add(table_rmap[table_id_or_nested_sql])
                 elif isinstance(table_id_or_nested_sql, dict):
                     # process nested SQL here, e.g., SELECT COUNT(*) FROM (SELECT T1.Name FROM country AS T1 JOIN
                     # countrylanguage AS T2 ON T1.Code  =  T2.CountryCode WHERE T2.Language  =  "English" INTERSECT
@@ -258,6 +271,13 @@ def create_silver_training_data(duorat_preprocessor: AbstractPreproc,
                     # T2.Language  =  "Dutch")
                     _extract_allowed_schema_entities(spider_sql=table_id_or_nested_sql,
                                                      allowed_schema_entities=allowed_schema_entities)
+            if from_clause['conds']:
+                for cond in from_clause['conds']:
+                    if not isinstance(cond, tuple) and not isinstance(cond, list):
+                        continue
+
+                    _process_cond_val(cond_val=cond[3], cid=cond[2][1][1])
+                    _process_cond_val(cond_val=cond[4], cid=cond[2][1][1])
 
             # for where clause
             where_clause = spider_sql['where']
@@ -268,19 +288,22 @@ def create_silver_training_data(duorat_preprocessor: AbstractPreproc,
 
                 # col_unit1
                 col_id = cond[2][1][1]
-                allowed_schema_entities.add(column_rmap[col_id])
+                allowed_schema_entities['table_or_column_entity_set'].add(column_rmap[col_id])
                 # col_unit2
                 if cond[2][2] is not None:
-                    allowed_schema_entities.add(column_rmap[cond[2][2][1]])
+                    allowed_schema_entities['table_or_column_entity_set'].add(column_rmap[cond[2][2][1]])
 
                 if cond[3] is not None:
                     if isinstance(cond[3], list):
-                        allowed_schema_entities.add(column_rmap[cond[3][1]])
+                        allowed_schema_entities['table_or_column_entity_set'].add(column_rmap[cond[3][1]])
                     elif isinstance(cond[3], dict):
                         # process nested SQL here, e.g., 'SELECT song_name FROM singer WHERE age  >  (SELECT avg(age)
                         # FROM singer)'
                         _extract_allowed_schema_entities(spider_sql=cond[3],
                                                          allowed_schema_entities=allowed_schema_entities)
+
+                _process_cond_val(cond_val=cond[3], cid=col_id)
+                _process_cond_val(cond_val=cond[4], cid=col_id)
 
             # for having clause
             having_clause = spider_sql['having']
@@ -291,10 +314,10 @@ def create_silver_training_data(duorat_preprocessor: AbstractPreproc,
 
                 # col_unit1
                 col_id = cond[2][1][1]
-                allowed_schema_entities.add(column_rmap[col_id])
+                allowed_schema_entities['table_or_column_entity_set'].add(column_rmap[col_id])
                 # col_unit2
                 if cond[2][2] is not None:
-                    allowed_schema_entities.add(column_rmap[cond[2][2][1]])
+                    allowed_schema_entities['table_or_column_entity_set'].add(column_rmap[cond[2][2][1]])
 
             # for order by clause
             order_by_clause = spider_sql['orderBy']
@@ -302,12 +325,12 @@ def create_silver_training_data(duorat_preprocessor: AbstractPreproc,
                 for val_unit in order_by_clause[1]:  # val_unit = tuple(unit_op, col_unit1, col_unit2)
                     # col_unit1 = tuple(agg_id, col_id, isDistinct)
                     if isinstance(val_unit, tuple) or isinstance(val_unit, list):
-                        if (isinstance(val_unit[1], tuple) or isinstance(val_unit[1], list)) and val_unit[
-                            1] is not None:
-                            allowed_schema_entities.add(column_rmap[val_unit[1][1]])
-                        if (isinstance(val_unit[2], tuple) or isinstance(val_unit[2], list)) and val_unit[
-                            2] is not None:
-                            allowed_schema_entities.add(column_rmap[val_unit[2][1]])
+                        if (isinstance(val_unit[1], tuple) or isinstance(val_unit[1], list)) \
+                                and val_unit[1] is not None:
+                            allowed_schema_entities['table_or_column_entity_set'].add(column_rmap[val_unit[1][1]])
+                        if (isinstance(val_unit[2], tuple) or isinstance(val_unit[2], list)) \
+                                and val_unit[2] is not None:
+                            allowed_schema_entities['table_or_column_entity_set'].add(column_rmap[val_unit[2][1]])
 
             # for intersect/union/except
             for op in IUE_OPS:
@@ -327,6 +350,8 @@ def create_silver_training_data(duorat_preprocessor: AbstractPreproc,
                 colMap[col_id] = col_name
             return tabMap, colMap
 
+        allowed_schema_entities = {"table_or_column_entity_set": set(),
+                                   "value_entity_mapping": {}}
         _extract_allowed_schema_entities(spider_sql=spider_sql,
                                          allowed_schema_entities=allowed_schema_entities)
         table_map, col_map = _get_sql_schema_mapping(sql_schema=sql_schema)
@@ -367,11 +392,11 @@ def create_silver_training_data(duorat_preprocessor: AbstractPreproc,
                 for match_tag in match_tags:
                     if isinstance(match_tag, ValueMatchTag) or isinstance(match_tag, ColumnMatchTag):
                         tab_col_ref = f"{table_map[match_tag.table_id]}.{col_map[match_tag.column_id]}".lower()
-                        if tab_col_ref in allowed_schema_entities:
+                        if tab_col_ref in allowed_schema_entities['table_or_column_entity_set']:
                             new_match_tags.append(match_tag)
                     elif isinstance(match_tag, TableMatchTag):
                         tab_ref = f"{table_map[match_tag.table_id]}".lower()
-                        if tab_ref in allowed_schema_entities:
+                        if tab_ref in allowed_schema_entities['table_or_column_entity_set']:
                             new_match_tags.append(match_tag)
 
                 if len(new_match_tags) > 0:
@@ -381,11 +406,21 @@ def create_silver_training_data(duorat_preprocessor: AbstractPreproc,
                     # If there is no high confidence, pick first one with low confidence randomly.
                     # If there are mixed of high and low confidence, pick high confidence only.
                     # If there are multiple high confidence, pick one randomly.
-                    schema_tags.append(_create_schema_tag(match_tag=new_match_tags_sorted[0]))
+                    if isinstance(new_match_tags_sorted[0].confidence, LowConfidenceMatch) \
+                            and raw_value in allowed_schema_entities['value_entity_mapping']:
+                        schema_tags.append(f"@{allowed_schema_entities['value_entity_mapping'][raw_value]}.value")
+                    else:
+                        schema_tags.append(_create_schema_tag(match_tag=new_match_tags_sorted[0]))
+                else:
+                    if raw_value in allowed_schema_entities['value_entity_mapping']:
+                        schema_tags.append(f"@{allowed_schema_entities['value_entity_mapping'][raw_value]}.value")
+                    else:
+                        schema_tags.append('O')
+            else:
+                if raw_value in allowed_schema_entities['value_entity_mapping']:
+                    schema_tags.append(f"@{allowed_schema_entities['value_entity_mapping'][raw_value]}.value")
                 else:
                     schema_tags.append('O')
-            else:
-                schema_tags.append('O')
 
         def _detokenize(tokens: List[str], tags: List[str]) -> Tuple[List[str], List[str]]:
             new_tokens = []
