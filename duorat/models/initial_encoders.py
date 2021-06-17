@@ -563,8 +563,8 @@ class T5Encoder(BertEncoder):
                                         use_dedicated_gpu=use_dedicated_gpu,
                                         use_affine_transformation=use_affine_transformation,
                                         use_attention_mask=use_attention_mask,
-                                        use_token_type_ids=False,
-                                        use_position_ids=False,
+                                        use_token_type_ids=use_token_type_ids,
+                                        use_position_ids=use_position_ids,
                                         use_segments=use_segments,
                                         use_outputs_from=use_outputs_from,
                                         preproc=preproc)
@@ -574,6 +574,10 @@ class T5Encoder(BertEncoder):
         return T5EncoderModel.from_pretrained(
             pretrained_model_name_or_path=pretrained_model_name_or_path
         )
+
+    @property
+    def max_supported_input_length(self) -> Optional[int]:
+        return 512
 
     def _get_pretrained_encoding_outputs(self, inputs: Dict) -> Tuple[torch.Tensor, torch.Tensor]:
         # @Vu Hoang: this is for HF transformers v4.6.0 as of June 2021
