@@ -304,8 +304,8 @@ class BertEncoder(InitialEncoder):
             use_token_type_ids: bool,
             use_position_ids: bool,
             use_segments: bool,
+            use_outputs_from: str,
             preproc: BertDuoRATPreproc,
-            use_outputs_from: Optional[str] = 'dec',
     ) -> None:
         super(BertEncoder, self).__init__()
 
