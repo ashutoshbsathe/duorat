@@ -1,4 +1,13 @@
 (import 'duorat-base.libsonnet')(output_from=true) {
+    local PREFIX = 'data/',
+
+    data: {
+        train: (import '../../data/train.libsonnet')(prefix=PREFIX),
+        val: (import '../../data/val.libsonnet')(prefix=PREFIX),
+        train_sample_size: 500,
+        val_sample_size: 100
+    },
+
     model+: {
         name: 'LMDuoRAT',
         encoder: {
