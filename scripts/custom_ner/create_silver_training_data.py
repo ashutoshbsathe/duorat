@@ -205,7 +205,7 @@ def create_silver_training_data(duorat_preprocessor: AbstractPreproc,
         slml_question: str = duorat_preprocessor.schema_linker.question_to_slml(
             question=question, sql_schema=sql_schema,
         )
-        item['slml_question'] = slml_question
+        item['unsup_slml_question'] = slml_question
 
         def _get_idMap_rev(idMap: Dict[str, id]) -> Tuple[Dict[id, str], Dict[id, str]]:
             table_rmap = {}
@@ -224,6 +224,7 @@ def create_silver_training_data(duorat_preprocessor: AbstractPreproc,
         # spider_sql: dict = get_sql(schema=spider_schema, query=item["query"])  # a dictionary
         # or just use existing item["sql"]
         spider_sql = item["sql"]
+
         # print(spider_sql)
 
         def _extract_allowed_schema_entities(spider_sql: Dict, allowed_schema_entities: Dict):
@@ -423,18 +424,68 @@ def create_silver_training_data(duorat_preprocessor: AbstractPreproc,
                     schema_tags.append('O')
 
         def _detokenize(tokens: List[str], tags: List[str]) -> Tuple[List[str], List[str]]:
+            assert len(tokens) == len(tags)
+
             new_tokens = []
             new_tags = []
-            for token, tag in zip(tokens, tags):
+            index = 0
+            while index < len(tokens):
+                token = tokens[index]
+                tag = tags[index]
                 if '##' in token:
                     if len(new_tokens) > 0:
                         new_tokens[-1] = f"{new_tokens[-1]}{token.replace('##', '')}"
                         # Here, tag of first subword token is reserved.
                     else:
                         print(f"WARNING: invalid subword tokenization.")
+                elif '.' == token and index - 1 >= 0 and index + 1 < len(tokens):
+                    prev_token = tokens[index - 1]
+                    next_token = tokens[index + 1].replace('##', '')
+                    prev_tag = tags[index - 1]
+                    next_tag = tags[index + 1]
+                    if (prev_tag == tag == next_tag) and ((prev_token.isnumeric() and next_token.isnumeric()) \
+                                                          or (prev_token.isalpha() and next_token.isalpha())):
+                        # 37 . 5 or example . org
+                        new_tokens[-1] = f"{new_tokens[-1]}{token}{next_token}"
+                        # Here, tag of first subword token is reserved.
+
+                        index += 1
+                    elif prev_tag == tag and prev_token.isalpha():  # Dr .
+                        new_tokens[-1] = f"{new_tokens[-1]}{token}"
+                        # Here, tag of first subword token is reserved.
+                    else:
+                        new_tokens.append(token)
+                        new_tags.append(tag)
                 else:
                     new_tokens.append(token)
                     new_tags.append(tag)
+
+                index += 1
+
+            # post-process for email addresses, e.g., stanley @ example.com --> stanley@example.com
+            tokens = new_tokens
+            tags = new_tags
+            new_tokens = []
+            new_tags = []
+            index = 0
+            while index < len(tokens):
+                token = tokens[index]
+                tag = tags[index]
+                if '@' == token and index - 1 >= 0 and index + 1 < len(tokens):
+                    next_token = tokens[index + 1]
+                    prev_tag = tags[index - 1]
+                    next_tag = tags[index + 1]
+                    if prev_tag == tag == next_tag:
+                        new_tokens[-1] = f"{new_tokens[-1]}{token}{next_token}"
+                        # Here, tag of first subword token is reserved.
+                        index += 2
+                        continue
+
+                new_tokens.append(token)
+                new_tags.append(tag)
+
+                index += 1
+
             return new_tokens, new_tags
 
         def _get_ne_stats(tags: List[str], db_id: str, dstats: Dict[str, Tuple[int, Set]]) -> None:
@@ -459,6 +510,42 @@ def create_silver_training_data(duorat_preprocessor: AbstractPreproc,
         _get_ne_stats(tags=schema_tags, db_id=db_id, dstats=dstats)
         item["schema_custom_ner"] = {"toked_question": ' '.join(question_tokens),
                                      "tags": ' '.join(schema_tags)}
+
+        # form new SLML question
+        new_slml_tokens = []
+        qindex = 0
+        while qindex < len(question_tokens):
+            qtoken = question_tokens[qindex]
+            stag = schema_tags[qindex]
+
+            if stag.startswith('@') and len(stag) > 1:
+                cur_qindex = qindex
+                while qindex + 1 < len(question_tokens) and schema_tags[qindex + 1] == stag:
+                    qindex += 1
+
+                merged_tokens = question_tokens[cur_qindex:qindex + 1]
+                if '.value' in stag:  # value matching
+                    stokens = stag.split('.')
+                    table_mention = stokens[0].replace('@', '')
+                    column_mention = stokens[1]
+                    value = ' '.join(merged_tokens)
+                    slml_text = f"<vm table=\"{table_mention}\" column=\"{column_mention}\" value=\"{value}\" confidence=\"high\">{value}</vm>"
+                    new_slml_tokens.append(slml_text)
+                elif '.' in stag:
+                    stokens = stag.split('.')
+                    table_mention = stokens[0].replace('@', '')
+                    column_mention = stokens[1]
+                    slml_text = f"<cm table=\"{table_mention}\" column=\"{column_mention}\" confidence=\"high\">{' '.join(merged_tokens)}</cm>"
+                    new_slml_tokens.append(slml_text)
+                else:
+                    slml_text = f"<tm table=\"{stag.replace('@', '')}\" confidence=\"high\">{' '.join(merged_tokens)}</tm>"
+                    new_slml_tokens.append(slml_text)
+            else:
+                new_slml_tokens.append(qtoken)
+
+            qindex += 1
+
+        item["slml_question"] = ' '.join(new_slml_tokens)
 
     # write output data
     json.dump(data, open(output_file, "w"), indent=4, sort_keys=True)

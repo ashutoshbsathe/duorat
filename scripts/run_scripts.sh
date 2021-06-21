@@ -684,6 +684,42 @@ rm -rf ./data/custom_ner/spider/train
 mkdir -p ./data/custom_ner/spider/train
 python scripts/custom_ner/extract_custom_ner_data.py --input-file ./data/spider/train_spider_and_others_with_schema_custom_ner.json --output-folder ./data/custom_ner/spider/train --data-type spider_train
 
+# * train customNER model (MeNER) on silver training data
+source /mnt/shared/vchoang/tools/pyvenv368-oda-custom-ner-master/bin/activate
+
+# cinema
+CUDA_VISIBLE_DEVICES=0 python3 -m mener \
+--config ../cner/cner_config.yaml \
+--logging_level 0 \
+--data.data_path /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/custom_ner/spider/train \
+--data.train_file cinema_db_spider_train_set_train_split.txt \
+--data.test_file /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/custom_ner/spider/train/cinema_db_spider_train_set_test_split.txt \
+--data.format row \
+--mener_model.model_dir /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/logdir/cner_models/spider/train/cinema \
+--evaluation.ner_tag_seq_format bare
+
+# movie_1
+CUDA_VISIBLE_DEVICES=0 python3 -m mener \
+--config ../cner/cner_config.yaml \
+--logging_level 0 \
+--data.data_path /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/custom_ner/spider/train \
+--data.train_file movie_1_db_spider_train_set_train_split.txt \
+--data.test_file /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/custom_ner/spider/train/movie_1_db_spider_train_set_test_split.txt \
+--data.format row \
+--mener_model.model_dir /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/logdir/cner_models/spider/train/movie_1 \
+--evaluation.ner_tag_seq_format bare
+
+# employee_hire_evaluation
+CUDA_VISIBLE_DEVICES=0 python3 -m mener \
+--config ../cner/cner_config.yaml \
+--logging_level 0 \
+--data.data_path /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/custom_ner/spider/dev \
+--data.train_file employee_hire_evaluation_db_spider_dev_set_train_split.txt \
+--data.test_file /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/custom_ner/spider/dev/employee_hire_evaluation_db_spider_dev_set_test_split.txt \
+--data.format row \
+--mener_model.model_dir /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/logdir/cner_models/spider/dev/employee_hire_evaluation \
+--evaluation.ner_tag_seq_format bare
+
 # dev
 TOKENIZERS_PARALLELISM=true python scripts/custom_ner/create_silver_training_data.py --duorat-config-file ./configs/duorat/duorat-new-db-content.jsonnet --input-files ./data/spider/dev.json --output-file ./data/spider/dev_with_schema_custom_ner.json --schema-json-path ./data/spider/tables.json
 
