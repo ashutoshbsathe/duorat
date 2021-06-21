@@ -684,6 +684,9 @@ rm -rf ./data/custom_ner/spider/train
 mkdir -p ./data/custom_ner/spider/train
 python scripts/custom_ner/extract_custom_ner_data.py --input-file ./data/spider/train_spider_and_others_with_schema_custom_ner.json --output-folder ./data/custom_ner/spider/train --data-type spider_train
 
+python3 scripts/split_spider_by_db.py --examples-paths 'train_spider_and_others_with_schema_custom_ner.json' --default-example-file-name examples_with_schema_custom_ner_silver_data.json
+python3 scripts/split_spider_by_db.py --examples-paths 'dev_with_schema_custom_ner.json' --default-example-file-name examples_with_schema_custom_ner_silver_data.json
+
 # * train customNER model (MeNER) on silver training data
 source /mnt/shared/vchoang/tools/pyvenv368-oda-custom-ner-master/bin/activate
 
