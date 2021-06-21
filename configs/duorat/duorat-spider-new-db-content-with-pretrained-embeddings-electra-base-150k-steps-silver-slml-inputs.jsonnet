@@ -1,7 +1,7 @@
 (import 'duorat-finetune-bert-large.jsonnet') {
     local PREFIX_SPIDER = './data/',
 
-    data+: {
+    data: {
         name: 'Spider',
         train: (import '../../data/train_with_schema_custom_ner_silver_data.libsonnet')(prefix=PREFIX_SPIDER),
         val: (import '../../data/val_with_schema_custom_ner_silver_data.libsonnet')(prefix=PREFIX_SPIDER),
