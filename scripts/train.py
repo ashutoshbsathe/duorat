@@ -282,7 +282,11 @@ class Trainer:
             val_datasets = [val_dataset for val_dataset in val_datasets if val_dataset is not None]
             val_datasets = list(itertools.chain.from_iterable(val_datasets))
         else:
-            val_datasets = self.model_preproc.dataset("val")
+            dataset_name = self.config["data"].get("name", None)
+            if dataset_name is not None:
+                val_datasets = self.model_preproc.dataset(f"{dataset_name}_val")
+            else:
+                val_datasets = self.model_preproc.dataset("val")
         self.logger.log(f"There are {len(val_datasets)} validation examples.")
         val_data_loader = DataLoader(
             val_datasets,
