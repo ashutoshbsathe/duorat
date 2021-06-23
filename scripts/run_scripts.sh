@@ -756,6 +756,7 @@ python -m third_party.spider.evaluation --gold ./data/custom_ner/spider/dev/spid
 
 # w/ supervised schema linking
 # --split-k 0.5
+python ./scripts/custom_ner/get_spider_test_data_with_slml.py ./data/custom_ner/spider/dev/spider_dev_set_train_split0.5_wo_slmls.json ./logdir/cner_models/spider/dev/ 0.5 ./data/custom_ner/spider/dev/spider_dev_set_train_split0.5_w_predicted_slmls.json
 
 # --split-k 0.4
 

@@ -1,64 +1,78 @@
 import sys
 import json
+import os
 
-cner_preds_file = sys.argv[1]
-spider_data_file = sys.argv[2]
-spider_data_output_file = sys.argv[3]
+spider_data_file = sys.argv[1]
+output_folder = sys.argv[2]
+split_k = sys.argv[3]
+spider_data_output_file = sys.argv[4]
 
 spider_data = None
 with open(spider_data_file) as f:
     spider_data = json.load(f)
 
+    data_by_db = {}
+    for entry in spider_data:
+        db_id = entry["db_id"]
+
+        if db_id not in data_by_db:
+            data_by_db[db_id] = [entry]
+        else:
+            data_by_db[db_id].append(entry)
+
 slml_outputs = []
-with open(cner_preds_file) as f:
-    tokens = []
-    tags = []
-    for line in f:
-        line = line.strip()
-        if line == '':
-            tokens = []
-            tags = []
-            continue
+for db_id, entry in data_by_db.items():
+    cner_preds_file = os.path.join(output_folder,
+                                   f"{db_id}_split{split_k.replace('.', '')}",
+                                   f"{db_id}_db_spider_dev_set_test_split{split_k}_preds.txt")
+    with open(cner_preds_file) as f:
+        tokens = []
+        tags = []
+        for line in f:
+            line = line.strip()
+            if line == '':
+                # form new SLML question
+                new_slml_tokens = []
+                qindex = 0
+                while qindex < len(tokens):
+                    qtoken = tokens[qindex]
+                    stag = tags[qindex]
 
-        splits = line.split('\t')
-        tokens.append(splits[0])
-        tags.append(splits[2])  # word gold_tag pred_tag
+                    if stag.startswith('@') and len(stag) > 1:
+                        cur_qindex = qindex
+                        while qindex + 1 < len(tokens) and tags[qindex + 1] == stag:
+                            qindex += 1
 
-        # form new SLML question
-        new_slml_tokens = []
-        qindex = 0
-        while qindex < len(tokens):
-            qtoken = tokens[qindex]
-            stag = tags[qindex]
+                        merged_tokens = tokens[cur_qindex:qindex + 1]
+                        if '.value' in stag:  # value matching
+                            stokens = stag.split('.')
+                            table_mention = stokens[0].replace('@', '')
+                            column_mention = stokens[1]
+                            value = ' '.join(merged_tokens)
+                            slml_text = f"<vm table=\"{table_mention}\" column=\"{column_mention}\" value=\"{value}\" confidence=\"high\">{value}</vm>"
+                            new_slml_tokens.append(slml_text)
+                        elif '.' in stag:
+                            stokens = stag.split('.')
+                            table_mention = stokens[0].replace('@', '')
+                            column_mention = stokens[1]
+                            slml_text = f"<cm table=\"{table_mention}\" column=\"{column_mention}\" confidence=\"high\">{' '.join(merged_tokens)}</cm>"
+                            new_slml_tokens.append(slml_text)
+                        else:
+                            slml_text = f"<tm table=\"{stag.replace('@', '')}\" confidence=\"high\">{' '.join(merged_tokens)}</tm>"
+                            new_slml_tokens.append(slml_text)
+                    else:
+                        new_slml_tokens.append(qtoken)
 
-            if stag.startswith('@') and len(stag) > 1:
-                cur_qindex = qindex
-                while qindex + 1 < len(tokens) and tags[qindex + 1] == stag:
                     qindex += 1
 
-                merged_tokens = tokens[cur_qindex:qindex + 1]
-                if '.value' in stag:  # value matching
-                    stokens = stag.split('.')
-                    table_mention = stokens[0].replace('@', '')
-                    column_mention = stokens[1]
-                    value = ' '.join(merged_tokens)
-                    slml_text = f"<vm table=\"{table_mention}\" column=\"{column_mention}\" value=\"{value}\" confidence=\"high\">{value}</vm>"
-                    new_slml_tokens.append(slml_text)
-                elif '.' in stag:
-                    stokens = stag.split('.')
-                    table_mention = stokens[0].replace('@', '')
-                    column_mention = stokens[1]
-                    slml_text = f"<cm table=\"{table_mention}\" column=\"{column_mention}\" confidence=\"high\">{' '.join(merged_tokens)}</cm>"
-                    new_slml_tokens.append(slml_text)
-                else:
-                    slml_text = f"<tm table=\"{stag.replace('@', '')}\" confidence=\"high\">{' '.join(merged_tokens)}</tm>"
-                    new_slml_tokens.append(slml_text)
-            else:
-                new_slml_tokens.append(qtoken)
+                slml_outputs.append(' '.join(new_slml_tokens))
+                tokens = []
+                tags = []
+                continue
 
-            qindex += 1
-
-        slml_outputs.append(' '.join(new_slml_tokens))
+            splits = line.split('\t')
+            tokens.append(splits[0])
+            tags.append(splits[2])  # word gold_tag pred_tag
 
 assert len(slml_outputs) == len(spider_data)
 
