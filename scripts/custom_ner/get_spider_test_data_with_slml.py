@@ -70,7 +70,8 @@ for db_id, entry in data_by_db.items():
                 tags = []
                 continue
 
-            splits = line.split('\t')
+            splits = line.split()
+            assert len(splits) == 3
             tokens.append(splits[0])
             tags.append(splits[2])  # word gold_tag pred_tag
 
