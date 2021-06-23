@@ -85,7 +85,7 @@ def extract_custom_ner_data(input_file: str,
         fout.close()
 
         val_data_w_slmls.extend([copy.deepcopy(entry) for entry in test_entries])
-        val_gold_sql_data.extend([entry["query"] for entry in test_entries])
+        val_gold_sql_data.extend([f'{entry["query"]}\t{entry["db_id"]}' for entry in test_entries])
 
         for entry in test_entries:
             del entry["schema_custom_ner"]
