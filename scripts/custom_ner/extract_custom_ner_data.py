@@ -33,6 +33,7 @@ def extract_custom_ner_data(input_file: str,
 
     val_data_wo_slmls = []
     val_data_w_slmls = []
+    val_gold_sql_data = []
     for db_id, entries in data_by_db.items():
         # split into train/test sections
         n_examples_in_val = int((1.0 - split_k) * len(entries))
@@ -84,6 +85,7 @@ def extract_custom_ner_data(input_file: str,
         fout.close()
 
         val_data_w_slmls.extend([copy.deepcopy(entry) for entry in test_entries])
+        val_gold_sql_data.extend([entry["query"] for entry in test_entries])
 
         for entry in test_entries:
             del entry["schema_custom_ner"]
@@ -96,6 +98,10 @@ def extract_custom_ner_data(input_file: str,
 
     with open(os.path.join(output_folder, f"{data_type}_set_train_split{split_k}_w_slmls.json"), "w") as outf:
         json.dump(val_data_w_slmls, outf, indent=4, sort_keys=False)
+
+    with open(os.path.join(output_folder, f"{data_type}_set_train_split{split_k}_gold.sql"), "w") as outf:
+        for sql in val_gold_sql_data:
+            outf.write(f"{sql}\n")
 
 
 if __name__ == '__main__':

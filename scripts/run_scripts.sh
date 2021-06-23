@@ -738,6 +738,21 @@ python scripts/custom_ner/extract_custom_ner_data.py --input-file ./data/spider/
 python3 scripts/split_spider_by_db.py --examples-paths 'train_spider_and_others_with_schema_custom_ner.json' --default-example-file-name examples_with_schema_custom_ner_silver_data.json
 python3 scripts/split_spider_by_db.py --examples-paths 'dev_with_schema_custom_ner.json' --default-example-file-name examples_with_schema_custom_ner_silver_data.json
 
+# * evaluate
+
+# w/o unsupervised schema linking
+# --split-k 0.5
+CUDA_VISIBLE_DEVICES=0 python scripts/infer_one.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base --db-folder-path ./data/database/ --eval-file ./data/custom_ner/spider/dev/spider_dev_set_train_split0.5_wo_slmls.json --output-eval-file ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base/val-split05-duorat-spider-new-db-content-with-pretrained-embeddings-electra-base.output
+python scripts/get_preds_from_json_file.py --preds-json-file ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base/val-split05-duorat-spider-new-db-content-with-pretrained-embeddings-electra-base.output --gold-txt-file ./data/custom_ner/spider/dev/spider_dev_set_train_split0.5_gold.sql --output-preds-txt-file ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base/val-split05-duorat-spider-new-db-content-with-pretrained-embeddings-electra-base.output.txt
+python -m third_party.spider.evaluation --gold ./data/custom_ner/spider/dev/spider_dev_set_train_split0.5_gold.sql --pred ./logdir/duorat-new-db-content-bs4-ac7/val-dev55-duorat-new-db-content.output.txt --etype match --db ./data/database --table ./data/spider/tables.json
+# --split-k 0.4
+CUDA_VISIBLE_DEVICES=0 python scripts/infer_one.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base --db-folder-path ./data/database/ --eval-file ./data/custom_ner/spider/dev/spider_dev_set_train_split0.4_wo_slmls.json --output-eval-file ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base/val-split04-duorat-spider-new-db-content-with-pretrained-embeddings-electra-base.output
+# --split-k 0.3
+CUDA_VISIBLE_DEVICES=0 python scripts/infer_one.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base --db-folder-path ./data/database/ --eval-file ./data/custom_ner/spider/dev/spider_dev_set_train_split0.3_wo_slmls.json --output-eval-file ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base/val-split03-duorat-spider-new-db-content-with-pretrained-embeddings-electra-base.output
+
+# w/ supervised schema linking
+
+
 # Idea: replace default unsupervised schema linking by custom NER schema silver data
 # BERT large
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-new-db-content-with-silver-slml-inputs.jsonnet --logdir ./logdir/duorat-new-db-content-with-silver-slml-inputs --force-preprocess --force-train
