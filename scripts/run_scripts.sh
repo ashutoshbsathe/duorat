@@ -725,7 +725,14 @@ TOKENIZERS_PARALLELISM=true python scripts/custom_ner/create_silver_training_dat
 
 rm -rf ./data/custom_ner/spider/dev
 mkdir -p ./data/custom_ner/spider/dev
+# --split-k 0.8
 python scripts/custom_ner/extract_custom_ner_data.py --input-file ./data/spider/dev_with_schema_custom_ner.json --output-folder ./data/custom_ner/spider/dev --data-type spider_dev
+# --split-k 0.5
+python scripts/custom_ner/extract_custom_ner_data.py --input-file ./data/spider/dev_with_schema_custom_ner.json --output-folder ./data/custom_ner/spider/dev --data-type spider_dev --split-k 0.5
+# --split-k 0.4
+python scripts/custom_ner/extract_custom_ner_data.py --input-file ./data/spider/dev_with_schema_custom_ner.json --output-folder ./data/custom_ner/spider/dev --data-type spider_dev --split-k 0.4
+# --split-k 0.3
+python scripts/custom_ner/extract_custom_ner_data.py --input-file ./data/spider/dev_with_schema_custom_ner.json --output-folder ./data/custom_ner/spider/dev --data-type spider_dev --split-k 0.3
 
 # * train end-to-end w/ custom NER silver data
 python3 scripts/split_spider_by_db.py --examples-paths 'train_spider_and_others_with_schema_custom_ner.json' --default-example-file-name examples_with_schema_custom_ner_silver_data.json
@@ -733,7 +740,7 @@ python3 scripts/split_spider_by_db.py --examples-paths 'dev_with_schema_custom_n
 
 # Idea: replace default unsupervised schema linking by custom NER schema silver data
 # BERT large
-
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-new-db-content-with-silver-slml-inputs.jsonnet --logdir ./logdir/duorat-new-db-content-with-silver-slml-inputs --force-preprocess --force-train
 
 # ELECTRA base
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-silver-slml-inputs.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-silver-slml-inputs --force-preprocess --force-train
