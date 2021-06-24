@@ -30,11 +30,36 @@ def split_dev(dev_json_file: str,
     half1_examples = []
     for _, examples in half1_examples_by_db.items():
         half1_examples.extend(examples)
+    # split into different rates
+    half1_examples_by_db_with_rates = {0.8: {}, 0.6: {}, 0.4: {}, 0.2: {}, 0.1: {}}
+    half1_example_with_rates = {}
+    for rate, example_dict in half1_examples_by_db_with_rates.items():
+        for db_id, examples in half1_examples_by_db.items():
+            if int(rate * len(examples)) < 1.0:
+                example_dict[db_id], _ = model_selection.train_test_split(examples,
+                                                                          random_state=42,
+                                                                          train_size=1)
+            else:
+                example_dict[db_id], _ = model_selection.train_test_split(examples,
+                                                                          random_state=42,
+                                                                          train_size=rate)
+
+        for _, examples in example_dict.items():
+            if rate in half1_example_with_rates:
+                half1_example_with_rates[rate].extend(examples)
+            else:
+                half1_example_with_rates[rate] = []
+
+        with open(f"{split_json_file_prefix}_half1_split{str(rate * 0.5).replace('.', '')}.json", "w") as fout1:
+            json.dump(half1_example_with_rates[rate], fout1, sort_keys=True, indent=4)
+
+    # this will be used for evaluation (unchanged)
     half2_examples = []
     for _, examples in half2_examples_by_db.items():
         half2_examples.extend(examples)
 
-    with open(f"{split_json_file_prefix}_half1.json", "w") as fout1, open(f"{split_json_file_prefix}_half2.json", "w") as fout2:
+    with open(f"{split_json_file_prefix}_half1.json", "w") as fout1, open(f"{split_json_file_prefix}_half2.json",
+                                                                          "w") as fout2:
         json.dump(half1_examples, fout1, sort_keys=True, indent=4)
         json.dump(half2_examples, fout2, sort_keys=True, indent=4)
 
