@@ -3,7 +3,7 @@
     data: {
         name: 'Spider',
         train: (import '../../data/train_plus_dev45.libsonnet')(prefix=PREFIX),
-        val: (import '../../data/val.libsonnet')(prefix=PREFIX),
+        val: (import '../../data/val_dev55.libsonnet')(prefix=PREFIX),
         type: 'original'
     },
 

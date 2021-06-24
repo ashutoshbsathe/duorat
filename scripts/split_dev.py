@@ -48,7 +48,7 @@ def split_dev(dev_json_file: str,
             if rate in half1_example_with_rates:
                 half1_example_with_rates[rate].extend(examples)
             else:
-                half1_example_with_rates[rate] = []
+                half1_example_with_rates[rate] = [examples]
 
         with open(f"{split_json_file_prefix}_half1_split{str(rate * 0.5).replace('.', '')}.json", "w") as fout1:
             json.dump(half1_example_with_rates[rate], fout1, sort_keys=True, indent=4)
