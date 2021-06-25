@@ -859,7 +859,19 @@ CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-sp
 
 # * Evaluate pretrained embeddings
 
-# RoBERTa
+# ** DistilBERT
+
+# distilbert-base-uncased
+TOKENIZERS_PARALLELISM=true CUDA_LAUNCH_BLOCKING=1 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-distilbert-base-uncased.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-distilbert-base-uncased --force-preprocess --force-train
+
+# distilbert-base-uncased-distilled-squad
+TOKENIZERS_PARALLELISM=true CUDA_LAUNCH_BLOCKING=1 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-distilbert-base-uncased-distilled-squad.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-distilbert-base-uncased-distilled-squad --force-preprocess --force-train
+
+# distilbert-base-uncased-finetuned-sst-2-english
+TOKENIZERS_PARALLELISM=true CUDA_LAUNCH_BLOCKING=1 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-distilbert-base-uncased-finetuned-sst-2-english.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-distilbert-base-uncased-finetuned-sst-2-english --force-preprocess --force-train
+
+
+# ** RoBERTa
 
 # base
 TOKENIZERS_PARALLELISM=true CUDA_LAUNCH_BLOCKING=1 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-roberta-base.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-roberta-base --force-preprocess --force-train
@@ -867,7 +879,7 @@ TOKENIZERS_PARALLELISM=true CUDA_LAUNCH_BLOCKING=1 CUDA_VISIBLE_DEVICES=0 python
 # large
 TOKENIZERS_PARALLELISM=true CUDA_LAUNCH_BLOCKING=1 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-roberta-large.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-roberta-large --force-preprocess --force-train
 
-# ELECTRA
+# ** ELECTRA
 
 # small
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-small.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-small --force-preprocess --force-train
@@ -881,7 +893,7 @@ CUDA_VISIBLE_DEVICES=3 python scripts/train.py --config configs/duorat/duorat-sp
 # GraPPa
 TOKENIZERS_PARALLELISM=true CUDA_LAUNCH_BLOCKING=1 CUDA_VISIBLE_DEVICES=3 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-grappa.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-grappa --force-preprocess --force-train
 
-# T5
+# ** T5
 
 # small
 TOKENIZERS_PARALLELISM=true CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-t5-small.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-t5-small --force-preprocess --force-train &>./logdir/train-duorat-spider-new-db-ƒcontent-with-pretrained-embeddings-t5-small.log &
@@ -889,7 +901,7 @@ TOKENIZERS_PARALLELISM=true CUDA_VISIBLE_DEVICES=0 python scripts/train.py --con
 # base
 TOKENIZERS_PARALLELISM=true CUDA_VISIBLE_DEVICES=3 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-t5-base.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-t5-base --force-preprocess --force-train &> ./logdir/train-duorat-spider-new-db-content-with-pretrained-embeddings-t5-base.log &
 
-# BART
+# ** BART
 
 # small
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-bart-small.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-bart-small --force-preprocess --force-train
