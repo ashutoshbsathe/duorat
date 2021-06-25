@@ -5,13 +5,14 @@
                 pretrained_model_name_or_path: 'google/electra-base-discriminator',
             },
             source_relation_types: {
-                use_schema_linking: false,
-                high_confidence_db_content_schema_linking: false,
-                low_confidence_db_content_schema_linking: false,
+                use_schema_linking: true,
+                high_confidence_db_content_schema_linking: true,
+                low_confidence_db_content_schema_linking: true,
             }
         },
         preproc+: {
             schema_linker+: {
+                match_type: 'table,column',
                 whole_entry_db_content_confidence: 'high',
                 partial_entry_db_content_confidence: 'low'
             },

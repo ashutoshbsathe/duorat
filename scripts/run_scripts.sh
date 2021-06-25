@@ -870,7 +870,6 @@ TOKENIZERS_PARALLELISM=true CUDA_LAUNCH_BLOCKING=1 CUDA_VISIBLE_DEVICES=0 python
 # distilbert-base-uncased-finetuned-sst-2-english
 TOKENIZERS_PARALLELISM=true CUDA_LAUNCH_BLOCKING=1 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-distilbert-base-uncased-finetuned-sst-2-english.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-distilbert-base-uncased-finetuned-sst-2-english --force-preprocess --force-train
 
-
 # ** RoBERTa
 
 # base
@@ -886,6 +885,8 @@ CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-sp
 
 # base
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base --force-preprocess --force-train
+
+# base w/o sche
 
 # large
 CUDA_VISIBLE_DEVICES=3 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-large.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-large --force-preprocess --force-train
