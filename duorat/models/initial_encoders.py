@@ -539,6 +539,47 @@ class BertEncoder(InitialEncoder):
             return source
 
 
+@registry.register("initial_encoder", "DistilBert")
+class DistilBertEncoder(BertEncoder):
+    def __init__(
+            self,
+            pretrained_model_name_or_path: str,
+            trainable: bool,
+            num_return_layers: int,
+            embed_dim: int,
+            use_dedicated_gpu: bool,
+            use_affine_transformation: bool,
+            use_attention_mask: bool,
+            use_token_type_ids: bool,
+            use_position_ids: bool,
+            use_segments: bool,
+            use_outputs_from: str,
+            preproc: BertDuoRATPreproc,
+    ) -> None:
+        super(DistilBertEncoder, self).__init__(pretrained_model_name_or_path=pretrained_model_name_or_path,
+                                                trainable=trainable,
+                                                num_return_layers=num_return_layers,
+                                                embed_dim=embed_dim,
+                                                use_dedicated_gpu=use_dedicated_gpu,
+                                                use_affine_transformation=use_affine_transformation,
+                                                use_attention_mask=use_attention_mask,
+                                                use_token_type_ids=use_token_type_ids,
+                                                use_position_ids=use_position_ids,
+                                                use_segments=use_segments,
+                                                use_outputs_from=use_outputs_from,
+                                                preproc=preproc)
+
+    def _get_pretrained_encoding_outputs(self, inputs: Dict) -> Tuple[torch.Tensor, torch.Tensor]:
+        # @Vu Hoang: this is for HF transformers v4.6.0 as of June 2021
+        bert_result = self.bert(
+            input_ids=inputs['input_ids'],
+            attention_mask=inputs['input_attention_mask'],
+            output_hidden_states=True
+        )
+
+        return bert_result.last_hidden_state, bert_result.hidden_states
+
+
 @registry.register("initial_encoder", "T5Encoder")
 class T5Encoder(BertEncoder):
     def __init__(

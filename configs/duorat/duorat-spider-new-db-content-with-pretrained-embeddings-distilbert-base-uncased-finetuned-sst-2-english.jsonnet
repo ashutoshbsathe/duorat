@@ -2,6 +2,7 @@
     model+: {
         encoder+: {
             initial_encoder+: {
+                name: 'DistilBert',
                 pretrained_model_name_or_path: 'distilbert-base-uncased-finetuned-sst-2-english',
             },
             source_relation_types: {
