@@ -655,7 +655,8 @@ def main(
         # Here, we fixed the section list.
         sections = ['train', 'val', 'test']
         preprocessor = Preprocessor(config)
-        preprocessor.preprocess(sections=sections, keep_vocab=False)
+        preprocessor.preprocess(sections=sections,
+                                keep_vocab=config['model']['preproc'].get('keep_vocab', False))
 
     if args.preprocess_only:
         print("Done preprocessing. No further training.")

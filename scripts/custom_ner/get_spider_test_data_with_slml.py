@@ -5,7 +5,8 @@ import os
 spider_data_file = sys.argv[1]
 output_folder = sys.argv[2]
 split_k = sys.argv[3]
-spider_data_output_file = sys.argv[4]
+data_type = sys.argv[4]  # spider_train, spider_dev
+spider_data_output_file = sys.argv[5]
 
 spider_data = None
 with open(spider_data_file) as f:
@@ -24,7 +25,7 @@ slml_outputs = []
 for db_id, entry in data_by_db.items():
     cner_preds_file = os.path.join(output_folder,
                                    f"{db_id}_split{split_k.replace('.', '')}",
-                                   f"{db_id}_db_spider_dev_set_test_split{split_k}_preds.txt")
+                                   f"{db_id}_db_{data_type}_set_test_split{split_k}_preds.txt")
     with open(cner_preds_file) as f:
         tokens = []
         tags = []
