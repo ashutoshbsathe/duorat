@@ -609,8 +609,12 @@ CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-sp
 
 # 40% validation data added to the original training data
 python3 scripts/split_spider_by_db.py --examples-paths 'train_spider.json,train_others.json,dev_split_5_5_half1_split04.json' --default-example-file-name examples_plus_dev45.json
+python3 scripts/split_spider_by_db.py --examples-paths 'dev_split_5_5_half1_split04.json' --default-example-file-name examples_dev45.json
 
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-train-plus-dev45.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-train-plus-dev45 --force-preprocess --force-train
+
+# continuous training on dev45 part only
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev45.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev45 --force-preprocess --force-train
 
 # 30% validation data added to the original training data
 python3 scripts/split_spider_by_db.py --examples-paths 'train_spider.json,train_others.json,dev_split_5_5_half1_split03.json' --default-example-file-name examples_plus_dev35.json
