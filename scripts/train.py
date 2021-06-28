@@ -209,17 +209,21 @@ class Trainer:
                                                       load_best=self.config["train"].get('load_best',
                                                                                          False))
         if last_step is 0 and self.config["train"].get("initialize_from", False):
-            saver.restore_part(other_model_dir=self.config["train"]["initialize_from"].get('pretrained_model_path', ''),
-                               filters=self.config["train"]["initialize_from"].get('model_weight_filters', []))
-
-            if os.path.exists(self.config["train"]["initialize_from"].get('pretrained_model_path', '')):
-                self.logger.log(
-                    "Model initialized from {}".format(
-                        self.config["train"]["initialize_from"]["pretrained_model_path"]
-                    )
-                )
+            filters = self.config["train"]["initialize_from"].get('model_weight_filters', [])
+            if len(filters) > 0:
+                saver.restore_part(other_model_dir=self.config["train"]["initialize_from"].get('pretrained_model_path',
+                                                                                               ''),
+                                   filters=filters)
             else:
-                self.logger.log("Model path from train.initialize_from.pretrained_model_path is invalid.")
+                pre_model_dir = self.config["train"]["initialize_from"].get('pretrained_model_path', '')
+                if os.path.exists(pre_model_dir):
+                    last_step, best_val_all_exact = saver.restore(model_dir=pre_model_dir,
+                                                                  load_best=True)
+                    self.logger.log(
+                        "Model initialized from {}".format(pre_model_dir)
+                    )
+                else:
+                    raise ValueError(f"train.initialize_from.pretrained_model_path is not valid.")
         else:
             self.logger.log(f"Model restored, the last step is {last_step}, best val_all_exact is {best_val_all_exact}")
 
