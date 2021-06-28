@@ -222,6 +222,8 @@ class Trainer:
                     self.logger.log(
                         "Model initialized from {}".format(pre_model_dir)
                     )
+                    self.logger.log("Last trained step: {} with best accuracy on valL {}".format(last_step,
+                                                                                                 best_val_all_exact))
                 else:
                     raise ValueError(f"train.initialize_from.pretrained_model_path is not valid.")
         else:
