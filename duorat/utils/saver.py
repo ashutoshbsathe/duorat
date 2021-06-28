@@ -116,7 +116,8 @@ def load_and_map_checkpoint(model, model_dir, filters):
                 if weight_name in checkpoint["model"]:
                     remap[weight_name] = weight_name
 
-    print("Loading parameters %s from %s" % (remap.keys(), model_dir))
+    if len(remap) > 0:
+        print("Loading parameters %s from %s" % (remap.keys(), model_dir))
     for name, value in remap.items():
         # TODO: smarter mapping.
         new_state_dict[name] = checkpoint["model"][value]
