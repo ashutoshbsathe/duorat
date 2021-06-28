@@ -223,6 +223,8 @@ class Trainer:
         else:
             self.logger.log(f"Model restored, the last step is {last_step}, best val_all_exact is {best_val_all_exact}")
 
+        self.logger.log(f"Number of parameters: {self.model.count_parameters()}")
+
         # 3. Get training data somewhere
         with self.data_random:
             data_splits = self.config["train"].get("data_splits", None)

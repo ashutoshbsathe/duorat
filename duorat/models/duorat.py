@@ -266,6 +266,9 @@ class DuoRATModel(torch.nn.Module):
 
         self.mask_sampling_config = BernoulliMaskConfig(p_mask=decoder["p_mask"])
 
+    def count_parameters(self):
+        return sum(p.numel() for p in self.parameters() if p.requires_grad)
+
     def compute_loss(
         self, preproc_items: List[RATPreprocItem], debug=False
     ) -> torch.Tensor:
