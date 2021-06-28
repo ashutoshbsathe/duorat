@@ -37,18 +37,18 @@
     },
 
     lr_scheduler+: {
-        decay_steps: 8000,
+        decay_steps: 18000,
     },
 
     train+: {
         batch_size: 8,
         n_grad_accumulation_steps: 6,
-        max_steps: 10000,
+        max_steps: 20000,
         initialize_from: {
             pretrained_model_path: './logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps',
         },
         num_eval_items: 518,
-        eval_every_n: 2000,
-        infer_min_n: 2000,
+        eval_every_n: 5000,
+        infer_min_n: 5000,
     }
 }
