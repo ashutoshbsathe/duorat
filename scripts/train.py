@@ -116,6 +116,10 @@ class Trainer:
             self.model_preproc = registry.construct(
                 "preproc", self.config["model"]["preproc"],
             )
+
+            if self.config["model"]["preproc"].get('pre_target_vocab', None) is not None:
+                from shutil import copyfile
+                copyfile(self.config["model"]["preproc"]['pre_target_vocab'], self.model_preproc.target_vocab_path)
             self.model_preproc.load()
 
             # 1. Construct model

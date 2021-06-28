@@ -32,6 +32,7 @@
                 }
             },
             keep_vocab: true,
+            pre_target_vocab: './logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps/data/target_vocab.pkl',
         }
     },
 
