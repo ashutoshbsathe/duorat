@@ -219,11 +219,13 @@ class Trainer:
                 if os.path.exists(pre_model_dir):
                     last_step, best_val_all_exact = saver.restore(model_dir=pre_model_dir,
                                                                   load_best=True)
+
                     self.logger.log(
                         "Model initialized from {}".format(pre_model_dir)
                     )
-                    self.logger.log("Last trained step: {} with best accuracy on valL {}".format(last_step,
-                                                                                                 best_val_all_exact))
+                    self.logger.log("Best step from previous train: {} with best accuracy on val {}".format(last_step,
+                                                                                                            best_val_all_exact))
+                    last_step = 0  # for continuous training with specified max_steps
                 else:
                     raise ValueError(f"train.initialize_from.pretrained_model_path is not valid.")
         else:

@@ -49,6 +49,6 @@
         },
         num_eval_items: 518,
         eval_every_n: 2000,
-        infer_min_n: 0,
+        infer_min_n: 2000,
     }
 }
