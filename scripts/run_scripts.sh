@@ -618,23 +618,39 @@ CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-sp
 
 # 30% validation data added to the original training data
 python3 scripts/split_spider_by_db.py --examples-paths 'train_spider.json,train_others.json,dev_split_5_5_half1_split03.json' --default-example-file-name examples_plus_dev35.json
+python3 scripts/split_spider_by_db.py --examples-paths 'dev_split_5_5_half1_split03.json' --default-example-file-name examples_dev35.json
 
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-train-plus-dev35.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-train-plus-dev35 --force-preprocess --force-train
 
+# continuous training on dev35 part only
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev35.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev35 --force-preprocess --force-train
+
 # 20% validation data added to the original training data
 python3 scripts/split_spider_by_db.py --examples-paths 'train_spider.json,train_others.json,dev_split_5_5_half1_split02.json' --default-example-file-name examples_plus_dev25.json
+python3 scripts/split_spider_by_db.py --examples-paths 'dev_split_5_5_half1_split02.json' --default-example-file-name examples_dev25.json
 
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-train-plus-dev25.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-train-plus-dev25 --force-preprocess --force-train
 
+# continuous training on dev25 part only
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev25.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev25 --force-preprocess --force-train
+
 # 10% validation data added to the original training data
 python3 scripts/split_spider_by_db.py --examples-paths 'train_spider.json,train_others.json,dev_split_5_5_half1_split01.json' --default-example-file-name examples_plus_dev15.json
+python3 scripts/split_spider_by_db.py --examples-paths 'dev_split_5_5_half1_split01.json' --default-example-file-name examples_dev15.json
 
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-train-plus-dev15.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-train-plus-dev15 --force-preprocess --force-train
 
+# continuous training on dev15 part only
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev15.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev15 --force-preprocess --force-train
+
 # 5% validation data added to the original training data
 python3 scripts/split_spider_by_db.py --examples-paths 'train_spider.json,train_others.json,dev_split_5_5_half1_split005.json' --default-example-file-name examples_plus_dev055.json
+python3 scripts/split_spider_by_db.py --examples-paths 'dev_split_5_5_half1_split005.json' --default-example-file-name examples_dev055.json
 
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-train-plus-dev055.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-train-plus-dev055 --force-preprocess --force-train
+
+# continuous training on dev055 part only
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev055.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev055 --force-preprocess --force-train
 
 # 2-8
 CUDA_VISIBLE_DEVICES=3 python scripts/infer_one.py --config configs/duorat/duorat-spider-new-db-content-train-plus-dev55.jsonnet --logdir ./logdir/duorat-spider-new-db-content-train-plus-dev55 --db-folder-path ./data/database/ --eval-file ./data/spider/dev_split_5_5_half2.json --output-eval-file ./logdir/duorat-spider-new-db-content-train-plus-dev55/val-dev55-duorat-new-db-content.output
