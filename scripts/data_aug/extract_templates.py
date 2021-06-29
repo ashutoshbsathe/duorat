@@ -485,9 +485,17 @@ def extract_nl2sql_templates(sql_kw_file: str,
             else:
                 templates_by_hardness[hardness][(nl_template, sql_template)] = [(question, gold_sql, db_name)]
             if sql_template in templates_by_sql:
-                templates_by_sql[sql_template].append({'original': question, 'delexicalized': nl_template})
+                templates_by_sql[sql_template].append({'original': question,
+                                                       'delexicalized': nl_template,
+                                                       'gold_sql': gold_sql
+                                                       }
+                                                      )
             else:
-                templates_by_sql[sql_template] = [{'original': question, 'delexicalized': nl_template}]
+                templates_by_sql[sql_template] = [{'original': question,
+                                                   'delexicalized': nl_template,
+                                                   'gold_sql': gold_sql
+                                                   }
+                                                  ]
 
     # *** Write to files (.txt or .csv)
     print(f"Done! There are {len(template_collection)} NL<->SQL templates.")
@@ -515,7 +523,7 @@ def extract_nl2sql_templates(sql_kw_file: str,
                                                          key=lambda item: len(item[1]),
                                                          reverse=True):
                 for nl_template in nl_template_list[:top_k_e if top_k_e != 0 else len(nl_template_list)]:
-                    fout.write(f"{sql_template}\t{nl_template['delexicalized']}\t{nl_template['original']}\n")
+                    fout.write(f"{sql_template}\t{nl_template['delexicalized']}\t{nl_template['original']}\t{nl_template['gold_sql']}\n")
 
                 if 0 < top_k_t <= index + 1:
                     break
@@ -546,7 +554,7 @@ def extract_nl2sql_templates(sql_kw_file: str,
                                              )
 
         with open(f"{output_file}.by_sql_topkt{top_k_t}_topke{top_k_e}.csv", "w", newline='') as fcsvfile:
-            by_sql_writer = csv.DictWriter(fcsvfile, fieldnames=['sql_template', 'nl_template', 'original_nl'])
+            by_sql_writer = csv.DictWriter(fcsvfile, fieldnames=['sql_template', 'nl_template', 'original_nl', 'gold_sql'])
             by_sql_writer.writeheader()
             index = 0
             for sql_template, nl_template_list in sorted(templates_by_sql.items(),
@@ -556,7 +564,8 @@ def extract_nl2sql_templates(sql_kw_file: str,
                 for nl_dict in top_nl_template_list:
                     by_sql_writer.writerow({'sql_template': sql_template,
                                             'nl_template': nl_dict['delexicalized'],
-                                            'original_nl': nl_dict['original']
+                                            'original_nl': nl_dict['original'],
+                                            'gold_sql': nl_dict['gold_sql']
                                             })
 
                 if 0 < top_k_t <= index + 1:
