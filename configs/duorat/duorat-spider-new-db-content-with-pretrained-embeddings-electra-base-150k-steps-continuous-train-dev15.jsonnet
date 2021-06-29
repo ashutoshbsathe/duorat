@@ -1,7 +1,7 @@
 (import 'duorat-finetune-bert-large.jsonnet') {
     local PREFIX = 'data/',
     data: {
-        name: 'Spider_dev55',
+        name: 'Spider_dev15',
         train: (import '../../data/train_dev15_only.libsonnet')(prefix=PREFIX),
         val: (import '../../data/val_dev55.libsonnet')(prefix=PREFIX),
         type: 'original'
@@ -41,8 +41,8 @@
     },
 
     train+: {
-        batch_size: 8,
-        n_grad_accumulation_steps: 6,
+        batch_size: 4,
+        n_grad_accumulation_steps: 4,
         max_steps: 20000,
         initialize_from: {
             pretrained_model_path: './logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps',
@@ -50,5 +50,7 @@
         num_eval_items: 518,
         eval_every_n: 5000,
         infer_min_n: 5000,
+        eval_on_train: true,
+        eval_on_val: true,
     }
 }

@@ -50,5 +50,7 @@
         num_eval_items: 518,
         eval_every_n: 5000,
         infer_min_n: 5000,
+        eval_on_train: true,
+        eval_on_val: true,
     }
 }

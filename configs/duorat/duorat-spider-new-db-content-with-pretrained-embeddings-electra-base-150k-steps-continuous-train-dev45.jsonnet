@@ -1,7 +1,7 @@
 (import 'duorat-finetune-bert-large.jsonnet') {
     local PREFIX = 'data/',
     data: {
-        name: 'Spider_dev55',
+        name: 'Spider_dev45',
         train: (import '../../data/train_dev45_only.libsonnet')(prefix=PREFIX),
         val: (import '../../data/val_dev55.libsonnet')(prefix=PREFIX),
         type: 'original'
@@ -50,5 +50,7 @@
         num_eval_items: 518,
         eval_every_n: 5000,
         infer_min_n: 5000,
+        eval_on_train: true,
+        eval_on_val: true,
     }
 }
