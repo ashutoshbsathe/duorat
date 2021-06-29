@@ -41,8 +41,8 @@
     },
 
     train+: {
-        batch_size: 4,
-        n_grad_accumulation_steps: 4,
+        batch_size: 8,
+        n_grad_accumulation_steps: 6,
         max_steps: 20000,
         initialize_from: {
             pretrained_model_path: './logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps',

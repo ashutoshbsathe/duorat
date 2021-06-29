@@ -915,6 +915,9 @@ CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-sp
 # base
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base --force-preprocess --force-train
 
+# infer
+python scripts/infer.py --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base --section train --output ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base/train-duorat-spider-new-db-content-with-pretrained-embeddings-electra-base.output --force
+
 # base w/ unsup schema linking for table + column only
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-unsup-schema-linker-match-type-table-column.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-unsup-schema-linker-match-type-table-column --force-preprocess --force-train
 
