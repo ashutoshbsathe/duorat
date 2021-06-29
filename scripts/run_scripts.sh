@@ -676,6 +676,28 @@ python3 scripts/split_spider_by_db.py --examples-paths '' --aug-data dev_split_2
 
 CUDA_VISIBLE_DEVICES=3 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-train-plus-dev28.jsonnet --logdir ./logdir/duorat-spider-new-db-content-train-plus-dev28 --force-preprocess --force-train &>./logdir/train-duorat-spider-new-db-content-train-plus-dev28.log &
 
+# * Experiments for catastrophic forgetting
+
+# split dev data given a specific database
+
+# world_1
+python scripts/split_dev_by_dbs.py --dev-json-file ./data/spider/dev.json --dev-json-output-file-prefix ./data/spider/dev --dbs world_1
+
+# infer previously trained system on two sets
+
+# ./data/spider/dev_with_world_1.json
+CUDA_VISIBLE_DEVICES=0 python scripts/infer_one.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps --db-folder-path ./data/database/ --eval-file ./data/spider/dev_with_world_1.json --output-eval-file ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps/dev-with-world-1-duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps.output
+python scripts/get_preds_from_json_file.py --preds-json-file ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps/dev-with-world-1-duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps.output --gold-txt-file ./data/spider/dev_with_world_1_gold.sql --output-preds-txt-file ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps/dev-with-world-1-duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps.output.txt
+python -m third_party.spider.evaluation --gold ./data/spider/dev_with_world_1_gold.sql --pred ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps/dev-with-world-1-duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps.output.txt --etype match --db ./data/database --table ./data/spider/tables.json
+
+# ./data/spider/dev_wo_world_1.json
+CUDA_VISIBLE_DEVICES=0 python scripts/infer_one.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps --db-folder-path ./data/database/ --eval-file ./data/spider/dev_wo_world_1.json --output-eval-file ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps/dev-wo-world-1-duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps.output
+python scripts/get_preds_from_json_file.py --preds-json-file ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps/dev-wo-world-1-duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps.output --gold-txt-file ./data/spider/dev_wo_world_1_gold.sql --output-preds-txt-file ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps/dev-wo-world-1-duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps.output.txt
+python -m third_party.spider.evaluation --gold ./data/spider/dev_wo_world_1_gold.sql --pred ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps/dev-wo-world-1-duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps.output.txt --etype match --db ./data/database --table ./data/spider/tables.json
+
+# continuous train on original training data + ./data/spider/dev_with_world_1.json
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-with-world-1.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-with-world-1 --force-preprocess --force-train
+
 # *** Get prediction errors
 
 # db_id=concert_singer
