@@ -2,7 +2,7 @@
     local PREFIX = 'data/',
     data: {
         name: 'Spider_dev55',
-        train: (import '../../data/dev_with_world_1.libsonnet')(prefix=PREFIX),
+        train: (import '../../data/dev_with_world_1_train.libsonnet')(prefix=PREFIX),
         val: (import '../../data/dev_wo_world_1.libsonnet')(prefix=PREFIX),
         type: 'original'
     },
