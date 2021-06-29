@@ -47,7 +47,7 @@
         initialize_from: {
             pretrained_model_path: './logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps',
         },
-        num_eval_items: 518,
+        num_eval_items: 914,
         eval_every_n: 5000,
         infer_min_n: 5000,
         eval_on_train: true,
