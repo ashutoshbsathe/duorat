@@ -702,7 +702,7 @@ CUDA_VISIBLE_DEVICES=0 python scripts/infer_one.py --config configs/duorat/duora
 python scripts/get_preds_from_json_file.py --preds-json-file ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps/dev-wo-world-1-duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps.output --gold-txt-file ./data/spider/dev_wo_world_1_gold.sql --output-preds-txt-file ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps/dev-wo-world-1-duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps.output.txt
 python -m third_party.spider.evaluation --gold ./data/spider/dev_wo_world_1_gold.sql --pred ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps/dev-wo-world-1-duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps.output.txt --etype match --db ./data/database --table ./data/spider/tables.json
 
-# continuous train on original training data + ./data/spider/dev_with_world_1.json
+# continuous train on original training data + ./data/spider/dev_with_world_1_train.json
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-with-world-1.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-with-world-1 --force-preprocess --force-train
 
 # *** Get prediction errors

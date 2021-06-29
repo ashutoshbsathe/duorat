@@ -28,6 +28,9 @@ def split_dev_by_dbs(dev_json_file: str,
         json.dump(examples_including_dbs_train, outf_json, indent=4, sort_keys=False)
     with open(f"{dev_json_output_file_prefix}_with_{'_'.join(dbs)}_test.json", "w") as outf_json:
         json.dump(examples_including_dbs_test, outf_json, indent=4, sort_keys=False)
+        with open(f"{dev_json_output_file_prefix}_with_{'_'.join(dbs)}_train_gold.sql", "w") as outf_gold:
+            for example in examples_including_dbs_train:
+                outf_gold.write(f"{example['query']}\t{example['db_id']}\n")
     with open(f"{dev_json_output_file_prefix}_with_{'_'.join(dbs)}_test_gold.sql", "w") as outf_gold:
         for example in examples_including_dbs_test:
             outf_gold.write(f"{example['query']}\t{example['db_id']}\n")
