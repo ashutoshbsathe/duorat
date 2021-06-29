@@ -683,6 +683,7 @@ CUDA_VISIBLE_DEVICES=3 python scripts/train.py --config configs/duorat/duorat-sp
 # world_1
 # 100 examples for continuous training, 20 examples for testing
 python scripts/split_dev_by_dbs.py --dev-json-file ./data/spider/dev.json --dev-json-output-file-prefix ./data/spider/dev --dbs world_1 --split-rate 100
+python3 scripts/split_spider_by_db.py --examples-paths 'dev_with_world_1_train.json' --default-example-file-name examples_dev_world_1_train.json
 
 # infer previously trained system on two sets
 
