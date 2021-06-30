@@ -223,9 +223,11 @@ class Trainer:
                     self.logger.log(
                         "Model initialized from {}".format(pre_model_dir)
                     )
-                    self.logger.log("Best step from previous train: {} with best accuracy on val {}".format(last_step,
-                                                                                                            best_val_all_exact))
+                    self.logger.log("Best step from previous train: "
+                                    "{} with best accuracy on val {}".format(last_step, best_val_all_exact))
                     last_step = 0  # for continuous training with specified max_steps
+                    if self.config["train"]["initialize_from"].get("reset_dev_accuracy", False):
+                        best_val_all_exact = 0.0
                 else:
                     raise ValueError(f"train.initialize_from.pretrained_model_path is not valid.")
         else:

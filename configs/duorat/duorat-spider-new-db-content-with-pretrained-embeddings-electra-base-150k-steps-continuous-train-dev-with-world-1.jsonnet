@@ -46,6 +46,7 @@
         max_steps: 20000,
         initialize_from: {
             pretrained_model_path: './logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps',
+            reset_dev_accuracy: true,  # reset best previous dev accuracy
         },
         num_eval_items: 914,
         eval_every_n: 5000,
