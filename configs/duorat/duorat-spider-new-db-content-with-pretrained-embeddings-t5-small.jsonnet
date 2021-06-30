@@ -3,8 +3,6 @@
     data: {
         train: (import '../../data/train.libsonnet')(prefix=PREFIX),
         val: (import '../../data/val.libsonnet')(prefix=PREFIX),
-        train_sample_size: 500,
-        val_sample_size: 100,
     },
 
     model+: {
@@ -43,8 +41,13 @@
     },
 
     train+: {
-        "batch_size": 1,
+        "batch_size": 8,
         "n_grad_accumulation_steps": 6,
         "eval_batch_size": 1,
+        "eval_every_n": 5000,
+        "eval_on_val": true,
+        "infer_min_n": 5000,
+        "num_eval_items": 1034,
+        "report_every_n": 10
     }
 }
