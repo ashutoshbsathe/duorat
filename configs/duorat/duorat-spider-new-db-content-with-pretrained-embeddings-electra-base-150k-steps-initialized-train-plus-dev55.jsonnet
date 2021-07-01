@@ -37,7 +37,7 @@
     },
 
     lr_scheduler+: {
-        decay_steps: 148000,
+        decay_steps: 18000,
     },
 
     train+: {
