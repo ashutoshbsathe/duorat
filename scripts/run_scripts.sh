@@ -525,7 +525,7 @@ CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-sp
 
 # v5 (w/ gold templates)
 python scripts/data_aug/collect_synthetic_data_template_scfg.py --file-type json --files-folder-path /mnt/shared/parthur/experiments/nl2sql/output/data/databases/v5 --output-data-file ./data/spider/spider_all_dbs_synthetic_data_v5_by_gold_template_scfg_50s.json --samples-by-db 50
-python3 scripts/split_spider_by_db.py --examples-paths '' --aug-data spider_all_dbs_synthetic_data_v5_by_gold_template_scfg_50s.json --aug-suffix spider_all_dbs_synthetic_data_v5_by_gold_template_scfg_50s
+python3 scripts/split_spider_by_db.py --examples-paths 'spider_all_dbs_synthetic_data_v5_by_gold_template_scfg_50s.json' --default-example-file-name examples_with_synthetic_data_v5_by_gold_template_scfg_50s.json
 
 # 1-shot
 python scripts/data_aug/collect_synthetic_data_template_scfg.py --file-type json --files-folder-path /mnt/shared/parthur/experiments/nl2sql/output/data/v3_fixed/database --output-data-file ./data/spider/train_synthetic_data_by_template_scfg_v3_fixed_val_db_only_1shot.json --samples-by-db 1
