@@ -555,6 +555,13 @@ CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-sp
 # * continuous training with synthetic data by gold template-based SCFG for validation dbs (50 examples per db)
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-synthetic-data-by-gold-template-scfg-200s.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-synthetic-data-by-gold-template-scfg-200s --force-preprocess --force-train
 
+# ** all synthetic data (v5)
+python scripts/data_aug/collect_synthetic_data_template_scfg.py --file-type json --files-folder-path /mnt/shared/parthur/experiments/nl2sql/output/data/databases/v5 --output-data-file ./data/spider/spider_all_dbs_synthetic_data_v5_by_gold_template_scfg.json --samples-by-db -1
+python3 scripts/split_spider_by_db.py --examples-paths 'spider_all_dbs_synthetic_data_v5_by_gold_template_scfg.json' --default-example-file-name examples_with_synthetic_data_v5_by_gold_template_scfg.json
+
+# * train with mix of original and synthetic data with batch balancing
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-train-mix-bb-original-plus-synthetic-data-by-gold-template-scfg-alls.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-train-mix-bb-original-plus-synthetic-data-by-gold-template-scfg-alls --force-preprocess --force-train
+
 # 1-shot
 python scripts/data_aug/collect_synthetic_data_template_scfg.py --file-type json --files-folder-path /mnt/shared/parthur/experiments/nl2sql/output/data/v3_fixed/database --output-data-file ./data/spider/train_synthetic_data_by_template_scfg_v3_fixed_val_db_only_1shot.json --samples-by-db 1
 python3 scripts/split_spider_by_db.py --examples-paths '' --aug-data train_synthetic_data_by_template_scfg_v3_fixed_val_db_only_1shot.json --aug-suffix spider_synthetic_data_template_scfg_v3_fixed_val_db_only_1shot
