@@ -346,7 +346,7 @@ class Trainer:
                 # Compute and apply gradient
                 with self.model_random:
                     with autocast(enabled=self.config["train"]["amp_enabled"]):
-                        loss = self.model.compute_loss(batch)
+                        loss = self.model.compute_loss(batch, debug=self.config["train"].get("debug", False))
                         if torch.isnan(loss).any():
                             continue
                         loss /= self.config["train"]["n_grad_accumulation_steps"]

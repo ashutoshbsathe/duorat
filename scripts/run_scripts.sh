@@ -524,8 +524,8 @@ CUDA_VISIBLE_DEVICES=3 python scripts/train.py --config configs/duorat/duorat-sp
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-original-plus-synthetic-data-batch-balancing-v3-fixed.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-original-plus-synthetic-data-batch-balancing-v3-fixed --force-preprocess --force-train &>./logdir/train-duorat-spider-new-db-content-with-original-plus-synthetic-data-batch-balancing-v3-fixed.log &
 
 # v5 (w/ gold templates)
-python scripts/data_aug/collect_synthetic_data_template_scfg.py --file-type json --files-folder-path /mnt/shared/parthur/experiments/nl2sql/output/data/v5/database --output-data-file ./data/spider/spider_all_dbs_synthetic_data_v5_by_gold_template_scfg_50s.json --samples-by-db 50
-python3 scripts/split_spider_by_db.py --examples-paths '' --aug-data spider_all_dbs_synthetic_data_v5_by_gold_template_scfg_50s.json --aug-suffix spider_synthetic_data_template_scfg_100s
+python scripts/data_aug/collect_synthetic_data_template_scfg.py --file-type json --files-folder-path /mnt/shared/parthur/experiments/nl2sql/output/data/databases/v5 --output-data-file ./data/spider/spider_all_dbs_synthetic_data_v5_by_gold_template_scfg_50s.json --samples-by-db 50
+python3 scripts/split_spider_by_db.py --examples-paths '' --aug-data spider_all_dbs_synthetic_data_v5_by_gold_template_scfg_50s.json --aug-suffix spider_all_dbs_synthetic_data_v5_by_gold_template_scfg_50s
 
 # 1-shot
 python scripts/data_aug/collect_synthetic_data_template_scfg.py --file-type json --files-folder-path /mnt/shared/parthur/experiments/nl2sql/output/data/v3_fixed/database --output-data-file ./data/spider/train_synthetic_data_by_template_scfg_v3_fixed_val_db_only_1shot.json --samples-by-db 1
@@ -714,6 +714,9 @@ CUDA_VISIBLE_DEVICES=0 python scripts/infer_one.py --config configs/duorat/duora
 python scripts/get_preds_from_json_file.py --preds-json-file ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-with-world-1/dev-with-world-1-test-duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-with-world-1.output --gold-txt-file ./data/spider/dev_with_world_1_test_gold.sql --output-preds-txt-file ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-with-world-1/dev-with-world-1-test-duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-with-world-1.output.txt
 python -m third_party.spider.evaluation --gold ./data/spider/dev_with_world_1_test_gold.sql --pred ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-with-world-1/dev-with-world-1-test-duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-with-world-1.output.txt --etype match --db ./data/database --table ./data/spider/tables.json
 
+# continuous train on original training (as data regularization) + ./data/spider/dev_with_world_1_train.json
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-original-plus-dev-with-world-1.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-original-plus-dev-with-world-1 --force-preprocess --force-train
+
 # car_1
 # 72 examples for continuous training, 20 examples for testing
 python scripts/split_dev_by_dbs.py --dev-json-file ./data/spider/dev.json --dev-json-output-file-prefix ./data/spider/dev --dbs car_1 --split-rate 72
@@ -743,6 +746,9 @@ CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-sp
 # infer on ./data/spider/dev_with_car_1_test.json
 CUDA_VISIBLE_DEVICES=0 python scripts/infer_one.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-with-car-1.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-with-car-1 --db-folder-path ./data/database/ --eval-file ./data/spider/dev_with_car_1_test.json --output-eval-file ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-with-car-1/dev-with-car-1-test-duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-with-car-1.output
 python scripts/get_preds_from_json_file.py --preds-json-file ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-with-car-1/dev-with-car-1-test-duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-with-car-1.output --gold-txt-file ./data/spider/dev_with_car_1_test_gold.sql --output-preds-txt-file ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-with-car-1/dev-with-car-1-test-duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-with-car-1.output.txt
+
+# continuous train on original training (as data regularization) + ./data/spider/dev_with_car_1_train.json
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-original-plus-dev-with-car-1.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-original-plus-dev-with-car-1 --force-preprocess --force-train
 
 # continuous train on ./data/spider/dev_with_world_1_train.json then ./data/spider/dev_with_car_1_train.json
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-with-world-1-then-car-1.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-with-world-1-then-car-1 --force-preprocess --force-train
@@ -1033,3 +1039,8 @@ CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-sp
 
 # base
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-bart-base.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-bart-base --force-preprocess --force-train
+
+# *** Examine schema ordering
+
+# base
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-schema-order-tctc.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-schema-order-tctc --force-preprocess --force-train
