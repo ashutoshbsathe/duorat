@@ -4,13 +4,13 @@
         {
             name: 'Spider_original',
             train: (import '../../data/train.libsonnet')(prefix=PREFIX),
-            val: (import '../../data/dev_wo_world_1.libsonnet')(prefix=PREFIX),
+            val: (import '../../data/dev_wo_car_1.libsonnet')(prefix=PREFIX),
             type: 'original'
         },
         {
-            name: 'Spider_dev_db_world_1',
-            train: (import '../../data/dev_with_world_1_train.libsonnet')(prefix=PREFIX),
-            val: (import '../../data/dev_with_world_1_test.libsonnet')(prefix=PREFIX),
+            name: 'Spider_dev_db_car_1',
+            train: (import '../../data/dev_with_car_1_train.libsonnet')(prefix=PREFIX),
+            val: (import '../../data/dev_with_car_1_test.libsonnet')(prefix=PREFIX),
             type: 'original'
         },
     ],
