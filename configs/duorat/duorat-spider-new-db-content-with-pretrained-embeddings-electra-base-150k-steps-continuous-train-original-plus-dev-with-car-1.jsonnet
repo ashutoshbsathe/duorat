@@ -10,7 +10,6 @@
         {
             name: 'Spider_dev_db_car_1',
             train: (import '../../data/dev_with_car_1_train.libsonnet')(prefix=PREFIX),
-            val: (import '../../data/dev_with_car_1_test.libsonnet')(prefix=PREFIX),
             type: 'original'
         },
     ],
