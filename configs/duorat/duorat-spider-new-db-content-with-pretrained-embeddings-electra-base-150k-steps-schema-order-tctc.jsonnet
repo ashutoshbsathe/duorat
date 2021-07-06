@@ -1,4 +1,12 @@
 (import 'duorat-finetune-bert-large.jsonnet') {
+    local PREFIX = 'data/',
+    data: {
+        train: (import '../../data/train.libsonnet')(prefix=PREFIX),
+        val: (import '../../data/val.libsonnet')(prefix=PREFIX),
+        train_sample_size: 100,
+        val_sample_size: 100,
+    },
+
     model+: {
         encoder+: {
             initial_encoder+: {
@@ -34,8 +42,17 @@
     },
 
     train+: {
-        batch_size: 8,
-        n_grad_accumulation_steps: 6,
+        batch_size: 1,
+        n_grad_accumulation_steps: 1,
         max_steps: 150000,
+        "eval_batch_size": 1,
+        "eval_every_n": 50,
+        "eval_nproc": 1,
+        "eval_on_train": false,
+        "eval_on_val": true,
+        "infer_min_n": 50,
+        "num_eval_items": 100,
+        "report_every_n": 1,
+        debug: true,
     }
 }

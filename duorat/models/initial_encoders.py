@@ -725,6 +725,6 @@ class BartEncoder(T5Encoder):
 
     @classmethod
     def _load_pretrained(cls, pretrained_model_name_or_path: str) -> BartEncoderModel:
-        return BartEncoderModel.BartEncoder.from_pretrained(
+        return BartEncoderModel.from_pretrained(
             pretrained_model_name_or_path=pretrained_model_name_or_path
         )
