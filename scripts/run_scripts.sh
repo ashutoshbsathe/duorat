@@ -1115,6 +1115,9 @@ TOKENIZERS_PARALLELISM=true CUDA_VISIBLE_DEVICES=3 python scripts/train.py --con
 # base
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-bart-base.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-bart-base --force-preprocess --force-train
 
+# base (150K steps)
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-bart-base-150k-steps.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-bart-base-150k-steps --force-preprocess --force-train
+
 # *** Examine schema ordering
 
 # base
