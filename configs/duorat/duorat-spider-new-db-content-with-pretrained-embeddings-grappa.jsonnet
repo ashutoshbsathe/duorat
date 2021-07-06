@@ -21,10 +21,12 @@
                 partial_entry_db_content_confidence: 'low'
             },
             tokenizer+: {
+                name: 'RoBERTaTokenizer',
                 pretrained_model_name_or_path: 'Salesforce/grappa_large_jnt',
             },
             transition_system+: {
                 tokenizer+: {
+                    name: 'RoBERTaTokenizer',
                     pretrained_model_name_or_path: 'Salesforce/grappa_large_jnt',
                 }
             }
