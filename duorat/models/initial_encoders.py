@@ -6,6 +6,7 @@ import torch
 from torch import nn
 
 from transformers import AutoModel, T5EncoderModel  # , BertModel
+from transformers.models.bart.modeling_bart import BartEncoder as BartEncoderModel
 
 from duorat.models.utils import _flip_attention_mask
 from duorat.models.rat import RATLayer
@@ -690,3 +691,40 @@ class T5Encoder(BertEncoder):
         assert output.device == device
 
         return output
+
+
+@registry.register("initial_encoder", "BartEncoder")
+class BartEncoder(T5Encoder):
+    def __init__(
+            self,
+            pretrained_model_name_or_path: str,
+            trainable: bool,
+            num_return_layers: int,
+            embed_dim: int,
+            use_dedicated_gpu: bool,
+            use_affine_transformation: bool,
+            use_attention_mask: bool,
+            use_token_type_ids: bool,
+            use_position_ids: bool,
+            use_segments: bool,
+            use_outputs_from: str,
+            preproc: BertDuoRATPreproc,
+    ) -> None:
+        super(BartEncoder, self).__init__(pretrained_model_name_or_path=pretrained_model_name_or_path,
+                                          trainable=trainable,
+                                          num_return_layers=num_return_layers,
+                                          embed_dim=embed_dim,
+                                          use_dedicated_gpu=use_dedicated_gpu,
+                                          use_affine_transformation=use_affine_transformation,
+                                          use_attention_mask=use_attention_mask,
+                                          use_token_type_ids=use_token_type_ids,
+                                          use_position_ids=use_position_ids,
+                                          use_segments=use_segments,
+                                          use_outputs_from=use_outputs_from,
+                                          preproc=preproc)
+
+    @classmethod
+    def _load_pretrained(cls, pretrained_model_name_or_path: str) -> BartEncoderModel:
+        return BartEncoderModel.BartEncoder.from_pretrained(
+            pretrained_model_name_or_path=pretrained_model_name_or_path
+        )
