@@ -2,6 +2,7 @@
     model+: {
         encoder+: {
             initial_encoder+: {
+                name: 'BartEncoder',
                 pretrained_model_name_or_path: 'facebook/bart-base',
             },
             source_relation_types: {
