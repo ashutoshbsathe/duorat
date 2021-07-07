@@ -317,7 +317,7 @@ class Text2SQLInferenceRequest(pydantic.BaseModel):
 
 
 class Text2SQLWithFollowUpInferenceRequest(Text2SQLInferenceRequest):
-    prev_text_question: str
+    history: Dict[str, str]
 
 
 class Text2SQLInferenceResponse(pydantic.BaseModel):
@@ -590,15 +590,22 @@ def ask_any_question(question: str,
 
 
 def ask_any_question_with_followup(question: str,
-                                   prev_question: str,  # currently support one previous question only
+                                   history: Dict[str, str],  # currently support one previous question only
                                    duorat_on_db: DuoratOnDatabase) -> Text2SQLInferenceResponse:
+    if duorat_model.config['model']['preproc']['interaction_type'] == 'source':
+        duorat_history = (history['text'], None, '')
+    elif duorat_model.config['model']['preproc']['interaction_type'] == 'target':
+        duorat_history = ('', None, history['sql'])
+    elif duorat_model.config['model']['preproc']['interaction_type'] == 'source&target':
+        duorat_history = (history['text'], None, history['sql'])
+
     if '@EXECUTE' not in question and '@execute' not in question:
         if ('<tm' in question and '</tm>' in question) \
                 or ('<cm' in question and '</cm>' in question) \
                 or ('<vm' in question and '</vm>' in question):
-            model_results = duorat_on_db.infer_query(question='', slml_question=question, history=[prev_question])
+            model_results = duorat_on_db.infer_query(question='', slml_question=question, history=[duorat_history])
         else:
-            model_results = duorat_on_db.infer_query(question, history=[prev_question])
+            model_results = duorat_on_db.infer_query(question, history=[duorat_history])
         sql = model_results['query']
         score = str(model_results["score"])
     else:  # an implicit db execution query (for debugging only)
@@ -790,7 +797,7 @@ async def text2sql_infer_followup(request: Text2SQLWithFollowUpInferenceRequest)
 
     show_schema(duorat_on_db=duorat_on_db)
     results = ask_any_question_with_followup(question=request.text_question,
-                                             prev_question=request.prev_text_question,
+                                             history=request.history,
                                              duorat_on_db=duorat_on_db)
     if not logger:
         print(results)
