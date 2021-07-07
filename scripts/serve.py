@@ -592,20 +592,21 @@ def ask_any_question(question: str,
 def ask_any_question_with_followup(question: str,
                                    history: Dict[str, str],  # currently support one previous question only
                                    duorat_on_db: DuoratOnDatabase) -> Text2SQLInferenceResponse:
+    duorat_history = None
     if duorat_model.config['model']['preproc']['interaction_type'] == 'source':
-        duorat_history = (history['text'], None, '')
+        duorat_history = [(history['text'], None, '')]
     elif duorat_model.config['model']['preproc']['interaction_type'] == 'target':
-        duorat_history = ('', None, history['sql'])
+        duorat_history = [('', None, history['sql'])]
     elif duorat_model.config['model']['preproc']['interaction_type'] == 'source&target':
-        duorat_history = (history['text'], None, history['sql'])
+        duorat_history = [(history['text'], None, history['sql'])]
 
     if '@EXECUTE' not in question and '@execute' not in question:
         if ('<tm' in question and '</tm>' in question) \
                 or ('<cm' in question and '</cm>' in question) \
                 or ('<vm' in question and '</vm>' in question):
-            model_results = duorat_on_db.infer_query(question='', slml_question=question, history=[duorat_history])
+            model_results = duorat_on_db.infer_query(question='', slml_question=question, history=duorat_history)
         else:
-            model_results = duorat_on_db.infer_query(question, history=[duorat_history])
+            model_results = duorat_on_db.infer_query(question, history=duorat_history)
         sql = model_results['query']
         score = str(model_results["score"])
     else:  # an implicit db execution query (for debugging only)
