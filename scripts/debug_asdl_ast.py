@@ -4,6 +4,7 @@ from duorat.utils import registry
 from duorat.datasets.spider import load_original_schemas
 from duorat.asdl.lang.spider.spider_transition_system import (
     SpiderTransitionSystem,
+    asdl_ast_to_dict
 )
 
 
@@ -38,3 +39,6 @@ if __name__ == "__main__":
         print(spider_sql)
         asdl_ast = transition_system.surface_code_to_ast(code=spider_sql)
         print(asdl_ast)
+        print(asdl_ast.pretty(string_buffer=None))
+        asdl_ast_in_json = asdl_ast_to_dict(asdl_ast=asdl_ast, grammar=transition_system.grammar)
+        print(asdl_ast_in_json)
