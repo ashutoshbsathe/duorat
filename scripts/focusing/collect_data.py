@@ -116,19 +116,23 @@ def collect_tabfact(tsv_data_file: str, data_path: str, output_file: str) -> Non
 
 
 if __name__ == "__main__":
+    print("Collecting Spider...")
     collect_spider_wikisql(json_data_files=['./data/spider/train_spider.json', './data/spider/train_others.json'],
                            json_schema_file='./data/spider/tables.json',
                            output_file='./data/focusing/spider_train.txt')
 
+    print("Collecting WikiSQL...")
     collect_spider_wikisql(json_data_files=['./data/wikisql/examples_train.json'],
                            json_schema_file='./data/wikisql/tables_train.json',
                            output_file='./data/focusing/wikisql_train.txt',
                            data_type='wikisql')
 
+    print("Collecting WikiTableQuestions...")
     collect_wikitablequestions(dataset_path='../../data/focusing/non_sql_tabular_datasets/WikiTableQuestions',
                                tsv_data_file_name='data/training.tsv',
                                output_file='./data/focusing/wikitablequestions.txt')
 
+    print("Collecting TabFact...")
     collect_tabfact(tsv_data_file='processed_datasets/tsv_data_horizontal/tabfact_all_data.tsv',
                     data_path='../../data/focusing/non_sql_tabular_datasets/Table-Fact-Checking',
                     output_file='./data/focusing/tabfact.txt')
