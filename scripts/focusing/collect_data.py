@@ -97,6 +97,6 @@ if __name__ == "__main__":
                            output_file='./data/focusing/wikisql_train.txt',
                            data_type='wikisql')
 
-    collect_wikitablequestions(dataset_path='../data/focusing/non_sql_tabular_datasets/WikiTableQuestions',
+    collect_wikitablequestions(dataset_path='../../data/focusing/non_sql_tabular_datasets/WikiTableQuestions',
                                tsv_data_file_name='data/training.tsv',
                                output_file='./data/focusing/wikitablequestions.txt')
