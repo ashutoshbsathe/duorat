@@ -173,15 +173,14 @@ def columns_with_preceding_table_tokens(
         get_column_tokens: Callable[[SQLSchema, ColumnId, Scoping], Iterable[ColumnToken]],
         get_table_tokens: Callable[[SQLSchema, TableId, Scoping], Iterable[TableToken]],
 ) -> Iterable[Token]:
+    # FIXME: bug in the following?
     table_tokens = get_table_tokens(sql_schema, table_id, scoping)
-    column_tokens_list = [get_column_tokens(sql_schema, column_id, scoping)
-                          for column_id in sql_schema.table_to_columns[table_id]]
-    columns = itertools.chain(
+    return itertools.chain(
         *(
-            itertools.chain(table_tokens, column_tokens) for column_tokens in column_tokens_list
+            itertools.chain(table_tokens, get_column_tokens(sql_schema, column_id, scoping)) \
+            for column_id in sql_schema.table_to_columns[table_id]
         )
     )
-    return columns
 
 
 def schema_source_tokens(
@@ -273,7 +272,7 @@ def schema_tokens(
                 columns_with_preceding_table_tokens(
                     sql_schema, table_id, scoping, get_column_tokens, get_table_tokens
                 )
-                for table_id, _ in sql_schema.tokenized_table_names.items()
+                for table_id in sql_schema.tokenized_table_names.keys()
             ),
         )
     elif schema_token_ordering == "[column]":
@@ -284,7 +283,17 @@ def schema_tokens(
                 for column_id in sql_schema.tokenized_column_names.keys()
             )
         )
-        return itertools.chain(columns)
+
+        # Columns that have no table (`*`, essentially)
+        columns_without_table = itertools.chain(
+            *(
+                get_column_tokens(sql_schema, column_id, scoping)
+                for column_id in sql_schema.tokenized_column_names.keys()
+                if sql_schema.column_to_table[column_id] is None
+            )
+        )
+
+        return itertools.chain(columns_without_table, columns)
     else:
         raise ValueError(
             f"Invalid value for schema_token_ordering: {schema_token_ordering}"

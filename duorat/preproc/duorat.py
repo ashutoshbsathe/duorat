@@ -400,7 +400,7 @@ class DuoRATEncoderItemBuilder(object):
     ) -> "DuoRATEncoderItemBuilder":
         builder = deepcopy(self) if copy is True else self
         input_tokens = list(input_tokens)
-
+        
         if (
                 builder.max_supported_input_length is not None
                 and builder.input_token_max_position_pointer + len(input_tokens)
