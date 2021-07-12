@@ -63,7 +63,7 @@ def collect_wikitablequestions(dataset_path: str, tsv_data_file_name: str, outpu
         f.readline()
         for line in f:
             line = line.strip()
-            parts = line.strip('\t')
+            parts = line.split('\t')
             question = parts[1]
             table_csv_file = parts[2]
             csv_table_file = os.path.join(dataset_path, table_csv_file)
