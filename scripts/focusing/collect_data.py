@@ -98,7 +98,7 @@ def collect_tabfact(tsv_data_file: str, data_path: str, output_file: str) -> Non
             text = parts[-2]
             csv_tables_file = os.path.join(csv_tables_folder_path, parts[0])
             with open(csv_tables_file) as tf:
-                header_line = tf.readline()
+                header_line = tf.readline().strip()
                 col_list = header_line.split('#')
 
             concat_output = [text]
