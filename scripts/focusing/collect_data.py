@@ -95,7 +95,7 @@ def collect_tabfact(tsv_data_file: str, data_path: str, output_file: str) -> Non
         for line in f:
             line = line.strip()
             parts = line.split('\t')
-            text = parts[-1]
+            text = parts[-2]
             csv_tables_file = os.path.join(csv_tables_folder_path, parts[0])
             with open(csv_tables_file) as tf:
                 header_line = tf.readline()
