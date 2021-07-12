@@ -27,7 +27,7 @@ def collect_synthetic_data_tsv_files(tsv_files_folder_path: str,
                 }
                 examples.append(example_dict)
 
-            if samples_by_db != -1:
+            if samples_by_db != -1 and samples_by_db < len(examples):
                 sampled_examples, _ = model_selection.train_test_split(examples,
                                                                        random_state=42,
                                                                        train_size=samples_by_db)
