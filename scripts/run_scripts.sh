@@ -532,12 +532,12 @@ python3 scripts/split_spider_by_db.py --examples-paths 'spider_all_dbs_synthetic
 # * initialized from pretrained model then continuously training with original training data + synthetic data by gold template-based SCFG for validation dbs (50 examples per db)
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-initialized-train-plus-dev-synthetic-data-by-gold-template-scfg-50s.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-initialized-train-plus-dev-synthetic-data-by-gold-template-scfg-50s --force-preprocess --force-train
 
-# * continuous training with synthetic data by gold template-based SCFG for validation dbs (50 examples per db)
-CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-synthetic-data-by-gold-template-scfg-50s.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-synthetic-data-by-gold-template-scfg-50s --force-preprocess --force-train
+# * initialized from pretrained model then continuously training with original training data + synthetic data by gold template-based SCFG for validation dbs (50 examples per db)
+# w/ batch balancing
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-initialized-train-plus-dev-synthetic-data-by-gold-template-scfg-50s-bb.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-initialized-train-plus-dev-synthetic-data-by-gold-template-scfg-50s-bb --force-preprocess --force-train
 
 # * continuous training with synthetic data by gold template-based SCFG for validation dbs (50 examples per db)
-# w/ batch balancing
-CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-synthetic-data-by-gold-template-scfg-50s-bb.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-synthetic-data-by-gold-template-scfg-50s-bb --force-preprocess --force-train
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-synthetic-data-by-gold-template-scfg-50s.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-synthetic-data-by-gold-template-scfg-50s --force-preprocess --force-train
 
 # 100 samples per db
 python scripts/data_aug/collect_synthetic_data_template_scfg.py --file-type json --files-folder-path /mnt/shared/parthur/experiments/nl2sql/output/data/databases/v5 --output-data-file ./data/spider/spider_all_dbs_synthetic_data_v5_by_gold_template_scfg_100s.json --samples-by-db 100
@@ -546,12 +546,12 @@ python3 scripts/split_spider_by_db.py --examples-paths 'spider_all_dbs_synthetic
 # * initialized from pretrained model then continuously training with original training data + synthetic data by gold template-based SCFG for validation dbs (50 examples per db)
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-initialized-train-plus-dev-synthetic-data-by-gold-template-scfg-100s.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-initialized-train-plus-dev-synthetic-data-by-gold-template-scfg-100s --force-preprocess --force-train
 
-# * continuous training with synthetic data by gold template-based SCFG for validation dbs (50 examples per db)
-CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-synthetic-data-by-gold-template-scfg-100s.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-synthetic-data-by-gold-template-scfg-100s --force-preprocess --force-train
+# * initialized from pretrained model then continuously training with original training data + synthetic data by gold template-based SCFG for validation dbs (50 examples per db)
+# w/ batch balancing
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-initialized-train-plus-dev-synthetic-data-by-gold-template-scfg-100s-bb.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-initialized-train-plus-dev-synthetic-data-by-gold-template-scfg-100s-bb --force-preprocess --force-train
 
 # * continuous training with synthetic data by gold template-based SCFG for validation dbs (50 examples per db)
-# w/ batch balancing
-CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-synthetic-data-by-gold-template-scfg-100s-bb.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-synthetic-data-by-gold-template-scfg-100s-bb --force-preprocess --force-train
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-synthetic-data-by-gold-template-scfg-100s.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-synthetic-data-by-gold-template-scfg-100s --force-preprocess --force-train
 
 # 200 samples per db
 python scripts/data_aug/collect_synthetic_data_template_scfg.py --file-type json --files-folder-path /mnt/shared/parthur/experiments/nl2sql/output/data/databases/v5 --output-data-file ./data/spider/spider_all_dbs_synthetic_data_v5_by_gold_template_scfg_200s.json --samples-by-db 200
@@ -560,12 +560,12 @@ python3 scripts/split_spider_by_db.py --examples-paths 'spider_all_dbs_synthetic
 # * initialized from pretrained model then continuously training with original training data + synthetic data by gold template-based SCFG for validation dbs (50 examples per db)
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-initialized-train-plus-dev-synthetic-data-by-gold-template-scfg-200s.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-initialized-train-plus-dev-synthetic-data-by-gold-template-scfg-200s --force-preprocess --force-train
 
-# * continuous training with synthetic data by gold template-based SCFG for validation dbs (50 examples per db)
-CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-synthetic-data-by-gold-template-scfg-200s.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-synthetic-data-by-gold-template-scfg-200s --force-preprocess --force-train
+# * initialized from pretrained model then continuously training with original training data + synthetic data by gold template-based SCFG for validation dbs (50 examples per db)
+# w/ batch balancing
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-initialized-train-plus-dev-synthetic-data-by-gold-template-scfg-200s-bb.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-initialized-train-plus-dev-synthetic-data-by-gold-template-scfg-200s-bb --force-preprocess --force-train
 
 # * continuous training with synthetic data by gold template-based SCFG for validation dbs (50 examples per db)
-# w/ batch balancing
-CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-synthetic-data-by-gold-template-scfg-200s-bb.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-synthetic-data-by-gold-template-scfg-200s-bb --force-preprocess --force-train
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-synthetic-data-by-gold-template-scfg-200s.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-synthetic-data-by-gold-template-scfg-200s --force-preprocess --force-train
 
 # ** all synthetic data (v5)
 python scripts/data_aug/collect_synthetic_data_template_scfg.py --file-type json --files-folder-path /mnt/shared/parthur/experiments/nl2sql/output/data/databases/v5 --output-data-file ./data/spider/spider_all_dbs_synthetic_data_v5_by_gold_template_scfg.json --samples-by-db -1
@@ -577,25 +577,25 @@ python3 scripts/split_spider_by_db.py --examples-paths 'spider_all_dbs_synthetic
 python scripts/data_aug/collect_synthetic_data_template_scfg.py --file-type json --files-folder-path /mnt/shared/parthur/experiments/nl2sql/output/data/databases/v5_mono/spider/database --output-data-file ./data/spider/spider_all_dbs_synthetic_data_v5_mono_nl_by_t5_gen_50s.json --samples-by-db 50
 python3 scripts/split_spider_by_db.py --examples-paths 'spider_all_dbs_synthetic_data_v5_mono_nl_by_t5_gen_50s.json' --default-example-file-name examples_with_synthetic_data_v5_mono_nl_by_t5_gen_50s.json
 
-# * continuous training with synthetic data by gold template-based SCFG for validation dbs (50 examples per db)
 # w/ batch balancing
-CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-synthetic-data-v5-mono-nl-by-gen-50s-bb.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-synthetic-data-v5-mono-nl-by-gen-50s-bb --force-preprocess --force-train
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-initialized-train-plus-dev-synthetic-data-v5-mono-nl-by-gen-50s-bb.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-initialized-train-plus-dev-synthetic-data-v5-mono-nl-by-gen-50s-bb --force-preprocess --force-train
 
 # 100 samples
 python scripts/data_aug/collect_synthetic_data_template_scfg.py --file-type json --files-folder-path /mnt/shared/parthur/experiments/nl2sql/output/data/databases/v5_mono/spider/database --output-data-file ./data/spider/spider_all_dbs_synthetic_data_v5_mono_nl_by_t5_gen_100s.json --samples-by-db 100
 python3 scripts/split_spider_by_db.py --examples-paths 'spider_all_dbs_synthetic_data_v5_mono_nl_by_t5_gen_100s.json' --default-example-file-name examples_with_synthetic_data_v5_mono_nl_by_t5_gen_100s.json
 
-# * continuous training with synthetic data by gold template-based SCFG for validation dbs (50 examples per db)
 # w/ batch balancing
-CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-synthetic-data-v5-mono-nl-by-gen-100s-bb.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-synthetic-data-v5-mono-nl-by-gen-100s-bb --force-preprocess --force-train
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-initialized-train-plus-dev-synthetic-data-v5-mono-nl-by-gen-100s-bb.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-initialized-train-plus-dev-synthetic-data-v5-mono-nl-by-gen-100s-bb --force-preprocess --force-train
 
 # 200 samples
 python scripts/data_aug/collect_synthetic_data_template_scfg.py --file-type json --files-folder-path /mnt/shared/parthur/experiments/nl2sql/output/data/databases/v5_mono/spider/database --output-data-file ./data/spider/spider_all_dbs_synthetic_data_v5_mono_nl_by_t5_gen_200s.json --samples-by-db 200
 python3 scripts/split_spider_by_db.py --examples-paths 'spider_all_dbs_synthetic_data_v5_mono_nl_by_t5_gen_200s.json' --default-example-file-name examples_with_synthetic_data_v5_mono_nl_by_t5_gen_200s.json
 
-# * continuous training with synthetic data by gold template-based SCFG for validation dbs (50 examples per db)
 # w/ batch balancing
-CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-synthetic-data-v5-mono-nl-by-gen-200s-bb.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-continuous-train-dev-synthetic-data-v5-mono-nl-by-gen-200s-bb --force-preprocess --force-train
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-initialized-train-plus-dev-synthetic-data-v5-mono-nl-by-gen-200s-bb.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-initialized-train-plus-dev-synthetic-data-v5-mono-nl-by-gen-200s-bb --force-preprocess --force-train
+
+# all samples
+python scripts/data_aug/collect_synthetic_data_template_scfg.py --file-type json --files-folder-path /mnt/shared/parthur/experiments/nl2sql/output/data/databases/v5_mono/spider/database --output-data-file ./data/spider/spider_all_dbs_synthetic_data_v5_mono_nl_by_t5_gen_full.json --samples-by-db -1
 
 # * train with mix of original and synthetic data with batch balancing
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-train-mix-bb-original-plus-synthetic-data-by-gold-template-scfg-alls.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-train-mix-bb-original-plus-synthetic-data-by-gold-template-scfg-alls --force-preprocess --force-train
