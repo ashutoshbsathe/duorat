@@ -53,6 +53,6 @@
         "infer_min_n": 50,
         "num_eval_items": 100,
         "report_every_n": 1,
-        debug: true,
+        "debug": true,
     }
 }
