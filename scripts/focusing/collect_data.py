@@ -14,9 +14,9 @@ def collect_spider_wikisql(json_data_files: List[str],
     spider_data = []
     for data_file in json_data_files:
         with open(data_file) as f:
-           data = json.load(f)
-           assert isinstance(data, list)
-           spider_data.extend(data)
+            data = json.load(f)
+            assert isinstance(data, list)
+            spider_data.extend(data)
 
     # load schema
     schema_data = {}
@@ -87,7 +87,7 @@ def collect_wikitablequestions(dataset_path: str, tsv_data_file_name: str, outpu
     return
 
 
-def collect_tabfact(tsv_data_file: str, data_path: str, output_file: str) -> None:
+def collect_tabfact_tsv(tsv_data_file: str, data_path: str, output_file: str) -> None:
     tsv_data_file_path = os.path.join(data_path, tsv_data_file)
     csv_tables_folder_path = os.path.join(data_path, 'data/all_csv')
     output_data = []
@@ -115,6 +115,33 @@ def collect_tabfact(tsv_data_file: str, data_path: str, output_file: str) -> Non
     return
 
 
+def collect_tabfact_json(json_data_file: str, data_path: str, output_file: str) -> None:
+    json_data_file_path = os.path.join(data_path, json_data_file)
+    csv_tables_folder_path = os.path.join(data_path, 'data/all_csv')
+    output_data = []
+    with open(json_data_file_path) as f:
+        json_data = json.load(f)
+        for csv_file_id, data in tqdm.tqdm(json_data.items()):
+            csv_tables_file = os.path.join(csv_tables_folder_path, csv_file_id)
+            with open(csv_tables_file) as tf:
+                header_line = tf.readline().strip()
+                col_list = header_line.split('#')
+
+            text_list = data[0]
+            for text in text_list:
+                concat_output = [text]
+                for col in col_list:
+                    concat_output.append('</s>')
+                    concat_output.append(col)
+                output_data.append(' '.join(concat_output))
+
+    with open(output_file, 'w') as outf:
+        for entry in tqdm.tqdm(output_data):
+            outf.write(f"{entry}\n")
+
+    return
+
+
 if __name__ == "__main__":
     print("Collecting Spider...")
     collect_spider_wikisql(json_data_files=['./data/spider/train_spider.json', './data/spider/train_others.json'],
@@ -133,6 +160,9 @@ if __name__ == "__main__":
                                output_file='./data/focusing/wikitablequestions.txt')
 
     print("Collecting TabFact...")
-    collect_tabfact(tsv_data_file='processed_datasets/tsv_data_horizontal/tabfact_all_data.tsv',
-                    data_path='../../data/focusing/non_sql_tabular_datasets/Table-Fact-Checking',
-                    output_file='./data/focusing/tabfact.txt')
+    # collect_tabfact_tsv(tsv_data_file='processed_datasets/tsv_data_horizontal/tabfact_all_data.tsv',
+    #                     data_path='../../data/focusing/non_sql_tabular_datasets/Table-Fact-Checking',
+    #                     output_file='./data/focusing/tabfact.txt')
+    collect_tabfact_json(json_data_file='tokenized_data/total_examples.json',
+                         data_path='../../data/focusing/non_sql_tabular_datasets/Table-Fact-Checking',
+                         output_file='./data/focusing/tabfact.txt')
