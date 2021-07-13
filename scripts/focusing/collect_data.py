@@ -61,7 +61,7 @@ def collect_spider_wikisql(json_data_files: List[str],
 def collect_wikitablequestions(dataset_path: str, tsv_data_file_name: str, output_file: str) -> None:
     output_data = []
     with open(os.path.join(dataset_path, tsv_data_file_name)) as f:
-        f.readline()
+        f.readline()  # ignore the TSV header
         for line in f:
             line = line.strip()
             parts = line.split('\t')
@@ -143,6 +143,36 @@ def collect_tabfact_json(json_data_file: str, data_path: str, output_file: str) 
     return
 
 
+def collect_hybridqa(json_data_files: List[str], dataset_path: str, output_file: str) -> None:
+    json_tables_folder_path = os.path.join(dataset_path, 'WikiTables-WithLinks/tables_tok')
+    output_data = []
+    for json_data_file in json_data_files:
+        json_data_file_path = os.path.join(dataset_path, json_data_file)
+        with open(json_data_file_path) as fdata:
+            data = json.load(fdata)  # a list
+            for entry in tqdm.tqdm(data):
+                question = entry["question"]
+                table_id = entry["table_id"]
+                json_table_file = os.path.join(json_tables_folder_path, f"{table_id}.json")
+                with open(json_table_file) as ftab:
+                    tab_data = json.load(ftab)  # a dict
+                    header = tab_data["header"]
+                    col_list = [col_info[0] for col_info in header]
+
+                concat_output = [question]
+                for col in col_list:
+                    concat_output.append('</s>')
+                    concat_output.append(col)
+
+                output_data.append(' '.join(concat_output))
+
+    with open(output_file, 'w') as outf:
+        for entry in tqdm.tqdm(output_data):
+            outf.write(f"{entry}\n")
+
+    return
+
+
 if __name__ == "__main__":
     print("Collecting Spider...")
     collect_spider_wikisql(json_data_files=['./data/spider/train_spider.json', './data/spider/train_others.json'],
@@ -151,7 +181,7 @@ if __name__ == "__main__":
     print("Collecting Spider (synthetic)...")
     collect_spider_wikisql(json_data_files=['./data/spider/spider_all_dbs_synthetic_data_v5_mono_nl_by_t5_gen_full.json'],
                            json_schema_files=['./data/spider/tables.json'],
-                           output_file='./data/focusing/spider_train_synthetic_nl.txt')
+                           output_file='./data/focusing/spider_synthetic_nl.txt')
 
     print("Collecting WikiSQL...")
     collect_spider_wikisql(json_data_files=['./data/wikisql/examples_train.json',
