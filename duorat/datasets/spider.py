@@ -180,6 +180,10 @@ class SpiderDataset(Dataset):
 
         count_incorrect = 0
         for path in paths:
+            if not os.path.exists(path):
+                print(f"Invalid data path: {path}")
+                continue
+
             raw_data = json.load(open(path))
             for ind, entry in enumerate(raw_data):
                 try:
