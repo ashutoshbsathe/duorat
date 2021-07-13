@@ -173,6 +173,33 @@ def collect_hybridqa(json_data_files: List[str], dataset_path: str, output_file:
     return
 
 
+def collect_totto(jsonl_data_files: List[str], dataset_path: str, output_file: str) -> None:
+    output_data = []
+    for jsonl_data_file in jsonl_data_files:
+        jsonl_data_file_path = os.path.join(dataset_path, jsonl_data_file)
+        with open(jsonl_data_file_path) as f:
+            for line in f:
+                line = line.strip()
+                json_data = json.loads(line)
+                final_sentence_annotation = json_data["sentence_annotations"][0]["final_sentence"]
+                table = json_data["table"]
+                header = table[0]
+                col_list = [col_info["value"] for col_info in header if col_info["is_header"]]
+                if col_list:
+                    concat_output = [final_sentence_annotation]
+                    for col in col_list:
+                        concat_output.append('</s>')
+                        concat_output.append(col)
+
+                    output_data.append(' '.join(concat_output))
+
+    with open(output_file, 'w') as outf:
+        for entry in tqdm.tqdm(output_data):
+            outf.write(f"{entry}\n")
+
+    return
+
+
 if __name__ == "__main__":
     print("Collecting Spider...")
     collect_spider_wikisql(json_data_files=['./data/spider/train_spider.json', './data/spider/train_others.json'],
@@ -210,3 +237,8 @@ if __name__ == "__main__":
     collect_hybridqa(json_data_files=['released_data/train.json', 'released_data/dev.json', 'released_data/test.json'],
                      dataset_path='../../data/focusing/non_sql_tabular_datasets/HybridQA',
                      output_file='./data/focusing/hybridqa.txt')
+
+    print("Collecting ToTTo...")
+    collect_totto(jsonl_data_files=['totto_data/totto_train_data.jsonl', 'totto_data/totto_dev_data.jsonl'],
+                  dataset_path="../../data/focusing/non_sql_tabular_datasets/ToTTo",
+                  output_file="./data/focusing/totto.txt")
