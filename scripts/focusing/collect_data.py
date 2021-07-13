@@ -206,7 +206,7 @@ def collect_logicnlg(json_data_files: List[str], dataset_path: str, output_file:
         json_data_file_path = os.path.join(dataset_path, json_data_file)
         with open(json_data_file_path) as fdat:
             json_data = json.load(fdat)
-            for csv_tab_id, data in json_data.items():
+            for csv_tab_id, data in tqdm.tqdm(json_data.items()):
                 text_list = [entry[0] for entry in data]
                 csv_tab_file_path = os.path.join(dataset_path, f"data/all_csv/{csv_tab_id}")
                 if os.path.exists(csv_tab_file_path):
