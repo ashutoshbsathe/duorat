@@ -206,4 +206,7 @@ if __name__ == "__main__":
                          data_path='../../data/focusing/non_sql_tabular_datasets/Table-Fact-Checking',
                          output_file='./data/focusing/tabfact.txt')
 
-    # print("Collecting HybridQA...")
+    print("Collecting HybridQA...")
+    collect_hybridqa(json_data_files=['released_data/train.json', 'released_data/dev.json', 'released_data/test.json'],
+                     dataset_path='../../data/focusing/non_sql_tabular_datasets/HybridQA',
+                     output_file='./data/focusing/hybridqa.txt')
