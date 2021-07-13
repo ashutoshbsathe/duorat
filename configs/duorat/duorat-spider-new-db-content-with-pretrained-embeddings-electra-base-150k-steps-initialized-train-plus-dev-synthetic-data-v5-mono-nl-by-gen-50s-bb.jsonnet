@@ -8,7 +8,7 @@
             type: 'original'
         },
         {
-            name: 'Spider_by_synthetic_data_v5_by_gold_template_scfg_50s',
+            name: 'Spider_by_synthetic_data_v5_mono_nl_by_t5_gen_50s',
             train: (import '../../data/val_by_synthetic_data_v5_mono_nl_by_t5_gen_full.libsonnet')(prefix=PREFIX),
             train_sample_size: 1000,
             type: 'synthetic'
