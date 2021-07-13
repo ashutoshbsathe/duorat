@@ -38,8 +38,6 @@
                     pretrained_model_name_or_path: 'google/electra-base-discriminator',
                 }
             },
-            keep_vocab: true,
-            pre_target_vocab: './logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps/data/target_vocab.pkl',
         }
     },
 
@@ -51,10 +49,6 @@
         batch_size: 8,
         n_grad_accumulation_steps: 6,
         max_steps: 20000,
-        initialize_from: {
-            pretrained_model_path: './logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps',
-            reset_dev_accuracy: true,  # reset best previous dev accuracy
-        },
         num_eval_items: 1034,
         eval_every_n: 5000,
         infer_min_n: 5000,
