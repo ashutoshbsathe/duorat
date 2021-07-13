@@ -200,6 +200,34 @@ def collect_totto(jsonl_data_files: List[str], dataset_path: str, output_file: s
     return
 
 
+def collect_logicnlg(json_data_files: List[str], dataset_path: str, output_file: str) -> None:
+    output_data = []
+    for json_data_file in json_data_files:
+        json_data_file_path = os.path.join(dataset_path, json_data_file)
+        with open(json_data_file_path) as fdat:
+            json_data = json.load(fdat)
+            for csv_tab_id, data in json_data.items():
+                text_list = [entry[0] for entry in data]
+                csv_tab_file_path = os.path.join(dataset_path, f"data/all_csv/{csv_tab_id}")
+                if os.path.exists(csv_tab_file_path):
+                    with open(csv_tab_file_path) as tf:
+                        header_line = tf.readline().strip()
+                        col_list = header_line.split('#')
+
+                    for text in text_list:
+                        concat_output = [text]
+                        for col in col_list:
+                            concat_output.append('</s>')
+                            concat_output.append(col)
+                        output_data.append(' '.join(concat_output))
+
+    with open(output_file, 'w') as outf:
+        for entry in tqdm.tqdm(output_data):
+            outf.write(f"{entry}\n")
+
+    return
+
+
 if __name__ == "__main__":
     print("Collecting Spider...")
     collect_spider_wikisql(json_data_files=['./data/spider/train_spider.json', './data/spider/train_others.json'],
@@ -242,3 +270,8 @@ if __name__ == "__main__":
     collect_totto(jsonl_data_files=['totto_data/totto_train_data.jsonl', 'totto_data/totto_dev_data.jsonl'],
                   dataset_path="../../data/focusing/non_sql_tabular_datasets/ToTTo",
                   output_file="./data/focusing/totto.txt")
+
+    print("Collecting LogicNLG...")
+    collect_logicnlg(json_data_files=['data/train_lm.json', 'data/val_lm.json', 'data/test_lm.json'],
+                     dataset_path='../../data/focusing/non_sql_tabular_datasets/LogicNLG',
+                     output_file='./data/focusing/logicnlg.txt')
