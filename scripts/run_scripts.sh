@@ -578,7 +578,7 @@ python scripts/data_aug/collect_synthetic_data_template_scfg.py --file-type json
 python3 scripts/split_spider_by_db.py --examples-paths 'spider_all_dbs_synthetic_data_v5_mono_nl_by_t5_gen_50s.json' --default-example-file-name examples_with_synthetic_data_v5_mono_nl_by_t5_gen_50s.json
 
 # w/ batch balancing
-CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-initialized-train-plus-dev-synthetic-data-v5-mono-nl-by-gen-50s-bb.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-initialized-train-plus-dev-synthetic-data-v5-mono-nl-by-gen-50s-bb --force-preprocess --force-train
+CUDA_VISIBLE_DEVICES=3 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-initialized-train-plus-dev-synthetic-data-v5-mono-nl-by-gen-50s-bb.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-initialized-train-plus-dev-synthetic-data-v5-mono-nl-by-gen-50s-bb --force-preprocess --force-train
 
 # 100 samples
 python scripts/data_aug/collect_synthetic_data_template_scfg.py --file-type json --files-folder-path /mnt/shared/parthur/experiments/nl2sql/output/data/databases/v5_mono/spider/database --output-data-file ./data/spider/spider_all_dbs_synthetic_data_v5_mono_nl_by_t5_gen_100s.json --samples-by-db 100
