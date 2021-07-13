@@ -6,7 +6,7 @@ import csv
 
 
 def collect_spider_wikisql(json_data_files: List[str],
-                           json_schema_file: str,
+                           json_schema_files: List[str],
                            output_file: str,
                            data_type: str = 'spider',
                            use_col_type: bool = False) -> None:
@@ -20,22 +20,23 @@ def collect_spider_wikisql(json_data_files: List[str],
 
     # load schema
     schema_data = {}
-    with open(json_schema_file) as f:
-        data = json.load(f)
-        for entry in tqdm.tqdm(data):
-            schema_data[entry['db_id']] = []
+    for json_schema_file in json_schema_files:
+        with open(json_schema_file) as f:
+            data = json.load(f)
+            for entry in tqdm.tqdm(data):
+                schema_data[entry['db_id']] = []
 
-            # column type and names
-            if use_col_type:
-                for col_type, col_name in zip(entry['column_types'][1:], entry['column_names'][1:]):
-                    schema_data[entry['db_id']].append(f"{str(col_type)} {str(col_name[1])}")
-            else:
-                for col_name in entry['column_names'][1:]:
-                    schema_data[entry['db_id']].append(f"{str(col_name[1])}")
+                # column type and names
+                if use_col_type:
+                    for col_type, col_name in zip(entry['column_types'][1:], entry['column_names'][1:]):
+                        schema_data[entry['db_id']].append(f"{str(col_type)} {str(col_name[1])}")
+                else:
+                    for col_name in entry['column_names'][1:]:
+                        schema_data[entry['db_id']].append(f"{str(col_name[1])}")
 
-            if data_type == 'spider':
-                # table names
-                schema_data[entry['db_id']].extend([table_name for table_name in entry['table_names']])
+                if data_type == 'spider':
+                    # table names
+                    schema_data[entry['db_id']].extend([table_name for table_name in entry['table_names']])
 
     output_data = []
     for example in tqdm.tqdm(spider_data):
@@ -145,17 +146,21 @@ def collect_tabfact_json(json_data_file: str, data_path: str, output_file: str) 
 if __name__ == "__main__":
     print("Collecting Spider...")
     collect_spider_wikisql(json_data_files=['./data/spider/train_spider.json', './data/spider/train_others.json'],
-                           json_schema_file='./data/spider/tables.json',
+                           json_schema_files=['./data/spider/tables.json'],
                            output_file='./data/focusing/spider_train_nl.txt')
     print("Collecting Spider (synthetic)...")
-    collect_spider_wikisql(json_data_files=['./data/spider/spider_all_dbs_synthetic_data_v5_mono_nl_by_t5_gen_50s.json'],
-                           json_schema_file='./data/spider/tables.json',
+    collect_spider_wikisql(json_data_files=['./data/spider/spider_all_dbs_synthetic_data_v5_mono_nl_by_t5_gen_full.json'],
+                           json_schema_files=['./data/spider/tables.json'],
                            output_file='./data/focusing/spider_train_synthetic_nl.txt')
 
     print("Collecting WikiSQL...")
-    collect_spider_wikisql(json_data_files=['./data/wikisql/examples_train.json'],
-                           json_schema_file='./data/wikisql/tables_train.json',
-                           output_file='./data/focusing/wikisql_train_nl.txt',
+    collect_spider_wikisql(json_data_files=['./data/wikisql/examples_train.json',
+                                            './data/wikisql/examples_dev.json',
+                                            './data/wikisql/examples_test.json'],
+                           json_schema_files=['./data/wikisql/tables_train.json',
+                                              './data/wikisql/tables_dev.json',
+                                              './data/wikisql/tables_test.json'],
+                           output_file='./data/focusing/wikisql_full_nl.txt',
                            data_type='wikisql')
 
     print("Collecting WikiTableQuestions...")
