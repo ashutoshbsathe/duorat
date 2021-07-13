@@ -24,7 +24,7 @@ function(prefix) {
 
   name: 'spider',
   paths: [
-    prefix + 'database/%s/examples_with_synthetic_data_v5_mono_nl_by_t5_gen_all.json' % [db]
+    prefix + 'database/%s/examples_with_synthetic_data_v5_mono_nl_by_t5_gen_full.json' % [db]
     for db in databases
   ],
   tables_paths: [
