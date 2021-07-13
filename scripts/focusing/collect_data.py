@@ -76,6 +76,9 @@ def collect_wikitablequestions(dataset_path: str, tsv_data_file_name: str, outpu
 
             concat_output = [question]
             for col in col_list:
+                col = col.strip()
+                if col == '':
+                    continue
                 concat_output.append('</s>')
                 concat_output.append(col)
 
@@ -104,6 +107,9 @@ def collect_tabfact_tsv(tsv_data_file: str, data_path: str, output_file: str) ->
 
             concat_output = [text]
             for col in col_list:
+                col = col.strip()
+                if col == '':
+                    continue
                 concat_output.append('</s>')
                 concat_output.append(col)
 
@@ -132,6 +138,9 @@ def collect_tabfact_json(json_data_file: str, data_path: str, output_file: str) 
             for text in text_list:
                 concat_output = [text]
                 for col in col_list:
+                    col = col.strip()
+                    if col == '':
+                        continue
                     concat_output.append('</s>')
                     concat_output.append(col)
                 output_data.append(' '.join(concat_output))
@@ -161,6 +170,9 @@ def collect_hybridqa(json_data_files: List[str], dataset_path: str, output_file:
 
                 concat_output = [question]
                 for col in col_list:
+                    col = col.strip()
+                    if col == '':
+                        continue
                     concat_output.append('</s>')
                     concat_output.append(col)
 
@@ -188,6 +200,9 @@ def collect_totto(jsonl_data_files: List[str], dataset_path: str, output_file: s
                 if col_list:
                     concat_output = [final_sentence_annotation]
                     for col in col_list:
+                        col = col.strip()
+                        if col == '':
+                            continue
                         concat_output.append('</s>')
                         concat_output.append(col)
 
@@ -217,6 +232,9 @@ def collect_logicnlg(json_data_files: List[str], dataset_path: str, output_file:
                     for text in text_list:
                         concat_output = [text]
                         for col in col_list:
+                            col = col.strip()
+                            if col == '':
+                                continue
                             concat_output.append('</s>')
                             concat_output.append(col)
                         output_data.append(' '.join(concat_output))
