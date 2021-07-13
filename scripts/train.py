@@ -252,7 +252,7 @@ class Trainer:
                 data_splits = [f"{dataset['name']}_train" if 'name' in dataset else "train" for dataset in datasets]
 
             sampler = None
-            if self.config["train"].get('batch_balancing', None):
+            if self.config["train"].get('batch_balancing', None) and len(data_splits) > 1:
                 self.logger.log(f"Apply batch balancing for each batch from multiple datasets...")
                 train_datasets = [self.model_preproc.dataset(split) for split in data_splits]
                 dataset_example_count = [len(train_dataset) for train_dataset in train_datasets]

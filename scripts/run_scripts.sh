@@ -599,10 +599,10 @@ python scripts/data_aug/collect_synthetic_data_template_scfg.py --file-type json
 python3 scripts/split_spider_by_db.py --examples-paths 'spider_all_dbs_synthetic_data_v5_mono_nl_by_t5_gen_full.json' --default-example-file-name examples_with_synthetic_data_v5_mono_nl_by_t5_gen_full.json
 
 # full training from scratch w/ concatenated data w/ batch balancing
-CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-train-plus-dev-synthetic-data-v5-mono-nl-by-gen-full-train-only-bb.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-train-plus-dev-synthetic-data-v5-mono-nl-by-gen-full-train-only-bb --force-preprocess --force-train
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-ori-train-plus-synthetic-data-v5-mono-nl-by-gen-full-train-only-bb.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-ori-train-plus-synthetic-data-v5-mono-nl-by-gen-full-train-only-bb --force-preprocess --force-train
 
 # training on synthetic data only
-
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-synthetic-data-v5-mono-nl-by-gen-full-train-only-bb.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-synthetic-data-v5-mono-nl-by-gen-full-train-only-bb --force-preprocess --force-train
 
 # w/ world_1 only
 # w/ batch balancing

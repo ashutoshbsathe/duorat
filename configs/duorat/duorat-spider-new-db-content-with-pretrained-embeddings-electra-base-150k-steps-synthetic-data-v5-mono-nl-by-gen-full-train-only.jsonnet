@@ -39,12 +39,11 @@
     },
 
     train+: {
-        batch_size: 8,
-        n_grad_accumulation_steps: 6,
+        batch_size: 7,
+        n_grad_accumulation_steps: 4,
         max_steps: 20000,
         num_eval_items: 1034,
         eval_every_n: 5000,
         infer_min_n: 5000,
-        batch_balancing: true,
     }
 }
