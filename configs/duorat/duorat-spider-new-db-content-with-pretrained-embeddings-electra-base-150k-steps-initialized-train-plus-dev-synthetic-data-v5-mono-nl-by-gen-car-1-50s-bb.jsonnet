@@ -10,7 +10,7 @@
         {
             name: 'Spider_by_synthetic_data_v5_mono_nl_by_t5_gen_car_1',
             train: (import '../../data/val_by_synthetic_data_v5_mono_nl_by_t5_gen_car_1.libsonnet')(prefix=PREFIX),
-            train_sample_size: 120,
+            train_sample_size: 50,
             type: 'synthetic'
         },
     ],
