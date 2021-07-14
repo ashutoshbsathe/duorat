@@ -4,7 +4,7 @@
         {
             name: 'Spider_original',
             train: (import '../../data/train.libsonnet')(prefix=PREFIX),
-            val: (import '../../data/val.libsonnet')(prefix=PREFIX),
+            val: (import '../../data/val_car_1.libsonnet')(prefix=PREFIX),
             type: 'original'
         },
         {

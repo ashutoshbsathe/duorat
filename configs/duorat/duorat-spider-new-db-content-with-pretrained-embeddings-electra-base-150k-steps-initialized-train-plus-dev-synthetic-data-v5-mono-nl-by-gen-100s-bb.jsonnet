@@ -9,8 +9,7 @@
         },
         {
             name: 'Spider_by_synthetic_data_v5_mono_nl_by_t5_gen_100s',
-            train: (import '../../data/val_by_synthetic_data_v5_mono_nl_by_t5_gen_full.libsonnet')(prefix=PREFIX),
-            train_sample_size: 2000,
+            train: (import '../../data/val_by_synthetic_data_v5_mono_nl_by_t5_gen_100s.libsonnet')(prefix=PREFIX),
             type: 'synthetic'
         },
     ],
