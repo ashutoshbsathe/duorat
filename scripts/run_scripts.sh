@@ -964,6 +964,15 @@ python -m third_party.spider.evaluation --gold ./data/spider/dev_gold.sql --pred
 # train
 python scripts/get_slml_outputs.py --duorat-config-file ./configs/duorat/duorat-new-db-content.jsonnet --input-files ./data/spider/train_spider.json ./data/spider/train_others.json  --output-file ./data/spider/train_spider_and_others_with_unsup_slml.json
 
+## Flatten NER
+
+# train
+python scripts/custom_ner/extract_custom_ner_data.py --input-file ./data/spider/train_spider_and_others_with_schema_custom_ner.json --output-file ./data/spider/train_spider_plus_others_flatten_schema_ner.txt --schema-json-file ./data/spider/tables.json --ner-type ner_h
+
+# dev
+python scripts/custom_ner/extract_custom_ner_data.py --input-file ./data/spider/dev_with_schema_custom_ner.json --output-file ./data/spider/dev_flatten_schema_ner.txt --schema-json-file ./data/spider/tables.json --ner-type ner_h
+
+
 # * Filtering bad tokens for matching (simple heuristic)
 
 # infer only

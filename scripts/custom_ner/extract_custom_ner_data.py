@@ -103,6 +103,111 @@ def extract_custom_ner_data(input_file: str,
         for sql in val_gold_sql_data:
             outf.write(f"{sql}\n")
 
+    return
+
+
+def extract_system_ner_data(input_file: str,
+                            schema_json_file: str,
+                            output_file: str) -> None:
+    # load data
+    spider_data = []
+    with open(input_file) as f:
+        data = json.load(f)
+        assert isinstance(data, list)
+        spider_data.extend(data)
+
+    # load schema
+    schema_data = {}
+    ignored_dbs = set()
+    with open(schema_json_file) as f:
+        data = json.load(f)
+        for entry in tqdm.tqdm(data):
+            schema_data[entry['db_id']] = {'column_map': {}, 'table_map': {}}
+
+            index = 0
+            ind2tab = {}
+            for table_name, ori_table_name in zip(entry["table_names"], entry["table_names_original"]):
+                schema_data[entry['db_id']]['table_map'][f"@{ori_table_name.lower()}"] = (index, str(table_name))
+                ind2tab[index] = ori_table_name.lower()
+                index += 1
+
+            index = 0
+            tab2col = {}
+            for col_name, ori_col_name in zip(entry['column_names'][1:], entry['column_names_original'][1:]):
+                tab_index = col_name[0]
+                schema_data[entry['db_id']]['column_map'][f"@{ind2tab[tab_index]}.{ori_col_name[1].lower()}"] = (index, tab_index, str(col_name[1]))
+                if f"@{ind2tab[tab_index]}" in tab2col:
+                    tab2col[f"@{ind2tab[tab_index]}"].append(f"{ori_col_name[1].lower()}")
+                else:
+                    tab2col[f"@{ind2tab[tab_index]}"] = [f"{ori_col_name[1].lower()}"]
+                index += 1
+
+            for k, v in tab2col.items():
+                if len(v) > 20:
+                    ignored_dbs.add(entry['db_id'])
+
+    print(f"Ignored dbs: {ignored_dbs}")
+
+    output_data = []
+    ner_tag_set = set()
+    for data_instance in tqdm.tqdm(spider_data):
+        db_id = data_instance['db_id']
+        if db_id in ignored_dbs:
+            continue
+
+        shema = schema_data[db_id]
+        schema_custom_ner = data_instance['schema_custom_ner']
+        ner_tags = schema_custom_ner['tags']
+        toked_question = schema_custom_ner['toked_question']
+
+        tag_schema_concat_list = []
+        schema_concat_list = []
+        for _, col_info in schema_data[db_id]['column_map'].items():
+            schema_concat_list.append('[CLS]')
+            tag_schema_concat_list.append('O')
+            schema_concat_list.append(f"C{col_info[0]}")
+            tag_schema_concat_list.append(f"O")
+            schema_concat_list.append(f"{col_info[2]}")
+            tag_schema_concat_list.extend([f"C{col_info[0]}"] * len(col_info[2].split()))
+
+        for _, tab_info in schema_data[db_id]['table_map'].items():
+            schema_concat_list.append('[CLS]')
+            tag_schema_concat_list.append('O')
+            schema_concat_list.append(f"T{tab_info[0]}")
+            tag_schema_concat_list.append('O')
+            schema_concat_list.append(f"{tab_info[1]}")
+            tag_schema_concat_list.extend([f"T{tab_info[0]}"] * len(tab_info[1].split()))
+
+        ner_tag_list = ner_tags.split()
+        indexed_ner_tags = []
+        for ner_tag in ner_tag_list:
+            if ner_tag == 'O':
+                indexed_ner_tags.append(ner_tag)
+            else:
+                ner_tag = str(ner_tag).lower()
+                if '.' in ner_tag:  # column or value
+                    if ner_tag.endswith('.value'):  # value
+                        indexed_ner_tags.append(f"C{schema_data[db_id]['column_map'][ner_tag[:-6]][0]}.V")
+                    else:  # column
+                        indexed_ner_tags.append(f"C{schema_data[db_id]['column_map'][ner_tag][0]}")
+                else:  # table
+                    indexed_ner_tags.append(f"T{schema_data[db_id]['table_map'][ner_tag][0]}")
+
+        final_text_sequence = f"{toked_question} {' '.join(schema_concat_list)}"
+        final_tag_sequence = f"{' '.join(indexed_ner_tags)} {' '.join(tag_schema_concat_list)}"
+
+        ner_tag_set = ner_tag_set.union(set(final_tag_sequence.split()))
+
+        output_data.append((final_text_sequence, final_tag_sequence))
+
+    print(f"There are {len(ner_tag_set)} NER labels: {sorted(list(ner_tag_set))}")
+
+    with open(output_file, 'w') as outf:
+        for data_entry in tqdm.tqdm(output_data):
+            outf.write(f"{data_entry[0]}\n{data_entry[1]}\n")
+
+    return
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
@@ -110,14 +215,26 @@ if __name__ == '__main__':
     parser.add_argument("--input-file",
                         help="The input file", required=True)
     parser.add_argument("--output-folder",
-                        help="The output folder", required=True)
+                        help="The output folder", required=False)
+    parser.add_argument("--output-file",
+                        help="The output file", required=False)
     parser.add_argument("--data-type",
-                        help="The data type", required=True)
+                        help="The data type", required=False)
     parser.add_argument("--split-k",
-                        help="The data type", default=0.8, type=float, required=False)
+                        help="The split-k ratio", default=0.8, type=float, required=False)
+    parser.add_argument("--schema-json-file",
+                        help="The Spider schema file in JSON", required=False)
+    parser.add_argument("--ner-type",
+                        help="NER data type",
+                        default="custom_spider", type=str, required=False)
     args, _ = parser.parse_known_args()
 
-    extract_custom_ner_data(input_file=args.input_file,
-                            output_folder=args.output_folder,
-                            data_type=args.data_type,
-                            split_k=args.split_k)
+    if args.ner_type == 'custom_spider':
+        extract_custom_ner_data(input_file=args.input_file,
+                                output_folder=args.output_folder,
+                                data_type=args.data_type,
+                                split_k=args.split_k)
+    elif args.ner_type == 'ner_hf':
+        extract_system_ner_data(input_file=args.input_file,
+                                schema_json_file=args.schema_json_file,
+                                output_file=args.output_file)
