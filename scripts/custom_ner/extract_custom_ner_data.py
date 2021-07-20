@@ -108,7 +108,8 @@ def extract_custom_ner_data(input_file: str,
 
 def extract_system_ner_data(input_file: str,
                             schema_json_file: str,
-                            output_file: str) -> None:
+                            output_file: str,
+                            data_type: str = 'train') -> None:
     # load data
     spider_data = []
     with open(input_file) as f:
@@ -152,7 +153,7 @@ def extract_system_ner_data(input_file: str,
     ner_tag_set = set()
     for data_instance in tqdm.tqdm(spider_data):
         db_id = data_instance['db_id']
-        if db_id in ignored_dbs:
+        if data_type == 'train' and db_id in ignored_dbs:
             continue
 
         shema = schema_data[db_id]
@@ -237,4 +238,5 @@ if __name__ == '__main__':
     elif args.ner_type == 'ner_hf':
         extract_system_ner_data(input_file=args.input_file,
                                 schema_json_file=args.schema_json_file,
-                                output_file=args.output_file)
+                                output_file=args.output_file,
+                                data_type=args.data_type)
