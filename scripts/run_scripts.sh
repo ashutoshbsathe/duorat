@@ -990,7 +990,7 @@ python3 run_ner.py \
   --return_entity_level_metrics \
   --metric_for_best_model eval_loss \
   --label_smoothing_factor 0.0 \
-  --num_train_epochs 10 \
+  --num_train_epochs 20 \
   --per_device_train_batch_size 8 \
   --gradient_accumulation_steps 4 \
   --do_train \
@@ -1025,8 +1025,10 @@ CUDA_VISIBLE_DEVICES=0 python3 -m mener \
 --feature_extractor.long_text_processing.max_seq_len 512 \
 --feature_extractor.long_text_processing.mode truncating \
 --mener_model.batch_size 4 \
+--mener_model.subword_label_strategy 2 \
 --mener_model.gazetteer_layer.enable False \
---mener_model.model_dir ./exp/models/baseline_1mlp_bert_base_uncased_spider_flatten_schema_ner_ltp_tr_mlen512 \
+--mener_model.birnn_model.rnn_units [512] \
+--mener_model.model_dir ./exp/models/baseline_1mlp_bert_base_uncased_spider_flatten_schema_ner_ltp_tr_mlen512_sls2 \
 --evaluation.evaluation_csv_test_files [] --evaluation.evaluation_output_files []
 
 # long_text_processing.mode = overlapping; max_seq_len 64
@@ -1040,8 +1042,10 @@ CUDA_VISIBLE_DEVICES=0 python3 -m mener \
 --feature_extractor.long_text_processing.max_seq_len 64 \
 --feature_extractor.long_text_processing.mode overlapping \
 --mener_model.batch_size 32 \
+--mener_model.subword_label_strategy 2 \
 --mener_model.gazetteer_layer.enable False \
---mener_model.model_dir ./exp/models/baseline_1mlp_bert_base_uncased_spider_flatten_schema_ner_ltp_op_mlen64 \
+--mener_model.birnn_model.rnn_units [512] \
+--mener_model.model_dir ./exp/models/baseline_1mlp_bert_base_uncased_spider_flatten_schema_ner_ltp_op_mlen64_sls2 \
 --evaluation.evaluation_csv_test_files [] --evaluation.evaluation_output_files []
 
 # * Filtering bad tokens for matching (simple heuristic)
