@@ -966,15 +966,43 @@ python scripts/get_slml_outputs.py --duorat-config-file ./configs/duorat/duorat-
 
 ## Flatten NER
 
-# train
 # for MeNER
+# train
 python scripts/custom_ner/extract_custom_ner_data.py --input-file ./data/spider/train_spider_and_others_with_schema_custom_ner.json --output-file ./data/spider/train_spider_plus_others_flatten_schema_ner.txt --schema-json-file ./data/spider/tables.json --ner-type ner_hf --data-type train
-
-# for HF's NER
-python scripts/custom_ner/extract_custom_ner_data.py --input-file ./data/spider/train_spider_and_others_with_schema_custom_ner.json --output-file ./data/spider/train_spider_plus_others_flatten_schema_ner.jsonl --schema-json-file ./data/spider/tables.json --ner-type ner_hf --data-type train --output-file-ext jsonl
-
 # dev
 python scripts/custom_ner/extract_custom_ner_data.py --input-file ./data/spider/dev_with_schema_custom_ner.json --output-file ./data/spider/dev_flatten_schema_ner.txt --schema-json-file ./data/spider/tables.json --ner-type ner_hf  --data-type dev
+
+# for HF's NER
+# train
+python scripts/custom_ner/extract_custom_ner_data.py --input-file ./data/spider/train_spider_and_others_with_schema_custom_ner.json --output-file ./data/spider/train_spider_plus_others_flatten_schema_ner.jsonl --schema-json-file ./data/spider/tables.json --ner-type ner_hf --data-type train --output-file-ext jsonl
+# dev
+python scripts/custom_ner/extract_custom_ner_data.py --input-file ./data/spider/dev_with_schema_custom_ner.json --output-file ./data/spider/dev_flatten_schema_ner.jsonl --schema-json-file ./data/spider/tables.json --ner-type ner_hf  --data-type dev  --output-file-ext jsonl
+
+# HF's NER
+python3 run_ner.py \
+  --model_name_or_path bert-base-uncased \
+  --train_file /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/spider/train_spider_plus_others_flatten_schema_ner.json \
+  --validation_file /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/spider/dev_flatten_schema_ner.json \
+  --test_file /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/spider/dev_flatten_schema_ner.json \
+  --output_dir ./exp/ner/spider/flatten_schema_ner_model \
+  --evaluation_strategy steps \
+  --eval_steps 500 \
+  --return_entity_level_metrics \
+  --metric_for_best_model eval_loss \
+  --label_smoothing_factor 0.0 \
+  --num_train_epochs 5 \
+  --per_device_train_batch_size 8 \
+  --gradient_accumulation_steps 4 \
+  --do_train \
+  --do_eval --do_predict
+
+python3 run_ner.py \
+--model_name_or_path bert-base-uncased \
+--train_file /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/spider/train_spider_plus_others_flatten_schema_ner.json \
+--validation_file /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/spider/dev_flatten_schema_ner.json \
+--test_file /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/spider/dev_flatten_schema_ner.json \
+--output_dir ./exp/ner/spider/flatten_schema_ner_model \
+--do_predict
 
 # MeNER
 # long_text_processing.mode = truncating; max_seq_len 256
