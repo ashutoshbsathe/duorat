@@ -157,7 +157,6 @@ def extract_system_ner_data(input_file: str,
         if data_type == 'train' and db_id in ignored_dbs:
             continue
 
-        shema = schema_data[db_id]
         schema_custom_ner = data_instance['schema_custom_ner']
         ner_tags = schema_custom_ner['tags']
         toked_question = schema_custom_ner['toked_question']
@@ -191,7 +190,7 @@ def extract_system_ner_data(input_file: str,
                     if ner_tag.endswith('.value'):  # value
                         indexed_ner_tags.append(f"C{schema_data[db_id]['column_map'][ner_tag[:-6]][0]}/V")
                     else:  # column
-                        indexed_ner_tags.append(f"C{schema_data[db_id]['column_map'][ner_tag][0]}")
+                        indexed_ner_tags.append(f"C{schema_data[db_id]['column_map'][ner_tag][0]}/C")
                 else:  # table
                     indexed_ner_tags.append(f"T{schema_data[db_id]['table_map'][ner_tag][0]}")
 

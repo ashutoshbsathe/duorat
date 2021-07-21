@@ -984,25 +984,17 @@ python3 run_ner.py \
   --train_file /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/spider/train_spider_plus_others_flatten_schema_ner.json \
   --validation_file /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/spider/dev_flatten_schema_ner.json \
   --test_file /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/spider/dev_flatten_schema_ner.json \
-  --output_dir ./exp/ner/spider/flatten_schema_ner_model \
+  --output_dir ./exp/ner/spider/flatten_schema_ner_model_1 \
   --evaluation_strategy steps \
-  --eval_steps 500 \
+  --eval_steps 10 \
   --return_entity_level_metrics \
   --metric_for_best_model eval_loss \
   --label_smoothing_factor 0.0 \
-  --num_train_epochs 5 \
+  --num_train_epochs 10 \
   --per_device_train_batch_size 8 \
   --gradient_accumulation_steps 4 \
   --do_train \
   --do_eval --do_predict
-
-python3 run_ner.py \
---model_name_or_path bert-base-uncased \
---train_file /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/spider/train_spider_plus_others_flatten_schema_ner.json \
---validation_file /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/spider/dev_flatten_schema_ner.json \
---test_file /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/spider/dev_flatten_schema_ner.json \
---output_dir ./exp/ner/spider/flatten_schema_ner_model \
---do_predict
 
 # MeNER
 # long_text_processing.mode = truncating; max_seq_len 256
@@ -1018,6 +1010,7 @@ CUDA_VISIBLE_DEVICES=0 python3 -m mener \
 --mener_model.batch_size 8 \
 --mener_model.subword_label_strategy 2 \
 --mener_model.gazetteer_layer.enable False \
+--mener_model.birnn_model.rnn_units [512] \
 --mener_model.model_dir ./exp/models/baseline_1mlp_bert_base_uncased_spider_flatten_schema_ner_ltp_tr_mlen256_sls2 \
 --evaluation.evaluation_csv_test_files [] --evaluation.evaluation_output_files []
 
