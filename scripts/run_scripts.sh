@@ -967,10 +967,10 @@ python scripts/get_slml_outputs.py --duorat-config-file ./configs/duorat/duorat-
 ## Flatten NER
 
 # train
-python scripts/custom_ner/extract_custom_ner_data.py --input-file ./data/spider/train_spider_and_others_with_schema_custom_ner.json --output-file ./data/spider/train_spider_plus_others_flatten_schema_ner.txt --schema-json-file ./data/spider/tables.json --ner-type ner_hf
+python scripts/custom_ner/extract_custom_ner_data.py --input-file ./data/spider/train_spider_and_others_with_schema_custom_ner.json --output-file ./data/spider/train_spider_plus_others_flatten_schema_ner.txt --schema-json-file ./data/spider/tables.json --ner-type ner_hf --data-type train
 
 # dev
-python scripts/custom_ner/extract_custom_ner_data.py --input-file ./data/spider/dev_with_schema_custom_ner.json --output-file ./data/spider/dev_flatten_schema_ner.txt --schema-json-file ./data/spider/tables.json --ner-type ner_hf
+python scripts/custom_ner/extract_custom_ner_data.py --input-file ./data/spider/dev_with_schema_custom_ner.json --output-file ./data/spider/dev_flatten_schema_ner.txt --schema-json-file ./data/spider/tables.json --ner-type ner_hf  --data-type dev
 
 # MeNER
 CUDA_VISIBLE_DEVICES=0 python3 -m mener \

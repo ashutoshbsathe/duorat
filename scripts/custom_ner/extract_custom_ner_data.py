@@ -227,10 +227,10 @@ if __name__ == '__main__':
                         help="The Spider schema file in JSON", required=False)
     parser.add_argument("--ner-type",
                         help="NER data type",
-                        default="custom_spider", type=str, required=False)
+                        default="custom_ner_spider", type=str, required=False)
     args, _ = parser.parse_known_args()
 
-    if args.ner_type == 'custom_spider':
+    if args.ner_type == 'custom_ner_spider':
         extract_custom_ner_data(input_file=args.input_file,
                                 output_folder=args.output_folder,
                                 data_type=args.data_type,
