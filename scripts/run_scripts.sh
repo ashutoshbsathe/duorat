@@ -974,9 +974,9 @@ python scripts/custom_ner/extract_custom_ner_data.py --input-file ./data/spider/
 
 # for HF's NER
 # train
-python scripts/custom_ner/extract_custom_ner_data.py --input-file ./data/spider/train_spider_and_others_with_schema_custom_ner.json --output-file ./data/spider/train_spider_plus_others_flatten_schema_ner.jsonl --schema-json-file ./data/spider/tables.json --ner-type ner_hf --data-type train --output-file-ext jsonl
+python scripts/custom_ner/extract_custom_ner_data.py --input-file ./data/spider/train_spider_and_others_with_schema_custom_ner.json --output-file ./data/spider/train_spider_plus_others_flatten_schema_ner.json --schema-json-file ./data/spider/tables.json --ner-type ner_hf --data-type train --output-file-ext json
 # dev
-python scripts/custom_ner/extract_custom_ner_data.py --input-file ./data/spider/dev_with_schema_custom_ner.json --output-file ./data/spider/dev_flatten_schema_ner.jsonl --schema-json-file ./data/spider/tables.json --ner-type ner_hf  --data-type dev  --output-file-ext jsonl
+python scripts/custom_ner/extract_custom_ner_data.py --input-file ./data/spider/dev_with_schema_custom_ner.json --output-file ./data/spider/dev_flatten_schema_ner.json --schema-json-file ./data/spider/tables.json --ner-type ner_hf  --data-type dev  --output-file-ext json
 
 # HF's NER
 python3 run_ner.py \

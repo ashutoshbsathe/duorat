@@ -208,7 +208,7 @@ def extract_system_ner_data(input_file: str,
         with open(output_file, 'w') as outf:
             for data_entry in tqdm.tqdm(output_data):
                 outf.write(f"{data_entry[0]}\n{data_entry[1]}\n")
-    elif output_file_ext == 'jsonl':
+    elif output_file_ext == 'json':
         with open(output_file, 'w') as outf:
             for id, data_entry in enumerate(tqdm.tqdm(output_data)):
                 jsonl_inst = {
