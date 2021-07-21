@@ -990,7 +990,7 @@ python3 run_ner.py \
   --return_entity_level_metrics \
   --metric_for_best_model eval_loss \
   --label_smoothing_factor 0.0 \
-  --num_train_epochs 20 \
+  --num_train_epochs 5 \
   --per_device_train_batch_size 8 \
   --gradient_accumulation_steps 4 \
   --do_train \

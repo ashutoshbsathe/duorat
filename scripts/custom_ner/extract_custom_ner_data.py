@@ -171,8 +171,7 @@ def extract_system_ner_data_v1(input_file: str,
             schema_concat_list.append(f"C{col_info[0]}")
             tag_schema_concat_list.append(f"O")
             schema_concat_list.append(f"{col_info[2]}")
-            # tag_schema_concat_list.extend([f"C{col_info[0]}"] * len(col_info[2].split()))
-            tag_schema_concat_list.extend(['O'] * len(col_info[2].split()))
+            tag_schema_concat_list.extend([f"C{col_info[0]}"] * len(col_info[2].split()))
 
         for _, tab_info in schema_data[db_id]['table_map'].items():
             schema_concat_list.append('[CLS]')
@@ -180,8 +179,7 @@ def extract_system_ner_data_v1(input_file: str,
             schema_concat_list.append(f"T{tab_info[0]}")
             tag_schema_concat_list.append('O')
             schema_concat_list.append(f"{tab_info[1]}")
-            # tag_schema_concat_list.extend([f"T{tab_info[0]}"] * len(tab_info[1].split()))
-            tag_schema_concat_list.extend(['O'] * len(tab_info[1].split()))
+            tag_schema_concat_list.extend([f"T{tab_info[0]}"] * len(tab_info[1].split()))
 
         ner_tag_list = ner_tags.split()
         indexed_ner_tags = []
