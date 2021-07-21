@@ -986,11 +986,11 @@ python3 run_ner.py \
   --test_file /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/spider/dev_flatten_schema_ner.json \
   --output_dir ./exp/ner/spider/flatten_schema_ner_model_1 \
   --evaluation_strategy steps \
-  --eval_steps 10 \
+  --eval_steps 50 \
   --return_entity_level_metrics \
   --metric_for_best_model eval_loss \
   --label_smoothing_factor 0.0 \
-  --num_train_epochs 10 \
+  --num_train_epochs 3 \
   --per_device_train_batch_size 8 \
   --gradient_accumulation_steps 4 \
   --do_train \
