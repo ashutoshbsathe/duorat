@@ -166,10 +166,10 @@ def extract_system_ner_data(input_file: str,
         for _, col_info in schema_data[db_id]['column_map'].items():
             schema_concat_list.append('[CLS]')
             tag_schema_concat_list.append('O')
-            schema_concat_list.append(f"C{col_info[0]}/X")
+            schema_concat_list.append(f"C{col_info[0]}")
             tag_schema_concat_list.append(f"O")
             schema_concat_list.append(f"{col_info[2]}")
-            tag_schema_concat_list.extend([f"C{col_info[0]}/C"] * len(col_info[2].split()))
+            tag_schema_concat_list.extend([f"C{col_info[0]}"] * len(col_info[2].split()))
 
         for _, tab_info in schema_data[db_id]['table_map'].items():
             schema_concat_list.append('[CLS]')
@@ -188,9 +188,9 @@ def extract_system_ner_data(input_file: str,
                 ner_tag = str(ner_tag).lower()
                 if '.' in ner_tag:  # column or value
                     if ner_tag.endswith('.value'):  # value
-                        indexed_ner_tags.append(f"C{schema_data[db_id]['column_map'][ner_tag[:-6]][0]}/V")
+                        indexed_ner_tags.append(f"V{schema_data[db_id]['column_map'][ner_tag[:-6]][0]}")
                     else:  # column
-                        indexed_ner_tags.append(f"C{schema_data[db_id]['column_map'][ner_tag][0]}/C")
+                        indexed_ner_tags.append(f"C{schema_data[db_id]['column_map'][ner_tag][0]}")
                 else:  # table
                     indexed_ner_tags.append(f"T{schema_data[db_id]['table_map'][ner_tag][0]}")
 
