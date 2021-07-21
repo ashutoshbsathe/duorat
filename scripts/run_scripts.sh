@@ -967,31 +967,61 @@ python scripts/get_slml_outputs.py --duorat-config-file ./configs/duorat/duorat-
 ## Flatten NER
 
 # train
+# for MeNER
 python scripts/custom_ner/extract_custom_ner_data.py --input-file ./data/spider/train_spider_and_others_with_schema_custom_ner.json --output-file ./data/spider/train_spider_plus_others_flatten_schema_ner.txt --schema-json-file ./data/spider/tables.json --ner-type ner_hf --data-type train
+
+# for HF's NER
+python scripts/custom_ner/extract_custom_ner_data.py --input-file ./data/spider/train_spider_and_others_with_schema_custom_ner.json --output-file ./data/spider/train_spider_plus_others_flatten_schema_ner.jsonl --schema-json-file ./data/spider/tables.json --ner-type ner_hf --data-type train --output-file-ext jsonl
 
 # dev
 python scripts/custom_ner/extract_custom_ner_data.py --input-file ./data/spider/dev_with_schema_custom_ner.json --output-file ./data/spider/dev_flatten_schema_ner.txt --schema-json-file ./data/spider/tables.json --ner-type ner_hf  --data-type dev
 
 # MeNER
+# long_text_processing.mode = truncating; max_seq_len 256
 CUDA_VISIBLE_DEVICES=0 python3 -m mener \
---config ner_config.yaml \
+--config ner_config_multilingual.yaml \
 --logging_level 0 \
 --data.data_path /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/spider \
 --data.train_file train_spider_plus_others_flatten_schema_ner.txt \
 --data.eval_file dev_flatten_schema_ner.txt \
 --data.augmented_data_file.file_list [] \
---feature_extractor.model_type bert-base-uncased-all \
---feature_extractor.emb_dir ./../um/pretrained_models/bert-base-uncased-all/1  \
---feature_extractor.training.type finetuned \
---feature_extractor.training.source saved_model \
---feature_extractor.tokenize_on_the_fly False \
---feature_extractor.long_text_processing.max_seq_len 512 \
+--feature_extractor.long_text_processing.max_seq_len 256 \
+--feature_extractor.long_text_processing.mode truncating \
 --mener_model.batch_size 8 \
---mener_model.ner_model_type baseline \
---mener_model.dense_activation_func None \
---mener_model.optimizer.type g-adam \
---mener_model.optimizer.learning_rate 10e-5 \
---mener_model.model_dir ./exp/models/baseline_1mlp_bert_base_uncased_spider_flatten_schema_ner_1
+--mener_model.subword_label_strategy 2 \
+--mener_model.gazetteer_layer.enable False \
+--mener_model.model_dir ./exp/models/baseline_1mlp_bert_base_uncased_spider_flatten_schema_ner_ltp_tr_mlen256_sls2 \
+--evaluation.evaluation_csv_test_files [] --evaluation.evaluation_output_files []
+
+# long_text_processing.mode = truncating; max_seq_len 512
+CUDA_VISIBLE_DEVICES=0 python3 -m mener \
+--config ner_config_multilingual.yaml \
+--logging_level 0 \
+--data.data_path /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/spider \
+--data.train_file train_spider_plus_others_flatten_schema_ner.txt \
+--data.eval_file dev_flatten_schema_ner.txt \
+--data.augmented_data_file.file_list [] \
+--feature_extractor.long_text_processing.max_seq_len 512 \
+--feature_extractor.long_text_processing.mode truncating \
+--mener_model.batch_size 4 \
+--mener_model.gazetteer_layer.enable False \
+--mener_model.model_dir ./exp/models/baseline_1mlp_bert_base_uncased_spider_flatten_schema_ner_ltp_tr_mlen512 \
+--evaluation.evaluation_csv_test_files [] --evaluation.evaluation_output_files []
+
+# long_text_processing.mode = overlapping; max_seq_len 64
+CUDA_VISIBLE_DEVICES=0 python3 -m mener \
+--config ner_config_multilingual.yaml \
+--logging_level 0 \
+--data.data_path /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/spider \
+--data.train_file train_spider_plus_others_flatten_schema_ner.txt \
+--data.eval_file dev_flatten_schema_ner.txt \
+--data.augmented_data_file.file_list [] \
+--feature_extractor.long_text_processing.max_seq_len 64 \
+--feature_extractor.long_text_processing.mode overlapping \
+--mener_model.batch_size 32 \
+--mener_model.gazetteer_layer.enable False \
+--mener_model.model_dir ./exp/models/baseline_1mlp_bert_base_uncased_spider_flatten_schema_ner_ltp_op_mlen64 \
+--evaluation.evaluation_csv_test_files [] --evaluation.evaluation_output_files []
 
 # * Filtering bad tokens for matching (simple heuristic)
 

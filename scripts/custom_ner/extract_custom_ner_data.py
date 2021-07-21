@@ -109,7 +109,8 @@ def extract_custom_ner_data(input_file: str,
 def extract_system_ner_data(input_file: str,
                             schema_json_file: str,
                             output_file: str,
-                            data_type: str = 'train') -> None:
+                            data_type: str = 'train',
+                            output_file_ext: str = 'txt') -> None:
     # load data
     spider_data = []
     with open(input_file) as f:
@@ -203,9 +204,19 @@ def extract_system_ner_data(input_file: str,
 
     print(f"There are {len(ner_tag_set)} NER labels: {sorted(list(ner_tag_set))}")
 
-    with open(output_file, 'w') as outf:
-        for data_entry in tqdm.tqdm(output_data):
-            outf.write(f"{data_entry[0]}\n{data_entry[1]}\n")
+    if output_file_ext == 'txt':
+        with open(output_file, 'w') as outf:
+            for data_entry in tqdm.tqdm(output_data):
+                outf.write(f"{data_entry[0]}\n{data_entry[1]}\n")
+    elif output_file_ext == 'jsonl':
+        with open(output_file, 'w') as outf:
+            for id, data_entry in enumerate(tqdm.tqdm(output_data)):
+                jsonl_inst = {
+                    'id': id,
+                    'ner_tags': str(data_entry[1]).split(),
+                    'tokens': str(data_entry[0]).split()
+                }
+                outf.write(f"{json.dumps(jsonl_inst)}\n")
 
     return
 
@@ -219,6 +230,8 @@ if __name__ == '__main__':
                         help="The output folder", required=False)
     parser.add_argument("--output-file",
                         help="The output file", required=False)
+    parser.add_argument("--output-file-ext",
+                        help="The output file extension", default='txt', required=False)
     parser.add_argument("--data-type",
                         help="The data type", required=False)
     parser.add_argument("--split-k",
@@ -239,4 +252,5 @@ if __name__ == '__main__':
         extract_system_ner_data(input_file=args.input_file,
                                 schema_json_file=args.schema_json_file,
                                 output_file=args.output_file,
-                                data_type=args.data_type)
+                                data_type=args.data_type,
+                                output_file_ext=args.output_file_ext)
