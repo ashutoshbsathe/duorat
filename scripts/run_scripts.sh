@@ -998,7 +998,7 @@ python3 run_ner.py \
 
 # MeNER
 # long_text_processing.mode = truncating; max_seq_len 256
-CUDA_VISIBLE_DEVICES=0 python3 -m mener \
+CUDA_VISIBLE_DEVICES=3 python3 -m mener \
 --config ner_config_multilingual.yaml \
 --logging_level 0 \
 --data.data_path /mnt/shared/vchoang/works/projects/oda/text2sql/code/duorat/data/spider \
@@ -1266,3 +1266,11 @@ CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-sp
 
 # base
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-schema-order-tctc.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-electra-base-150k-steps-schema-order-tctc --force-preprocess --force-train
+
+# *** Focusing model
+
+# focusing BERT (base, uncased)
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-focusing-bert-base-uncased-150k-steps.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-focusing-bert-base-uncased-150k-steps --force-preprocess --force-train
+
+# focusing BERT (large, uncased)
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-focusing-bert-large-uncased-150k-steps.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-focusing-bert-large-uncased-150k-steps --force-preprocess --force-train
