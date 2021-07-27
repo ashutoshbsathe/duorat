@@ -46,6 +46,7 @@ def dump_db_json_schema(db_file: str, db_id: str) -> Dict:
     data = {
         "type": "database",
         "name": db_id,
+        "security_passed": True,  # no need password by default
         "objects": [],
         # ----
     }
@@ -304,6 +305,7 @@ SPIDER_DEV_DBS = set([
     "dog_kennels",
     "singer",
     "real_estate_properties"])
+DBS_REQUIRE_PASSWORDS = {}
 duorat_model = None
 logger = None
 do_sql_post_processing = False
@@ -329,6 +331,7 @@ class Text2SQLInferenceResponse(pydantic.BaseModel):
 class Text2SQLQueryDBRequest(pydantic.BaseModel):
     query_type: str
     db_id: str
+    password: str
 
 
 class Text2SQLQueryDBResponse(pydantic.BaseModel):
@@ -643,7 +646,7 @@ def ask_any_question_with_followup(question: str,
 
 
 def _get_proper_db_id(db_info: str) -> str:
-    return db_info.split()[0]
+    return db_info.split()[0]  # @Vu Hoang: This is very buggy. We should redesign this in the future.
 
 
 @app.post('/text2sql/query_db', response_class=JSONResponse)
@@ -677,12 +680,18 @@ async def query_db(request: Text2SQLQueryDBRequest):
         # add meta info to db_names
         new_db_names = []
         for db_name in db_names:
+            require_password = False
+            if db_name in DBS_REQUIRE_PASSWORDS:
+                require_password = True
+
             if db_name in SPIDER_TRAIN_DBS:
                 new_db_name = f"{db_name} (Spider, trained, {_get_db_examples(db_name=db_name)} examples, {_get_db_file_size(db_name=db_name)})"
             elif db_name in SPIDER_DEV_DBS:
                 new_db_name = f"{db_name} (Spider, unseen test, {_get_db_examples(db_name=db_name)} examples, {_get_db_file_size(db_name=db_name)})"
             else:
                 new_db_name = f"{db_name} (new, unseen, {_get_db_file_size(db_name=db_name)})"
+            # As of 27 July 2020, we add security to each database.
+            new_db_name = {"name": new_db_name, "password": require_password}
             new_db_names.append(new_db_name)
         db_names = new_db_names
 
@@ -690,11 +699,25 @@ async def query_db(request: Text2SQLQueryDBRequest):
             Text2SQLQueryDBResponse(db_id='[ALL_DB]', db_json_content=json.dumps(db_names, indent=4)))
     elif request.query_type == '[CUR_DB]':
         db_id = _get_proper_db_id(db_info=request.db_id)
-        db_file = join(DB_PATH, db_id, f"{db_id}.sqlite")
-        if exists(db_file):
-            db_json_content = dump_db_json_schema(db_file=db_file, db_id=request.db_id)
-        else:
-            db_json_content = {}
+
+        continued = True
+        if db_id in DBS_REQUIRE_PASSWORDS:
+            if DBS_REQUIRE_PASSWORDS[db_id] != request.password:
+                continued = False
+
+        if continued:
+            db_file = join(DB_PATH, db_id, f"{db_id}.sqlite")
+            if exists(db_file):
+                db_json_content = dump_db_json_schema(db_file=db_file, db_id=request.db_id)
+            else:
+                db_json_content = {}
+        else:  # cannot continue due to security issue.
+            db_json_content = {
+                "type": "database",
+                "name": request.db_id,
+                "security_passed": False,  #
+                "objects": [],
+            }
 
         return jsonable_encoder(
             Text2SQLQueryDBResponse(db_id=request.db_id, db_json_content=json.dumps(db_json_content, indent=4)))
