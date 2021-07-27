@@ -126,6 +126,7 @@ origins = [
     "http://localhost:8300",
     "http://100.102.86.190:8100",
     "http://100.102.86.190:8300",
+    "http://100.102.86.234:8101"
 ]
 app.add_middleware(
     CORSMiddleware,
