@@ -857,7 +857,9 @@ if __name__ == '__main__':
         help="If True, append the content to the log file else re-open a new one.",
     )
     parser.add_argument("--log-file-name",
-                        help="The logging file path. By default, ", default='serve.log')
+                        help="The logging file path.", default='serve.log')
+    parser.add_argument("--db-passwords-file",
+                        help="The DB passwords file path.", default='passwords.sec', required=False)
 
     args, _ = parser.parse_known_args()
 
@@ -879,6 +881,13 @@ if __name__ == '__main__':
 
     if args.do_sql_post_processing:
         do_sql_post_processing = True
+
+    if os.path.exists(args.db_passwords_file):
+        with open(args.db_passwords_file) as pwd_f:
+            for line in pwd_f:  # @Vu Hoang: this is not an encripted file.
+                line = line.strip()
+                parts = line.split('\t')  # DB_ID\tACCESS_PASSWORD
+                DBS_REQUIRE_PASSWORDS[parts[0]] = parts[1]
 
     # Initialize the model
     print('Initializing Text2SQL Inference Service...')
