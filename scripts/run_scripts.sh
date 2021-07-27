@@ -41,6 +41,8 @@ CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-ne
 # serve
 TOKENIZERS_PARALLELISM=true CUDA_VISIBLE_DEVICES=1 python scripts/serve.py --logdir ./logdir/duorat-new-db-content-bs4-ac7 --config configs/duorat/duorat-new-db-content.jsonnet --db-path ./data/database --server-port 8000 --do-logging --log-append --do-sql-post-processing &>./logdir/duorat-new-db-content-bs4-ac7/server_conn.log &
 
+TOKENIZERS_PARALLELISM=true CUDA_VISIBLE_DEVICES=3 python scripts/serve.py --logdir ./logdir/duorat-new-db-content-bs4-ac7 --config configs/duorat/duorat-new-db-content.jsonnet --db-path ./data/database --server-port 8900 --do-logging --log-append --do-sql-post-processing --log-file-name serve_security.log --db-passwords-file ./data/db_passwords.sec &>./logdir/duorat-new-db-content-bs4-ac7/server_conn_security.log &
+
 # *** duorat-new-db-content-no-whole --> ok
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-new-db-content-no-whole.jsonnet --logdir ./logdir/duorat-new-db-content-no-whole &> logdir/train-duorat-new-db-content-no-whole.log &
 

@@ -715,7 +715,7 @@ async def query_db(request: Text2SQLQueryDBRequest):
             db_json_content = {
                 "type": "database",
                 "name": request.db_id,
-                "security_passed": False,  #
+                "security_passed": False,
                 "objects": [],
             }
 
