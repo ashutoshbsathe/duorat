@@ -251,6 +251,9 @@ if __name__ == "__main__":
     collect_spider_wikisql(json_data_files=['./data/spider/train_spider.json', './data/spider/train_others.json'],
                            json_schema_files=['./data/spider/tables.json'],
                            output_file='./data/focusing/spider_train_nl.txt')
+    collect_spider_wikisql(json_data_files=['./data/spider/dev.json'],
+                           json_schema_files=['./data/spider/tables.json'],
+                           output_file='./data/focusing/spider_dev_nl.txt')
     print("Collecting Spider (synthetic)...")
     collect_spider_wikisql(json_data_files=['./data/spider/spider_all_dbs_synthetic_data_v5_mono_nl_by_t5_gen_full.json'],
                            json_schema_files=['./data/spider/tables.json'],

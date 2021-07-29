@@ -39,8 +39,9 @@ python scripts/eval.py --config configs/duorat/duorat-new-db-content.jsonnet --s
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-new-db-content.jsonnet --logdir ./logdir/duorat-new-db-content-seed1 --seed 1 &> logdir/train-duorat-new-db-content-seed1.log &
 
 # serve
-TOKENIZERS_PARALLELISM=true CUDA_VISIBLE_DEVICES=1 python scripts/serve.py --logdir ./logdir/duorat-new-db-content-bs4-ac7 --config configs/duorat/duorat-new-db-content.jsonnet --db-path ./data/database --server-port 8000 --do-logging --log-append --do-sql-post-processing &>./logdir/duorat-new-db-content-bs4-ac7/server_conn.log &
+TOKENIZERS_PARALLELISM=true CUDA_VISIBLE_DEVICES=1 python scripts/serve.py --logdir ./logdir/duorat-new-db-content-bs4-ac7 --config configs/duorat/duorat-new-db-content.jsonnet --db-path ./data/database --server-port 8000 --do-logging --log-append --do-sql-post-processing --db-passwords-file ./data/db_passwords.sec &>./logdir/duorat-new-db-content-bs4-ac7/server_conn.log &
 
+# for debugging only
 TOKENIZERS_PARALLELISM=true CUDA_VISIBLE_DEVICES=3 python scripts/serve.py --logdir ./logdir/duorat-new-db-content-bs4-ac7 --config configs/duorat/duorat-new-db-content.jsonnet --db-path ./data/database --server-port 8900 --do-logging --log-append --do-sql-post-processing --log-file-name serve_security.log --db-passwords-file ./data/db_passwords.sec &>./logdir/duorat-new-db-content-bs4-ac7/server_conn_security.log &
 
 # *** duorat-new-db-content-no-whole --> ok
@@ -134,7 +135,7 @@ python scripts/get_testsuite_preds.py ./logdir/duorat-sparc-new-db-content/val-d
 
 # serve
 # sparc
-CUDA_VISIBLE_DEVICES=2 python scripts/serve.py --logdir ./logdir/duorat-sparc-new-db-content --config configs/duorat/duorat-sparc-new-db-content.jsonnet --db-path ./data/sparc/database --server-port 8200 --do-logging --log-append --do-sql-post-processing --log-file-name serve_followup.log &>./logdir/duorat-sparc-new-db-content/server_followup_conn.log &
+CUDA_VISIBLE_DEVICES=2 python scripts/serve.py --logdir ./logdir/duorat-sparc-new-db-content --config configs/duorat/duorat-sparc-new-db-content.jsonnet --db-path ./data/sparc/database --server-port 8200 --do-logging --log-append --do-sql-post-processing --db-passwords-file ./data/db_passwords.sec --log-file-name serve_followup.log &>./logdir/duorat-sparc-new-db-content/server_followup_conn.log &
 cd text2sql-poc-ui-demo-jet9
 node ./node_modules/@oracle/ojet-cli/ojet.js serve --server-port=8300 --livereload-port 36729
 
@@ -283,7 +284,7 @@ CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-sp
 # interaction history (source&target, 1) in the inputs
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-sparc-cosql-new-db-content-source-target-interaction.jsonnet --logdir ./logdir/duorat-spider-sparc-cosql-new-db-content-source-target-interaction --force-preprocess --force-train &> logdir/train-duorat-spider-sparc-cosql-new-db-content-source-target-interaction.log &
 
-CUDA_VISIBLE_DEVICES=2 python scripts/serve.py --logdir ./logdir/duorat-spider-sparc-cosql-new-db-content-source-target-interaction --config configs/duorat/duorat-spider-sparc-cosql-new-db-content-source-target-interaction.jsonnet --db-path ./data/database --server-port 8200 --do-logging --log-append --do-sql-post-processing --log-file-name serve_followup.log &>./logdir/duorat-spider-sparc-cosql-new-db-content-source-target-interaction/server_followup_conn.log &
+CUDA_VISIBLE_DEVICES=2 python scripts/serve.py --logdir ./logdir/duorat-spider-sparc-cosql-new-db-content-source-target-interaction --config configs/duorat/duorat-spider-sparc-cosql-new-db-content-source-target-interaction.jsonnet --db-path ./data/database --server-port 8200 --do-logging --log-append --do-sql-post-processing --log-file-name serve_followup.log  --db-passwords-file ./data/db_passwords.sec &>./logdir/duorat-spider-sparc-cosql-new-db-content-source-target-interaction/server_followup_conn.log &
 
 # eval w/ TestSuite
 # Spider
