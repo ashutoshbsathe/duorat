@@ -16,11 +16,11 @@ class Interactive(object):
     def ask_any_question(self, question):
         results = self.duorat.infer_query(question)
 
-        print(pretty_format_slml(results['slml_question']))
-        print(f'{results["query"]}  ({results["score"]})')
+        print(f"SLML output: {pretty_format_slml(results['slml_question'])}")
+        print(f"SQL: {results['query']}  (score: {results['score']})")
         try:
             results = self.duorat.execute(results['query'])
-            print(results)
+            print(f"Execution results: {results}")
         except Exception as e:
             print(str(e))
 
