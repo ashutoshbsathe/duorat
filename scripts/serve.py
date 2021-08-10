@@ -340,6 +340,17 @@ class Text2SQLQueryDBResponse(pydantic.BaseModel):
     db_json_content: str
 
 
+class Text2SQLValidationRequest(pydantic.BaseModel):
+    sql_query: str
+    db_id: str
+
+
+class Text2SQLValidationResponse(pydantic.BaseModel):
+    sql_query: str
+    db_id: str
+    validation_result: str
+
+
 def show_schema(duorat_on_db: DuoratOnDatabase):
     for table in duorat_on_db.schema.tables:
         if logger:
@@ -828,6 +839,39 @@ async def text2sql_infer_followup(request: Text2SQLWithFollowUpInferenceRequest)
         print(results)
 
     return jsonable_encoder(results)
+
+
+@app.post('/text2sql/validate_sql', response_class=JSONResponse)
+async def text2sql_validate_sql(request: Text2SQLValidationRequest):
+    print(f'Attempting for a request: {request}')
+
+    schema_path = ''
+    if request.db_type == 'u_db':
+        db_path = f"{DB_PATH_USER}/{request.db_id}.sqlite"
+    elif request.db_type == 'c_db':
+        db_id = _get_proper_db_id(db_info=request.db_id)
+        db_path = f"{DB_PATH}/{db_id}/{db_id}.sqlite"
+
+    if logger:
+        logger.log(f'DB path: {db_path}')
+
+    duorat_on_db = DuoratOnDatabase(duorat=duorat_model,
+                                    db_path=db_path,
+                                    schema_path=schema_path)
+
+    validation_result = Text2SQLValidationResponse(sql_query=request.sql_query,
+                                                   db_id=request.db_id,
+                                                   validation_result="SQL is incorrect!")
+    try:
+        exe_results = duorat_on_db.execute(query=request.sql_query)
+        if len(exe_results) >= 0:
+            validation_result = Text2SQLValidationResponse(sql_query=request.sql_query,
+                                                           db_id=request.db_id,
+                                                           validation_result="SQL is correct!")
+    except:
+        print("Execution error encountered.")
+
+    return jsonable_encoder(validation_result)
 
 
 if __name__ == '__main__':
