@@ -343,6 +343,7 @@ class Text2SQLQueryDBResponse(pydantic.BaseModel):
 class Text2SQLValidationRequest(pydantic.BaseModel):
     sql_query: str
     db_id: str
+    db_type: str
 
 
 class Text2SQLValidationResponse(pydantic.BaseModel):
