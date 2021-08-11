@@ -123,7 +123,10 @@ origins = [
     "http://localhost",
     "http://localhost:8000",
     "http://localhost:8100",
+    "http://localhost:8200",
     "http://localhost:8300",
+    "http://localhost:8400",
+    "http://localhost:8500",
     "http://100.102.86.190:8100",
     "http://100.102.86.190:8300",
     "http://100.102.86.234:8101"
@@ -350,6 +353,7 @@ class Text2SQLValidationResponse(pydantic.BaseModel):
     sql_query: str
     db_id: str
     validation_result: str
+    execution_result: str
 
 
 def show_schema(duorat_on_db: DuoratOnDatabase):
@@ -844,6 +848,13 @@ async def text2sql_infer_followup(request: Text2SQLWithFollowUpInferenceRequest)
 
 @app.post('/text2sql/validate_sql', response_class=JSONResponse)
 async def text2sql_validate_sql(request: Text2SQLValidationRequest):
+    def _is_parsable(sql: str) -> bool:
+        try:
+            _ = parse(sql)
+        except:
+            return False
+        return True
+
     print(f'Attempting for a request: {request}')
 
     schema_path = ''
@@ -862,13 +873,22 @@ async def text2sql_validate_sql(request: Text2SQLValidationRequest):
 
     validation_result = Text2SQLValidationResponse(sql_query=request.sql_query,
                                                    db_id=request.db_id,
-                                                   validation_result="SQL is incorrect!")
+                                                   validation_result="SQL is incorrect!",
+                                                   execution_result="")
     try:
-        exe_results = duorat_on_db.execute(query=request.sql_query)
-        if len(exe_results) >= 0:
-            validation_result = Text2SQLValidationResponse(sql_query=request.sql_query,
-                                                           db_id=request.db_id,
-                                                           validation_result="SQL is correct!")
+        if _is_parsable(sql=request.sql_querye):
+            exe_result = duorat_on_db.execute(query=request.sql_query)
+            if isinstance(exe_result, list):
+                exe_result = [tuple([str(r) if not isinstance(r, str) else r for r in list(res)]) for res in exe_result]
+            else:
+                exe_result = ""
+            if exe_result != "":
+                validation_result = Text2SQLValidationResponse(sql_query=request.sql_query,
+                                                               db_id=request.db_id,
+                                                               validation_result="SQL is correct!",
+                                                               execution_result=f"{exe_result}")
+        else:
+            validation_result.validation_result = "SQL has syntax error(s)."
     except:
         print("Execution error encountered.")
 
