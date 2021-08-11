@@ -876,7 +876,7 @@ async def text2sql_validate_sql(request: Text2SQLValidationRequest):
                                                    validation_result="SQL is incorrect!",
                                                    execution_result="")
     try:
-        if _is_parsable(sql=request.sql_querye):
+        if _is_parsable(sql=request.sql_query):
             exe_result = duorat_on_db.execute(query=request.sql_query)
             if isinstance(exe_result, list):
                 exe_result = [tuple([str(r) if not isinstance(r, str) else r for r in list(res)]) for res in exe_result]
