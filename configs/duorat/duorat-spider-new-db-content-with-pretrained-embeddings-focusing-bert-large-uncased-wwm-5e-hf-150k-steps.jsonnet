@@ -18,10 +18,12 @@
             },
             tokenizer+: {
                 pretrained_model_name_or_path: './pretrained_models/focusing/focusing_bert_large_uncased_wwm_5epoch',
+                cls_token: '</s>'
             },
             transition_system+: {
                 tokenizer+: {
                     pretrained_model_name_or_path: './pretrained_models/focusing/focusing_bert_large_uncased_wwm_5epoch',
+                    cls_token: '</s>'
                 }
             }
         }
