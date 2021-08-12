@@ -1278,4 +1278,4 @@ CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-sp
 # focusing BERT (large, uncased)
 CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-focusing-bert-large-uncased-150k-steps.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-focusing-bert-large-uncased-150k-steps --force-preprocess --force-train
 
-CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-focusing-bert-base-uncased-150k-steps-hf.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-focusing-bert-base-uncased-150k-steps-hf --force-preprocess --force-train
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/duorat/duorat-spider-new-db-content-with-pretrained-embeddings-focusing-bert-base-uncased-5e-hf-150k-steps.jsonnet --logdir ./logdir/duorat-spider-new-db-content-with-pretrained-embeddings-focusing-bert-base-uncased-5e-hf-150k-steps-hf --force-preprocess --force-train
