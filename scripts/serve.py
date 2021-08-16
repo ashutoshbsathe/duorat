@@ -695,7 +695,8 @@ async def query_db(request: Text2SQLQueryDBRequest):
     if request.query_type == '[ALL_DB]':
         db_names = [
             df for df in listdir(path=DB_PATH) \
-            if exists(join(DB_PATH, df, df + ".sqlite")) and "user_db" not in df and "_test" not in df
+            if (exists(join(DB_PATH, df, df + ".sqlite")) or exists(
+                join(DB_PATH, df, df + ".db"))) and "user_db" not in df and "_test" not in df
         ]
 
         # add meta info to db_names
