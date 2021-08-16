@@ -681,8 +681,6 @@ async def query_db(request: Text2SQLQueryDBRequest):
 
     def _get_db_file_size(db_name: str) -> str:
         db_file_path = os.path.join(DB_PATH, db_name, f"{db_name}.sqlite")
-        if not os.path.exists(db_file_path):
-            db_file_path = db_file_path.replace(".sqlite", ".db")
         db_file_stats = os.stat(db_file_path)
         db_file_size = db_file_stats.st_size
         if db_file_size < 1024:
@@ -697,8 +695,7 @@ async def query_db(request: Text2SQLQueryDBRequest):
     if request.query_type == '[ALL_DB]':
         db_names = [
             df for df in listdir(path=DB_PATH) \
-            if (exists(join(DB_PATH, df, df + ".sqlite")) or exists(
-                join(DB_PATH, df, df + ".db"))) and "user_db" not in df and "_test" not in df
+            if exists(join(DB_PATH, df, df + ".sqlite")) and "user_db" not in df and "_test" not in df
         ]
 
         # add meta info to db_names
