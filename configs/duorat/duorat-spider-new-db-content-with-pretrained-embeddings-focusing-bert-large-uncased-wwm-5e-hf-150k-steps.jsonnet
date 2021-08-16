@@ -2,7 +2,7 @@
     model+: {
         encoder+: {
             initial_encoder+: {
-                pretrained_model_name_or_path: './pretrained_models/focusing/focusing_bert_large_uncased_wwm_5epoch',
+                pretrained_model_name_or_path: './pretrained_models/focusing/focusing_bert_large_uncased_wwm_5epoch_hf',
             },
             source_relation_types: {
                 use_schema_linking: true,
@@ -17,12 +17,12 @@
                 partial_entry_db_content_confidence: 'low'
             },
             tokenizer+: {
-                pretrained_model_name_or_path: './pretrained_models/focusing/focusing_bert_large_uncased_wwm_5epoch',
+                pretrained_model_name_or_path: './pretrained_models/focusing/focusing_bert_large_uncased_wwm_5epoch_hf',
                 cls_token: '</s>'
             },
             transition_system+: {
                 tokenizer+: {
-                    pretrained_model_name_or_path: './pretrained_models/focusing/focusing_bert_large_uncased_wwm_5epoch',
+                    pretrained_model_name_or_path: './pretrained_models/focusing/focusing_bert_large_uncased_wwm_5epoch_hf',
                     cls_token: '</s>'
                 }
             }
