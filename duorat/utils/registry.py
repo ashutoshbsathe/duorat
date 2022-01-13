@@ -57,7 +57,7 @@ def construct(kind, config, unused_keys=(), **kwargs):
 
 def instantiate(callable, config, unused_keys=(), **kwargs):
     merged = {**config, **kwargs}
-    signature = inspect.signature(callable)
+    signature = inspect.signature(callable.__init__)
     for name, param in signature.parameters.items():
         if param.kind in (
             inspect.Parameter.POSITIONAL_ONLY,
