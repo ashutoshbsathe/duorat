@@ -115,7 +115,9 @@ class ActionVocab(Vocab):
             unk_index = specials.index(ActionVocab.UNK)  # FIXME: position in list
             # account for ordering of specials, set variable
             self.unk_index = unk_index if specials_first else len(self.itos) + unk_index
-            self.stoi = defaultdict(self._default_unk_index)
+            # https://github.com/ZJULearning/ReDR/issues/3#issuecomment-548693535
+            default_unk_index = self._default_unk_index if hasattr(self, '_default_unk_index') else self.my_default_unk_index
+            self.stoi = defaultdict(default_unk_index)
         else:
             self.stoi = defaultdict()
 
@@ -130,6 +132,9 @@ class ActionVocab(Vocab):
             self.load_vectors(vectors, unk_init=unk_init, cache=vectors_cache)
         else:
             assert unk_init is None and vectors_cache is None
+
+    def my_default_unk_index(self):
+        return 0
 
     def __getitem__(self, token):
         return self.stoi.get(token, self.stoi.get(ActionVocab.UNK))

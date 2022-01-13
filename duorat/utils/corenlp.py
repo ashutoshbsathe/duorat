@@ -24,7 +24,7 @@
 import os
 import sys
 
-import corenlp
+from stanfordnlp.server import CoreNLPClient
 import requests
 
 
@@ -46,7 +46,7 @@ class CoreNLP:
                     os.environ["CORENLP_HOME"]
                 )
             )
-        self.client = corenlp.CoreNLPClient(endpoint=f"http://localhost:{os.environ['CORENLP_SERVER_PORT']}",
+        self.client = CoreNLPClient(endpoint=f"http://localhost:{os.environ['CORENLP_SERVER_PORT']}",
                                             timeout=60000,
                                             be_quiet=True,
                                             memory="16G",
@@ -61,18 +61,15 @@ class CoreNLP:
 
     def annotate(self, text, annotators=None, output_format=None, properties=None):
         try:
-            result = self.client.annotate(text, annotators, output_format, properties)
-        except (
-            corenlp.client.PermanentlyFailedException,
-            requests.exceptions.ConnectionError,
-        ) as e:
+            result = self.client.annotate(text, annotators=annotators, output_format=output_format, properties=properties)
+        except Exception as e:
             print(
                 "\nWARNING: CoreNLP connection timeout. Recreating the server...",
                 file=sys.stderr,
             )
             self.client.stop()
             self.client.start()
-            result = self.client.annotate(text, annotators, output_format, properties)
+            result = self.client.annotate(text, annotators=annotators, output_format=output_format, properties=properties)
 
         return result
 
