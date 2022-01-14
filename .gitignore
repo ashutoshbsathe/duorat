@@ -136,3 +136,5 @@ third_party/
 logdir-base/
 tmp/
 logdir/
+*.props
+expt_*/
