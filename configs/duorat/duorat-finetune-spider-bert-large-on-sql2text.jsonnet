@@ -92,7 +92,7 @@
         "eval_on_train": false,
         "eval_on_val": true,
         "infer_min_n": 100,
-        "max_steps": 20000,
+        "max_steps": 5000,
         "num_eval_items": 552,
         "report_every_n": 10,
         "initialize_from": '/home/ashutosh/HDD/IITB/Sem_1/MS_RnD/duyvuleo-duorat-vuh-dev/logdir/duorat-finetune-bert-large-only_spider/',
