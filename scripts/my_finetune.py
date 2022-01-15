@@ -368,6 +368,11 @@ class Trainer:
                                 )
                             )
                         best_val_all_exact = max(val_all_exact, best_val_all_exact)
+                        if best_val_all_exact >= 0.99:
+                            self.logger.log(
+                                f'Step {last_step}: best_val_all_exact = {best_val_all_exact} quitting due to overfitting'
+                            )
+                            exit(0)
 
                     # Reset the list of losses
                     losses = []
