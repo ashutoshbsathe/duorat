@@ -50,6 +50,7 @@ if __name__ == "__main__":
         raise ValueError("specify output destination in either Google or Michigan format")
 
     config_path = find_any_config(args.logdir) if args.config is None else args.config
+    print(config_path)
     api = DuoratAPI(args.logdir, config_path)
 
     pseudo_data_config = './abhijeet/train.libsonnet' 
@@ -66,6 +67,7 @@ if __name__ == "__main__":
 
     sql_schemas = {}
     for db_id in dataset.schemas:
+        print(db_id)
         spider_schema = dataset.schemas[db_id]
         sql_schemas[db_id] = preprocess_schema_uncached(
             schema=spider_schema,
@@ -77,8 +79,11 @@ if __name__ == "__main__":
         os.remove(args.output_spider)
 
     output_items = []
+    count = 0
     for item in tqdm.tqdm(dataset):
         db_id = item.spider_schema.db_id
+        print(spider_schema == item.spider_schema)
+        print(db_id)
         result = api.infer_query(
             item.question, item.spider_schema, sql_schemas[db_id])
         print("QUESTION:", item.question)
@@ -97,6 +102,9 @@ if __name__ == "__main__":
         if args.output_spider:
             with open(args.output_spider, 'at') as output:
                 print(result['query'], db_id, sep='\t', file=output)
+        count += 1
+        if count > 10:
+            exit(0)
     if args.output_google:
         with open(args.output_google, 'wt') as output:
             json.dump(output_items, output)

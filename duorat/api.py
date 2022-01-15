@@ -48,6 +48,7 @@ class ModelLoader:
     def load_model(self, logdir, step, allow_untrained=False, load_best=True):
         """Load a model (identified by the config used for construction) and return it"""
         # 1. Construct model
+        print(self.config['model'])
         model = registry.construct(
             "model", self.config["model"], preproc=self.model_preproc,
         )
@@ -60,6 +61,7 @@ class ModelLoader:
         last_step, best_validation_metric = saver.restore(
             logdir, step=step, map_location=self.device, load_best=load_best
         )
+        print(f'Loaded model with last_step={last_step} and best_validation_metric={best_validation_metric}')
         if not allow_untrained and not last_step:
             raise Exception("Attempting to infer on untrained model")
         return model
